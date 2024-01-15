@@ -182,6 +182,10 @@ class Tiles {
 				tiles: []
 			};
 
+			if(feature.layer !== 'water'){
+				continue;
+			}
+
 			// Get Name
 			if(chunks[4]){
 				feature.name = chunks[4];
@@ -193,6 +197,7 @@ class Tiles {
 			}
 
 			let existed = groups[feature.group].layers[feature.layer].features[feature.id];
+			console.log(feature.elmts)
 
 			if(!existed){
 
@@ -219,7 +224,16 @@ class Tiles {
 
 				*/
 
+				delete feature.done;
 				delete existed.bounds;
+
+
+				if(feature.elmts){
+					console.log('Remove Elements');
+					for(let el of feature.elmts){
+						el.remove();
+					}
+				}
 
 				if(!existed.tiles.includes(url)){
 					existed.tiles.push(url);

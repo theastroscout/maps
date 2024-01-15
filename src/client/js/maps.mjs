@@ -133,7 +133,8 @@ class Maps {
 		*/
 
 		this.states = {
-			ready: false
+			ready: false,
+			move: false
 		};
 
 		/*
@@ -239,7 +240,15 @@ class Maps {
 
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 
+				if(!this.states.move){
+					this.states.move = true;
+					this.update();
+				}
 
+				clearTimeout(this.container.tmo);
+				this.container.tmo = setTimeout(() => {
+					this.states.move = false;
+				}, 150);
 
 				break;
 			
@@ -285,13 +294,34 @@ class Maps {
 
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 
+				if(!this.states.move){
+					this.states.move = true;
+					this.update();
+				}
+
 				clearTimeout(this.container.tmo);
 				this.container.tmo = setTimeout(() => {
 					this.container.classList.remove('move');
+					this.states.move = false;
 				}, 150);
 
 				break;
 		}
+	}
+
+	/*
+
+	Update Tiles
+
+	*/
+
+	update = () => {
+		this.tiles.get();
+		if(!this.states.move){
+			return false;
+		}
+
+		requestAnimationFrame(this.update);
 	}
 
 	/*
