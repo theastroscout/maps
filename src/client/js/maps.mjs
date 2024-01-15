@@ -200,7 +200,8 @@ class Maps {
 			case 'mousedown':
 				this.startPoint = {
 					x: e.x,
-					y: e.y
+					y: e.y,
+					coords: [...this.options.coords]
 				};
 
 				this.container.classList.add('move');
@@ -211,6 +212,12 @@ class Maps {
 				break;
 			
 			case 'mousemove':
+
+				/*
+
+				Pan
+
+				*/
 				
 				var dx = (this.startPoint.x - e.x) / this.viewBox.scale;
 				var dy = (this.startPoint.y - e.y) / this.viewBox.scale;
@@ -219,15 +226,18 @@ class Maps {
 				dy = Math.round(this.viewBox.y + dy);
 
 				this.svg.setAttribute('viewBox', `${dx} ${dy} ${this.viewBox.w} ${this.viewBox.h}`);
+
+				let speedFactor = 400;
+				this.options.coords[0] = this.startPoint.coords[0] - (e.x - this.startPoint.x) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
+				this.options.coords[1] = this.startPoint.coords[1] + (e.y - this.startPoint.y) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
+
+				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
+
+
+
 				break;
 			
 			case 'mouseup':
-
-				/*
-
-				Pan
-
-				*/
 
 				this.container.classList.remove('move');
 				this.container.removeEventListener('mousemove', this.mouseHandler);
