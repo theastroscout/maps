@@ -1,0 +1,20 @@
+{
+	"pbf_input": "/storage/maps/extracts/canary.pbf",
+	"tmp_file": "/storage/maps/tmp/tmp.nodecache",
+	"geojson_folder": "/storage/maps/tmp/geojson",
+	"minzoom": 1,
+	"maxzoom": 17,
+	"layersOrder": [
+		"water",
+		"landuse",
+		"road",
+		"highway",
+		"railway",
+		"building",
+		"station",
+		"poi",
+		"ocean",
+		"country",
+		"city"
+	]
+}

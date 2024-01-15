@@ -1,0 +1,24 @@
+{
+	"name": "landuse",
+	"obj": {
+		"name": "landuse",
+		"type": "FeatureCollection",
+		"description": "Landuse",
+		"features": []
+	},
+
+	"filters": {
+		"area": {
+
+			"landuse": [
+				{
+					"group": "landuse",
+					"layer": "landuse",
+					"values": "any",
+					"properties": [ ],
+					"minzoom": 8
+				}
+			]
+		}
+	}
+}

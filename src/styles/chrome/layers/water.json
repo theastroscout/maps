@@ -1,0 +1,24 @@
+{
+	"name": "water",
+	"obj": {
+		"name": "water",
+		"type": "FeatureCollection",
+		"description": "Water, basin pool",
+		"features": []
+	},
+
+	"filters": {
+		"area": {
+
+			"natural": [
+				{
+					"group": "water",
+					"layer": "water",
+					"values": [ "water" ],
+					"properties": [ "name" ],
+					"minzoom": 10
+				}
+			]
+		}
+	}
+}

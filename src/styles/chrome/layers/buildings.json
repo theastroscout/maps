@@ -1,0 +1,32 @@
+{
+	"name": "buildings",
+	"obj": {
+		"name": "buildings",
+		"type": "FeatureCollection",
+		"description": "House numbers",
+		"features": []
+	},
+
+	"filters": {
+		"area": {
+
+			"building": [
+				{
+					"group": "buildings",
+					"layer": "stadiums",
+					"values": [ "stadium" ],
+					"properties": [ "name" ],
+					"minzoom": 13,
+					"centroid": true
+				},
+				{
+					"group": "buildings",
+					"layer": "buildings",
+					"values": "any",
+					"properties": [ "name", "building" ],
+					"minzoom": 12
+				}
+			]
+		}
+	}
+}
