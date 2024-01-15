@@ -32,7 +32,7 @@ class Maps {
 
 		let options = {
 			selector: '#map',
-			style: 'classic',
+			style: 'chrome',
 			coords: [-0.026704,51.505599], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
@@ -43,7 +43,6 @@ class Maps {
 		
 		this.options = {...options, ...customOptions};
 		this.center = this.utils.xyCenter(this.options.coords);
-		// this.getStyle();
 
 		/*
 
@@ -186,25 +185,6 @@ class Maps {
 
 	/*
 
-	Get Style
-
-	*/
-
-	getStyle = async style => {
-		this.style = await(await fetch(`data/styles/${style || this.options.style}.json`)).json();
-		this.styleMap = [];
-		for(let [groupName, group] of Object.entries(this.style['groups'])){
-			this.styleMap.push({
-				name: groupName,
-				layers: Object.keys(group.layers)
-			});
-		}
-
-		return true;
-	}
-
-	/*
-
 	Mouse Handler
 
 	*/
@@ -316,7 +296,16 @@ class Maps {
 
 		*/
 
-		this.style = await(await fetch(`data/styles/${style || this.options.style}.json`)).json();
+		const path = `/styles/${style || this.options.style}`;
+
+		let link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = path + '/style.scss';
+		document.head.appendChild(link);
+
+		this.style = await(await fetch(`${path}/config.json`)).json();
+		console.log(this.style)
 		this.styleMap = [];
 
 		/*

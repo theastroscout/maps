@@ -14,7 +14,6 @@ const geometryTypes = ['Point','LineString','MultiLineString','Polygon','MultiPo
 
 import Utils from './utils.mjs';
 import Draw from './draw.mjs';
-import './polygon-clipping.js';
 
 class Tiles {
 
@@ -229,11 +228,11 @@ class Tiles {
 				} else if(feature.type === 'LineString'){
 					existed.coords.push(feature.coords);
 				} else if(/Polygon/.test(feature.type)){
-					const union = polygonClipping.union(existed.coords, feature.coords);
+					// const union = polygonClipping.union(existed.coords, feature.coords);
 					// if(union.length == 1){
 						
 					// }
-					existed.coords = union;
+					// existed.coords = union;
 				}
 			}
 		}
