@@ -42,31 +42,6 @@ class Utils {
 
 	*/
 
-	xy2 = coords => {
-		const [centerX, centerY] = this.c2p(this.map.options.coords);
-		const [x, y] = this.c2p(coords);
-		const halfWidth = this.map.width / 2;
-		const halfHeight = this.map.height / 2;
-		return [x - centerX + halfWidth, y - centerY + halfHeight];
-	}
-
-	xy32 = coords => {
-		const [lng, lat] = coords;
-
-		let scale = 360 * this.map.settings.scaleFactor;
-
-		// X
-		const x =  scale * (lng + 180) / 360;
-
-		// Y
-		const sinLat = Math.sin(lat * (Math.PI / 180));
-		const y = scale * (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI));
-
-		return [Number(x.toFixed(8)),Number(y.toFixed(8))];
-
-		return [(coords[0] + 180) * this.map.settings.scaleFactor, Math.abs(coords[1] - 90) * this.map.settings.scaleFactor];
-	}
-
 	xyCenter = coords => {
 		const zoom = 15;//this.map.options.zoom;
 		const [lng, lat] = coords;
@@ -94,7 +69,6 @@ class Utils {
 
 		const [cLng, cLat] = this.map.center;
 
-
 		// let scale = 360 * this.map.settings.scaleFactor;
 		const scale = TILE_SIZE * Math.pow(2, zoom) * 10;
 		// let scale = this.map.settings.scaleFactor;
@@ -110,6 +84,46 @@ class Utils {
 			) - cLat;// - 1256938513// + 100000;
 
 		return [Number(x.toFixed(0)), Number(y.toFixed(0))];
+	}
+
+	/*
+
+	Get Coordinates From View Box
+
+	*/
+
+	viewBoxCenter = viewBox => {
+		viewBox = viewBox || this.map.viewBox;
+		const dx = viewBox.x + viewBox.w / 2;
+		const dy = viewBox.y + viewBox.h / 2;
+
+		const x = dx * viewBox.scale;
+		const y = dy * viewBox.scale;
+
+		const zoom = 15;
+
+		const [cLng, cLat] = this.map.center;
+
+		const scale = TILE_SIZE * Math.pow(2, zoom) * 10;
+
+		const lng = (x + cLng) * 360 / scale - 180;
+
+		const mercatorY = 0.5 - (y + cLat) / scale;
+		const lat = (2 * Math.atan(Math.exp(2 * Math.PI * mercatorY)) - Math.PI / 2) * 180 / Math.PI;
+
+		return [Number(lng.toFixed(6)), Number(lat.toFixed(6))];
+	}
+
+	/*
+
+	Get Zoom From Scale
+
+	*/
+
+	zoomFromScale = scale => {
+		const baseScale = 0.2;
+		const zoom = Math.log2(scale / baseScale) + 16;
+		return Number(zoom.toFixed(1));
 	}
 
 	/*

@@ -225,11 +225,17 @@ class Maps {
 				dx = Math.round(this.viewBox.x + dx);
 				dy = Math.round(this.viewBox.y + dy);
 
+				let viewBox = {
+					x: dx,
+					y: dy,
+					w: this.viewBox.w,
+					h: this.viewBox.h,
+					scale: this.viewBox.scale
+				};
+
 				this.svg.setAttribute('viewBox', `${dx} ${dy} ${this.viewBox.w} ${this.viewBox.h}`);
 
-				let speedFactor = 400;
-				this.options.coords[0] = this.startPoint.coords[0] - (e.x - this.startPoint.x) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
-				this.options.coords[1] = this.startPoint.coords[1] + (e.y - this.startPoint.y) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
+				this.options.coords = this.utils.viewBoxCenter(viewBox);
 
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 
@@ -273,8 +279,11 @@ class Maps {
 				this.viewBox.w = Math.round(this.viewBox.w - dw);
 				this.viewBox.h = Math.round(this.viewBox.h - dh);
 				this.viewBox.scale = this.svg.clientWidth / this.viewBox.w;
+				this.options.zoom = this.utils.zoomFromScale(this.viewBox.scale);
 
 				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
+
+				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 
 				clearTimeout(this.container.tmo);
 				this.container.tmo = setTimeout(() => {
