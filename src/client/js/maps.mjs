@@ -7,6 +7,7 @@ Maps
 import Tiles from './tiles.mjs';
 import Utils from './utils.mjs';
 import Draw from './draw.mjs';
+import Animate from './animate.mjs';
 
 const RE = 6378137; // Earth Radius
 const EPSILON = 1e-14;
@@ -21,6 +22,7 @@ class Maps {
 		this.utils = new Utils(this);
 		this.tiles = new Tiles(this);
 		this.draw = new Draw(this);
+		this.animate = new Animate(this);
 
 		/*
 
@@ -94,13 +96,13 @@ class Maps {
 
 		Zoom Animation
 
-		*/
+		
 
 		this.zoomAnimation = document.createElementNS("http://www.w3.org/2000/svg", 'animate');
 		this.zoomAnimation.setAttribute('attributeName', 'viewBox');
 		this.zoomAnimation.setAttribute('begin', 'indefinite');
 		this.zoomAnimation.setAttribute('repeatCount', '1');
-		this.zoomAnimation.setAttribute('fill', 'freeze');
+		// this.zoomAnimation.setAttribute('fill', 'freeze');
 		this.zoomAnimation.setAttribute('calcMode', 'spline');
 		this.zoomAnimation.setAttribute('keyTimes', '0; 0.25; 0.5; 0.75; 1');
 		this.zoomAnimation.setAttribute('keySplines','0.5 0 0.5 1; 0.5 0 0.5 1; 0.5 0 0.5 1; 0.5 0 0.5 1');
@@ -108,7 +110,10 @@ class Maps {
 		this.svg.appendChild(this.zoomAnimation);
 		this.zoomAnimation.addEventListener('endEvent', () => {				
 			this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
+			// this.zoomAnimation.setAttribute('fill', 'remove');
 		});
+		*/
+		
 		
 
 		/*
@@ -400,9 +405,19 @@ class Maps {
 			// this.svg.appendChild(`<animate attributeName="viewBox" to="${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}" dur="5s" fill="freeze" />`)
 			
 			// animateElement.setAttribute('keySplines', '0.165 0.84 0.44 1');
+			/*
 			this.zoomAnimation.setAttribute('from', this.svg.getAttribute('viewBox'));
 			this.zoomAnimation.setAttribute('to', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 			this.zoomAnimation.beginElement();
+			*/
+			
+			this.animate.go(
+				this.svg,
+				'viewBox',
+				this.svg.getAttribute('viewBox'),
+				`${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`,
+				1.5
+			);
 		} else {
 			this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 		}

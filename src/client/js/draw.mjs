@@ -53,36 +53,6 @@ class Draw {
 		}
 	}
 
-	line2 = (coords, style, layer) => {
-		return;
-		const svgNS = 'http://www.w3.org/2000/svg';
-
-		let target = this.map.svg;
-			target = this.map.groups.general;
-		if(layer === 'buildings'){
-			target = this.map.groups.buildings;
-		}
-
-		if(typeof coords[0][0] === 'number'){
-			coords = [coords];
-		}
-
-		for(let line of coords){
-			const polyline = document.createElementNS(svgNS, 'polyline');
-			let points = [];
-			points.push('M');
-			for(let i = 0, l=line.length; i < l; ++i) {
-				const p = this.utils.xy(line[i]);
-				points.push(p.join(','))
-			}
-			// points.push('z')
-
-			const path = document.createElementNS(svgNS, 'path');
-			path.setAttribute('d', points.join(' '));
-			target.appendChild(path);
-		}
-	}
-
 	/*
 
 	Multi Polygon
