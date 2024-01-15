@@ -15,7 +15,7 @@ const geometryTypes = ['Point','LineString','MultiLineString','Polygon','MultiPo
 import Utils from './utils.mjs';
 import Draw from './draw.mjs';
 
-import './polygon-clipping.js';
+import './utils/polygon-clipping.js';
 
 class Tiles {
 
