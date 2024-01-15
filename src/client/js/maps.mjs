@@ -14,8 +14,6 @@ const LL_EPSILON = 1e-11;
 const CE = 2 * Math.PI * RE; // Circumference of the Earth
 const TILE_SIZE = 512;
 
-
-
 class Maps {
 	
 	constructor(customOptions){

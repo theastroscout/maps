@@ -39,7 +39,8 @@ html {
 		background-color: #fdfdfd;
 		backface-visibility: hidden;
 		transform: translate3d(0,0,0);
-		shape-rendering: optimizeSpeed;
+		// shape-rendering: optimizeSpeed;
+		shape-rendering: geometricprecision;
 
 		user-select: none;
 	}
