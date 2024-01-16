@@ -1,0 +1,167 @@
+{
+	"name": "Surfy°Maps.Classic",
+	"tiles": "https://sandbox.maps.surfy.one/data/tiles/{z}/{x}/{y}",
+	"groups": {
+		"water": {
+			"layers": {
+				"water": {
+					"class": "water",
+					"features": {}
+				}
+			}
+		},
+		"green": {
+			"layers": {
+				"green": {
+					"class": "green",
+					"features": {}
+				}
+			}
+		},
+		"tunnels": {
+			"layers": {
+				"tunnels": {
+					"class": "tunnel",
+					"features": {}
+				}
+			}
+		},
+		"roads": {
+			"layers": {
+				"services": {
+					"class": "service",
+					"features": {}
+				},
+				"streets": {
+					"class": "street",
+					"features": {}
+				},
+				"primaries": {
+					"class": "highway",
+					"features": {}
+				},
+				"trunks": {
+					"class": "highway",
+					"features": {}
+				},
+				"motorways": {
+					"class": "highway",
+					"features": {}
+				}
+			}
+		},
+		"buildings": {
+			"layers": {
+				"buildings": {
+					"class": "building",
+					"features": {}
+				}
+			}
+		}
+	},
+	"classes": {
+
+		"tunnel": {
+			"lineWidth": [
+				[14, 2],
+				[20, 25],
+				[22, 300],
+			],
+			"fill": "#ffffff",
+			"opacity": 0.7
+		},
+
+		"service": {
+			"lineWidth": [
+				[14, 0],
+				[16, 4],
+				[19, 8],
+				[22, 120]
+			],
+			"fill": "#ffffff",
+			"border": {
+				"width": [
+					[14, 0],
+					[16, 6],
+					[19, 10],
+					[22, 124]
+				],
+				"color": "#cccccc"
+			}
+		},
+
+		"street": {
+			"lineWidth": [
+				[14, 0],
+				[16, 6],
+				[19, 12],
+				[22, 150]
+			],
+			"fill": "#ffffff",
+			"border": {
+				"width": [
+					[14, 0],
+					[16, 8],
+					[19, 14],
+					[22, 154]
+				],
+				"color": "#cccccc"
+			},
+			"text": {
+				"minzoom": 17,
+				"field": "name",
+				"size": 10,
+				"color": "#5b5b5b"
+			}
+		},
+
+		"highway": {
+			"lineWidth": [
+				[12, 0.3],
+				[19, 18],
+				[22, 250],
+			],
+			"fill": "#ffffff",
+			"border": {
+				"width": [
+					[12, 0.5],
+					[19, 20],
+					[22, 254]
+				],
+				"color": "#cccccc"
+			},
+			"text": {
+				"minzoom": 15,
+				"field": "name",
+				"size": 12,
+				"color": "#5b5b5b"
+			}
+		},
+
+		"building": {
+			"opacity": [
+				[14, 0],
+				[15, 1]
+			],
+			"fill": "#f7f7f7",
+			"border": {
+				"width": 1,
+				"color": "#e6e6e6"
+			},
+			"text": {
+				"minzoom": 18,
+				"field": "name",
+				"size": 12,
+				"color": "#5b5b5b"
+			}
+		},
+
+		"green": {
+			"fill": "#ededed"
+		},
+
+		"water": {
+			"fill": "#ecf0f0"
+		}
+	}
+}

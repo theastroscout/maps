@@ -1,7 +1,7 @@
 {
-	"pbf_input": "/storage/maps/extracts/canary.pbf",
+	"pbf_input": "/storage/maps/tiles/london/src.pbf",
 	"tmp_file": "/storage/maps/tmp/tmp.nodecache",
-	"geojson_folder": "/storage/maps/tmp/geojson",
+	"geojson_folder": "/storage/maps/tiles/london/geojson",
 	"minzoom": 1,
 	"maxzoom": 17,
 	"layersOrder": [

@@ -1,0 +1,6 @@
+#!/bin/bash
+# London -0.510375,51.28676,0.334015,51.691873
+osmium extract --bbox -0.510375,51.28676,0.334015,51.691873 \
+-o /storage/maps/tiles/london/src.pbf \
+/storage/maps/planet-latest.osm.pbf
+echo "Complete"

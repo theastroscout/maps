@@ -76,11 +76,11 @@ def parse_layer(geojson_file):
 			# print('Output:', mode, output_file)
 
 
-def create_tiles():
+def create_tiles(tiles_series):
 	global INIT
 	global tiles
 	# Remove Tiles to Recreate
-	shutil.rmtree('/storage/maps/tmp/tiles', ignore_errors=True)
+	shutil.rmtree(tiles_dir, ignore_errors=True)
 
 	folder_path = '/storage/maps/tmp/geojson'
 	for f in os.listdir(folder_path):
@@ -99,4 +99,4 @@ def create_tiles():
 	print('Complete')
 
 if __name__ == '__main__':
-	create_tiles()
+	create_tiles('/storage/maps/tmp/tiles')
