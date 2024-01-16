@@ -178,16 +178,33 @@ class Draw {
 					*/
 
 					if(feature.done){
-						if(feature.updated){
-							delete feature.updated;
-
-							if(feature.elmts){
+						
+						if(!feature.updated){
+							// console.log(feature.bounds)
+							const isVisible = this.utils.isVisible(feature.bounds);
+							if(isVisible && feature.hide){
+								delete feature.hide;
+								console.log('Hide')
 								for(let el of feature.elmts){
-									el.remove();
+									el.style.display = 'none';
+								}
+							} else if(!isVisible && !feature.hide){
+								feature.hide = true;
+								console.log('show')
+								for(let el of feature.elmts){
+									el.style.display = '';
 								}
 							}
-						} else {
 							continue;
+						}
+
+						delete feature.hide;
+						delete feature.updated;
+
+						if(feature.elmts){
+							for(let el of feature.elmts){
+								el.remove();
+							}
 						}
 					}
 

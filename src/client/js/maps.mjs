@@ -201,8 +201,7 @@ class Maps {
 			case 'mousedown':
 				this.startPoint = {
 					x: e.x,
-					y: e.y,
-					coords: [...this.options.coords]
+					y: e.y
 				};
 
 				this.container.classList.add('move');
@@ -226,19 +225,23 @@ class Maps {
 				dx = Math.round(this.viewBox.x + dx);
 				dy = Math.round(this.viewBox.y + dy);
 
-				let viewBox = {
-					x: dx,
-					y: dy,
-					w: this.viewBox.w,
-					h: this.viewBox.h,
-					scale: this.viewBox.scale
-				};
+				this.viewBox.x = dx;
+				this.viewBox.y = dy;
+					// w: this.viewBox.w,
+					// h: this.viewBox.h,
+					// scale: this.viewBox.scale
+				// };
 
-				this.svg.setAttribute('viewBox', `${dx} ${dy} ${this.viewBox.w} ${this.viewBox.h}`);
+				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 
-				this.options.coords = this.utils.viewBoxCenter(viewBox);
+				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
 
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
+
+				this.startPoint = {
+					x: e.x,
+					y: e.y
+				};
 
 				if(!this.states.move){
 					this.states.move = true;
@@ -258,10 +261,12 @@ class Maps {
 				this.container.removeEventListener('mousemove', this.mouseHandler);
 				this.container.removeEventListener('mouseup', this.mouseHandler);
 
+				/*
 				var dx = (this.startPoint.x - e.x) / this.viewBox.scale;
 				var dy = (this.startPoint.y - e.y) / this.viewBox.scale;
 				this.viewBox.x = Math.round(this.viewBox.x + dx);
 				this.viewBox.y = Math.round(this.viewBox.y + dy);
+				*/
 
 				console.log(this.viewBox)
 

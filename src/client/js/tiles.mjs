@@ -77,23 +77,19 @@ class Tiles {
 			this.storage.sorted[zoomID] = JSON.parse(JSON.stringify(this.map.style.groups));
 		}
 
-
-
 		const xTiles = this.tile([bbox[0], bbox[1]]);
 		const yTiles = this.tile([bbox[2] - LL_EPSILON, bbox[3] + LL_EPSILON])
 
 		let x = xTiles[0], xl = yTiles[0] - xTiles[0];
 
 		
-		this.await = (yTiles[0] - xTiles[0] + 1) * (yTiles[1] - xTiles[1] + 1);
+		// this.await = (yTiles[0] - xTiles[0] + 1) * (yTiles[1] - xTiles[1] + 1);
 
 		for(let x = xTiles[0] ; x <= yTiles[0]; x++){
 			for(let y = xTiles[1] ; y <= yTiles[1]; y++){
 				let url = `${zoomID}/${x}/${y}`;
 				if(typeof this.storage.tiles[zoomID][url] === 'undefined'){
 					await this.load(zoomID, url);
-				} else {
-					this.await--;
 				}
 			}
 		}
@@ -104,11 +100,7 @@ class Tiles {
 
 		*/
 
-		if(this.await === 0){
-			this.draw.render();
-		}
-
-		
+		this.draw.render();		
 
 		return true;
 	}
@@ -133,18 +125,6 @@ class Tiles {
 
 		if(result !== '0'){
 			this.parse(zoomID, url);
-		}
-
-		this.await--;
-
-		/*
-
-		Render Frame
-
-		*/
-
-		if(this.await === 0){
-			// this.draw.render();
 		}
 		
 	}
@@ -181,6 +161,10 @@ class Tiles {
 				coords: coords,
 				tiles: []
 			};
+
+			if(feature.layer !== 'water'){
+				// continue;
+			}
 
 			// Get Name
 			if(chunks[4]){

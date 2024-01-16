@@ -281,10 +281,32 @@ class Utils {
 
 	*/
 
+	isVisible2 = bounds => {
+		const [minX, minY, maxX, maxY] = bounds;
+		const [canvasMinX, canvasMinY, canvasMaxX, canvasMaxY] = [this.map.viewBox.x, this.map.viewBox.y, this.map.viewBox.x + this.map.viewBox.w, this.map.viewBox.y + this.map.viewBox.h];
+		return !(maxX < canvasMinX && minX > canvasMaxX && maxY < canvasMinY && minY > canvasMaxY); 
+	}
+
+	isVisible3 = bounds => {
+		const [minX, minY, maxX, maxY] = bounds;
+		const [canvasMinX, canvasMinY, canvasMaxX, canvasMaxY] = [this.map.viewBox.x, this.map.viewBox.y, this.map.viewBox.x + this.map.viewBox.w, this.map.viewBox.y + this.map.viewBox.h];
+
+		let polygonLeftVisible = minX >= canvasMinX && minX <= canvasMaxX;
+		let polygonRightVisible = maxX >= canvasMinX && maxX <= canvasMaxX;
+		let polygonTopVisible = minY >= canvasMinY && minY <= canvasMaxY;
+		let polygonBottomVisible = maxY >= canvasMinY && maxY <= canvasMaxY;
+		return polygonLeftVisible || polygonRightVisible || polygonTopVisible || polygonBottomVisible;
+	}
+
 	isVisible = bounds => {
 		const [minX, minY, maxX, maxY] = bounds;
-		const [canvasMinX, canvasMinY, canvasMaxX, canvasMaxY] = this.map.viewBox.bounds;
-		return !(maxX < canvasMinX && minX > canvasMaxX && maxY < canvasMinY && minY > canvasMaxY); 
+		const [canvasMinX, canvasMinY, canvasMaxX, canvasMaxY] = [this.map.viewBox.x, this.map.viewBox.y, this.map.viewBox.x + this.map.viewBox.w, this.map.viewBox.y + this.map.viewBox.h];
+
+		let rectLeftVisible = minX >= canvasMinX && minX <= canvasMaxX;
+		let rectRightVisible = maxX >= canvasMinX && maxX <= canvasMaxX;
+		let rectTopVisible = minY >= canvasMinY && minY <= canvasMaxY;
+		let rectBottomVisible = maxY >= canvasMinY && maxY <= canvasMaxY;
+		 return rectLeftVisible || rectRightVisible || rectTopVisible || rectBottomVisible;
 	}
 }
 
