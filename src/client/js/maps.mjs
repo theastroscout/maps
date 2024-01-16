@@ -77,44 +77,8 @@ class Maps {
 
 		this.width = this.svg.clientWidth;
 		this.height = this.svg.clientHeight;
-		this.position = {
-			x: 0,
-			y: 0
-		};
 
-		this.viewBox = {
-			// x: this.svg.clientWidth / -2,
-			// y: this.svg.clientHeight / -2,
-			// w: this.svg.clientWidth,
-			// h: this.svg.clientHeight,
-			// bounds: []
-		};
-
-		// this.svg.setAttribute('viewBox', Object.values(this.viewBox).join(' '));
-
-		/*
-
-		Zoom Animation
-
-		
-
-		this.zoomAnimation = document.createElementNS("http://www.w3.org/2000/svg", 'animate');
-		this.zoomAnimation.setAttribute('attributeName', 'viewBox');
-		this.zoomAnimation.setAttribute('begin', 'indefinite');
-		this.zoomAnimation.setAttribute('repeatCount', '1');
-		// this.zoomAnimation.setAttribute('fill', 'freeze');
-		this.zoomAnimation.setAttribute('calcMode', 'spline');
-		this.zoomAnimation.setAttribute('keyTimes', '0; 0.25; 0.5; 0.75; 1');
-		this.zoomAnimation.setAttribute('keySplines','0.5 0 0.5 1; 0.5 0 0.5 1; 0.5 0 0.5 1; 0.5 0 0.5 1');
-		this.zoomAnimation.setAttribute('dur', '1.5s');
-		this.svg.appendChild(this.zoomAnimation);
-		this.zoomAnimation.addEventListener('endEvent', () => {				
-			this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
-			// this.zoomAnimation.setAttribute('fill', 'remove');
-		});
-		*/
-		
-		
+		this.viewBox = {};		
 
 		/*
 
@@ -222,15 +186,8 @@ class Maps {
 				var dx = (this.startPoint.x - e.x) / this.viewBox.scale;
 				var dy = (this.startPoint.y - e.y) / this.viewBox.scale;
 				
-				dx = Math.round(this.viewBox.x + dx);
-				dy = Math.round(this.viewBox.y + dy);
-
-				this.viewBox.x = dx;
-				this.viewBox.y = dy;
-					// w: this.viewBox.w,
-					// h: this.viewBox.h,
-					// scale: this.viewBox.scale
-				// };
+				this.viewBox.x = Math.round(this.viewBox.x + dx);
+				this.viewBox.y = Math.round(this.viewBox.y + dy);
 
 				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 
@@ -243,32 +200,24 @@ class Maps {
 					y: e.y
 				};
 
-				if(!this.states.move){
-					this.states.move = true;
-					this.update();
-				}
-
 				clearTimeout(this.container.tmo);
 				this.container.tmo = setTimeout(() => {
-					this.states.move = false;
-				}, 150);
+					this.update();
+				}, 50);
 
 				break;
 			
 			case 'mouseup':
 
+				/*
+
+				End of Movement
+
+				*/
+
 				this.container.classList.remove('move');
 				this.container.removeEventListener('mousemove', this.mouseHandler);
 				this.container.removeEventListener('mouseup', this.mouseHandler);
-
-				/*
-				var dx = (this.startPoint.x - e.x) / this.viewBox.scale;
-				var dy = (this.startPoint.y - e.y) / this.viewBox.scale;
-				this.viewBox.x = Math.round(this.viewBox.x + dx);
-				this.viewBox.y = Math.round(this.viewBox.y + dy);
-				*/
-
-				console.log(this.viewBox)
 
 				break;
 
@@ -297,17 +246,13 @@ class Maps {
 
 				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 
+				// Debug Update
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
-
-				if(!this.states.move){
-					this.states.move = true;
-					this.update();
-				}
 
 				clearTimeout(this.container.tmo);
 				this.container.tmo = setTimeout(() => {
 					this.container.classList.remove('move');
-					this.states.move = false;
+					this.update();
 				}, 150);
 
 				break;
@@ -321,7 +266,9 @@ class Maps {
 	*/
 
 	update = async () => {
+		
 		await this.tiles.get();
+
 		if(!this.states.move){
 			return false;
 		}

@@ -184,15 +184,15 @@ class Draw {
 							const isVisible = this.utils.isVisible(feature.bounds);
 							if(isVisible && feature.hide){
 								delete feature.hide;
-								console.log('Hide')
+								// console.log('Hide')
 								for(let el of feature.elmts){
-									el.style.display = 'none';
+									el.style.display = '';
 								}
 							} else if(!isVisible && !feature.hide){
 								feature.hide = true;
-								console.log('show')
+								// console.log('show')
 								for(let el of feature.elmts){
-									el.style.display = '';
+									el.style.display = 'none';
 								}
 							}
 							continue;
