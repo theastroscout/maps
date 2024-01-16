@@ -91,7 +91,7 @@ class Tiles {
 			for(let y = xTiles[1] ; y <= yTiles[1]; y++){
 				let url = `${zoomID}/${x}/${y}`;
 				if(typeof this.storage.tiles[zoomID][url] === 'undefined'){
-					this.load(zoomID, url);
+					await this.load(zoomID, url);
 				} else {
 					this.await--;
 				}
@@ -144,7 +144,7 @@ class Tiles {
 		*/
 
 		if(this.await === 0){
-			this.draw.render();
+			// this.draw.render();
 		}
 		
 	}
@@ -182,10 +182,6 @@ class Tiles {
 				tiles: []
 			};
 
-			if(feature.layer !== 'water'){
-				continue;
-			}
-
 			// Get Name
 			if(chunks[4]){
 				feature.name = chunks[4];
@@ -197,7 +193,6 @@ class Tiles {
 			}
 
 			let existed = groups[feature.group].layers[feature.layer].features[feature.id];
-			console.log(feature.elmts)
 
 			if(!existed){
 
@@ -224,16 +219,7 @@ class Tiles {
 
 				*/
 
-				delete feature.done;
-				delete existed.bounds;
-
-
-				if(feature.elmts){
-					console.log('Remove Elements');
-					for(let el of feature.elmts){
-						el.remove();
-					}
-				}
+				existed.updated = true;
 
 				if(!existed.tiles.includes(url)){
 					existed.tiles.push(url);

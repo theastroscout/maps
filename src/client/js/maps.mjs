@@ -315,8 +315,8 @@ class Maps {
 
 	*/
 
-	update = () => {
-		this.tiles.get();
+	update = async () => {
+		await this.tiles.get();
 		if(!this.states.move){
 			return false;
 		}

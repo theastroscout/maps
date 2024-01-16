@@ -25,6 +25,12 @@ class Draw {
 			coords = [coords];
 		}
 
+		let elmts = [];
+		let minX = Infinity;
+		let minY = Infinity;
+		let maxX = -Infinity;
+		let maxY = -Infinity;
+
 		let points = [];
 		for(let line of coords){
 			points.push('M');
@@ -34,6 +40,17 @@ class Draw {
 					points.push('L')
 				}
 				points.push(p.join(','))
+
+				/*
+
+				Bounds
+
+				*/
+
+				minX = Math.min(minX, p[0]);
+				minY = Math.min(minY, p[1]);
+				maxX = Math.max(maxX, p[0]);
+				maxY = Math.max(maxY, p[1]);
 			}
 			// points.push('z');
 		}
@@ -42,6 +59,7 @@ class Draw {
 		path.setAttribute('d', points.join(' '));
 		path.setAttribute('id', 'road'+id);
 		target.appendChild(path);
+		elmts.push(path);
 
 		if(name){
 			const text = document.createElementNS(svgNS, 'text');
@@ -50,7 +68,14 @@ class Draw {
 			textPath.setAttribute('href', '#road'+id);
 			text.appendChild(textPath);
 			this.map.groups.texts.appendChild(text);
+
+			elmts.push(text);
 		}
+
+		return {
+			elmts: 	elmts,
+			bounds: [minX, minY, maxX, maxY]
+		};
 	}
 
 	/*
@@ -64,7 +89,7 @@ class Draw {
 		
 		const svgNS = 'http://www.w3.org/2000/svg';
 
-		let paths = [];
+		let elmts = [];
 		let minX = Infinity;
 		let minY = Infinity;
 		let maxX = -Infinity;
@@ -82,6 +107,12 @@ class Draw {
 					}
 					points.push(p.join(','));
 
+					/*
+
+					Bounds
+
+					*/
+
 					minX = Math.min(minX, p[0]);
 					minY = Math.min(minY, p[1]);
 					maxX = Math.max(maxX, p[0]);
@@ -95,11 +126,11 @@ class Draw {
 			const path = document.createElementNS(svgNS, 'path');
 			path.setAttribute('d', points.join(' '));
 			target.appendChild(path);
-			paths.push(path);
+			elmts.push(path);
 		}
 
 		return {
-			elmts: 	paths,
+			elmts: 	elmts,
 			bounds: [minX, minY, maxX, maxY]
 		};
 	}
@@ -140,8 +171,24 @@ class Draw {
 				for(let fID in layer.features){
 					let feature = layer.features[fID];
 					
+					/*
+
+					If element drew check if it's updated or not
+
+					*/
+
 					if(feature.done){
-						continue;
+						if(feature.updated){
+							delete feature.updated;
+
+							if(feature.elmts){
+								for(let el of feature.elmts){
+									el.remove();
+								}
+							}
+						} else {
+							continue;
+						}
 					}
 
 					feature.done = true;
@@ -152,10 +199,13 @@ class Draw {
 
 					*/
 
+					let result;
 					switch(feature.type){
 						case 'MultiLineString':
 							let name = lID === 'trunks' ? feature.name : false;
-							this.line(fID, feature.coords, name, layerTarget);
+							result = this.line(fID, feature.coords, name, layerTarget);
+							feature.elmts = result.elmts;
+							feature.bounds = result.bounds;
 
 							break;
 
@@ -165,7 +215,7 @@ class Draw {
 
 						case 'MultiPolygon':
 							
-							let result = this.polygon(feature.coords, layerTarget);
+							result = this.polygon(feature.coords, layerTarget);
 							feature.elmts = result.elmts;
 							feature.bounds = result.bounds;
 
