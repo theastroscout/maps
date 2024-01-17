@@ -35,28 +35,31 @@ class Tiles {
 
 	*/
 
-	tile = (zoomID, coords) => {
-		let [x,y] = this.utils._xy(coords);
+	tile = (zoom, coords) => {
+		const [x, y] = this.utils._xy(coords);
+		const Z2 = Math.pow(2, zoom);
 
-		const Z2 = Math.pow(2, zoomID);
+		let xtile;
 
-		if (x <= 0) {
-			x = 0;
-		} else if (x >= 1) {
-			x = parseInt(Z2 - 1);
+		if(x <= 0){
+			xtile = 0
+		} else if(x >= 1){
+			xtile = parseInt(Z2 - 1, 10);
 		} else {
-			x = parseInt(Math.floor((x + EPSILON) * Z2));
+			xtile = parseInt(Math.floor((x + EPSILON) * Z2), 10);
 		}
 
-		if (y <= 0) {
-			y = 0;
-		} else if (y >= 1) {
-			y = parseInt(Z2 - 1);
+		let ytile;
+
+		if(y <= 0){
+			ytile = 0;
+		} else if(y >= 1){
+			ytile = parseInt(Z2 - 1, 10);
 		} else {
-			y = parseInt(Math.floor((y + EPSILON) * Z2));
+			ytile = parseInt(Math.floor((y + EPSILON) * Z2), 10);
 		}
 
-		return [x,y];
+		return [xtile, ytile]
 	}
 
 	/*

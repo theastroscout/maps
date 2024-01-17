@@ -30,10 +30,12 @@ class Utils {
 
 	_xy = coords => {
 		const [lng, lat] = coords;
-		const x = lng / 360.0 + 0.5;
-		const sinlat = Math.sin(lat * Math.PI / 180);
+    	const x = lng / 360.0 + 0.5;
+    	const sinlat = Math.sin(lat * ( Math.PI / 180 ));
+
 		const y = 0.5 - 0.25 * Math.log((1.0 + sinlat) / (1.0 - sinlat)) / Math.PI;
-		return [x,y];
+
+		return [x, y];
 	}
 
 	/*

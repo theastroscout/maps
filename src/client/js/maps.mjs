@@ -204,7 +204,7 @@ class Maps {
 				this.options.coords[0] -= (e.x - this.startPoint.x) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
 				this.options.coords[1] += (e.y - this.startPoint.y) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
 
-				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
+				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`; 
 
 				this.startPoint = {
 					x: e.x,
