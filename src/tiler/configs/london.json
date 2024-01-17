@@ -5,5 +5,33 @@
 	"data": "/storage/maps/tiles/london/data",
 	"minzoom": 2,
 	"maxzoom": 14,
-	"layersList": [ "roads", "buildings", "greens", "water", "railways", "landuse" ]
+	"layers": [ "roads", "buildings", "greens", "water", "railways", "landuse" ],
+	"groups": {
+		"water": [
+				"water"			
+		],
+		"landuse": [
+			"landuse"
+		],
+		"green": [
+			"green"
+		],
+		"tunnels": [
+			"tunnels"
+		],
+		"roads": [
+			"bridges",
+			"services",
+			"streets",
+			"primaries",
+			"trunks",
+			"motorways"
+		],
+		"railways": [
+			"railways"
+		],
+		"buildings": [
+			"buildings"
+		]
+	}
 }

@@ -5,7 +5,7 @@ import json
 from utils.osm import OSM_handler
 from tiles import create_tiles
 
-CONFIG_NAME = 'canary'
+CONFIG_NAME = 'london'
 CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 print(CONFIG)
 
