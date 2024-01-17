@@ -36,7 +36,7 @@ class Maps {
 			coords: [-0.026704,51.505599], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 16
+			zoom: 14
 		};
 
 		
@@ -198,7 +198,11 @@ class Maps {
 
 				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 
-				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
+				// this.options.coords = this.utils.viewBoxCenter(this.viewBox);
+
+				let speedFactor = 400;
+				this.options.coords[0] -= (e.x - this.startPoint.x) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
+				this.options.coords[1] += (e.y - this.startPoint.y) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
 
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 

@@ -35,10 +35,10 @@ class Tiles {
 
 	*/
 
-	tile = coords => {
+	tile = (zoomID, coords) => {
 		let [x,y] = this.utils._xy(coords);
 
-		const Z2 = Math.pow(2, this.map.zoomID);
+		const Z2 = Math.pow(2, zoomID);
 
 		if (x <= 0) {
 			x = 0;
@@ -69,7 +69,9 @@ class Tiles {
 		this.start = new Date();
 
 		let bbox = this.utils.canvasBBox();
+		
 		let zoomID = this.map.zoomID;
+			zoomID = 14;
 
 		if(!this.storage.tiles[zoomID]){
 			this.storage.tiles[zoomID] = {};
@@ -77,8 +79,9 @@ class Tiles {
 			this.storage.sorted[zoomID] = JSON.parse(JSON.stringify(this.map.style.groups));
 		}
 
-		const xTiles = this.tile([bbox[0], bbox[1]]);
-		const yTiles = this.tile([bbox[2] - LL_EPSILON, bbox[3] + LL_EPSILON])
+		const xTiles = this.tile(zoomID, [bbox[0], bbox[1]]);
+		const yTiles = this.tile(zoomID, [bbox[2] - LL_EPSILON, bbox[3] + LL_EPSILON])
+		console.log(xTiles, yTiles);
 
 		// this.await = (yTiles[0] - xTiles[0] + 1) * (yTiles[1] - xTiles[1] + 1);
 
@@ -86,10 +89,13 @@ class Tiles {
 			for(let y = xTiles[1] ; y <= yTiles[1]; y++){
 				let url = `${zoomID}/${x}/${y}`;
 				if(typeof this.storage.tiles[zoomID][url] === 'undefined'){
+					//console.log('Render', url);
 					// await this.load(zoomID, url);
 					let bounds = this.getBounds([zoomID,x,y]);
 					this.draw.rect(bounds, [zoomID,x,y].join('/'));
 					this.storage.tiles[zoomID][url] = 1;
+				} else {
+					// console.log('Skip', url);
 				}
 			}
 		}

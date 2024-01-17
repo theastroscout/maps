@@ -273,7 +273,6 @@ class Draw {
 
 		this.map.svg.appendChild(rect);
 
-		console.log(name)
 		if(name){
 			const text = document.createElementNS(svgNS,'text');
 			text.setAttribute('x', x+300);
