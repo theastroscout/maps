@@ -86,7 +86,10 @@ class Tiles {
 			for(let y = xTiles[1] ; y <= yTiles[1]; y++){
 				let url = `${zoomID}/${x}/${y}`;
 				if(typeof this.storage.tiles[zoomID][url] === 'undefined'){
-					await this.load(zoomID, url);
+					// await this.load(zoomID, url);
+					let bounds = this.getBounds([zoomID,x,y]);
+					this.draw.rect(bounds, [zoomID,x,y].join('/'));
+					this.storage.tiles[zoomID][url] = 1;
 				}
 			}
 		}
@@ -216,6 +219,28 @@ class Tiles {
 				}
 			}
 		}
+	}
+
+	/*
+
+	Get Bounds
+
+	*/
+
+	getBounds = tile => {
+		const [zoom, xtile, ytile] = tile;
+
+		const Z2 = Math.pow(2, zoom);
+
+		const ul_lon_deg = (xtile / Z2) * 360.0 - 180.0;
+		const ul_lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * ytile) / Z2)));
+		const ul_lat_deg = (180 / Math.PI) * ul_lat_rad;
+
+		const lr_lon_deg = ((xtile + 1) / Z2) * 360.0 - 180.0;
+		const lr_lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * (ytile + 1)) / Z2)));
+		const lr_lat_deg = (180 / Math.PI) * lr_lat_rad;
+
+		return [ul_lon_deg, lr_lat_deg, lr_lon_deg, ul_lat_deg];
 	}
 }
 

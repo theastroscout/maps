@@ -1,6 +1,6 @@
 {
 	"name": "Surfy°Maps.Chrome",
-	"tiles": "https://sandbox.maps.surfy.one/data/tiles/canary",
+	"tiles": "https://sandbox.maps.surfy.one/data/tiles/london",
 	"background": "#fdfdfd",
 	"groups": {
 		"water": {

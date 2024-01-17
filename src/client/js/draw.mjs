@@ -251,6 +251,39 @@ class Draw {
 
 		console.log('Render time', new Date() - this.start);
 	}
+
+	/*
+
+	Draw Rectangle
+
+	*/
+
+	rect = (bounds, name) => {
+		const svgNS = 'http://www.w3.org/2000/svg';
+		const [x,y] = this.utils.xy([bounds[0],bounds[1]]);
+		const rect = document.createElementNS(svgNS, 'rect');
+		rect.setAttribute('x', x);
+		rect.setAttribute('y', y);
+		rect.setAttribute('width', '10000');
+		rect.setAttribute('height', '10000');
+		rect.setAttribute('stroke', 'black');
+		rect.setAttribute('strokeWidth', '10px');
+		rect.setAttribute('vector-effect', 'non-scaling-stroke');
+		rect.setAttribute('fill', 'none');
+
+		this.map.svg.appendChild(rect);
+
+		console.log(name)
+		if(name){
+			const text = document.createElementNS(svgNS,'text');
+			text.setAttribute('x', x+300);
+			text.setAttribute('y', y+300);
+			text.setAttribute('font-size', '300');
+			text.setAttribute('fill', 'black');
+			text.textContent = name;
+			this.map.svg.append(text);
+		}
+	}
 }
 
 export default Draw;
