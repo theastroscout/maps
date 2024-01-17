@@ -42,7 +42,6 @@ class Maps {
 		
 		
 		this.options = {...options, ...customOptions};
-		this.center = this.utils.xyCenter(this.options.coords);
 
 		/*
 
@@ -78,7 +77,15 @@ class Maps {
 		this.width = this.svg.clientWidth;
 		this.height = this.svg.clientHeight;
 
-		this.viewBox = {};		
+		/*
+
+		View Box
+
+		*/
+
+		this.viewBox = {
+			center: this.utils.xyCenter(this.options.coords)
+		};
 
 		/*
 
@@ -170,8 +177,8 @@ class Maps {
 
 				this.container.classList.add('move');
 
-				this.container.addEventListener('mousemove', this.mouseHandler);
-				this.container.addEventListener('mouseup', this.mouseHandler);
+				document.addEventListener('mousemove', this.mouseHandler);
+				document.addEventListener('mouseup', this.mouseHandler);
 
 				break;
 			
@@ -216,8 +223,8 @@ class Maps {
 				*/
 
 				this.container.classList.remove('move');
-				this.container.removeEventListener('mousemove', this.mouseHandler);
-				this.container.removeEventListener('mouseup', this.mouseHandler);
+				document.removeEventListener('mousemove', this.mouseHandler);
+				document.removeEventListener('mouseup', this.mouseHandler);
 
 				break;
 
@@ -252,6 +259,7 @@ class Maps {
 				clearTimeout(this.container.tmo);
 				this.container.tmo = setTimeout(() => {
 					this.container.classList.remove('move');
+					this.getZoomID();
 					this.update();
 				}, 150);
 

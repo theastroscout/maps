@@ -80,9 +80,6 @@ class Tiles {
 		const xTiles = this.tile([bbox[0], bbox[1]]);
 		const yTiles = this.tile([bbox[2] - LL_EPSILON, bbox[3] + LL_EPSILON])
 
-		let x = xTiles[0], xl = yTiles[0] - xTiles[0];
-
-		
 		// this.await = (yTiles[0] - xTiles[0] + 1) * (yTiles[1] - xTiles[1] + 1);
 
 		for(let x = xTiles[0] ; x <= yTiles[0]; x++){

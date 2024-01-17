@@ -7,6 +7,7 @@ Draw
 import Utils from './utils.mjs';
 
 class Draw {
+
 	constructor(map){
 		this.map = map;
 		this.utils = new Utils(map);
@@ -15,6 +16,7 @@ class Draw {
 	/*
 
 	Line
+	@Return [Created Elements, Bounding Box]
 
 	*/
 
@@ -52,7 +54,6 @@ class Draw {
 				maxX = Math.max(maxX, p[0]);
 				maxY = Math.max(maxY, p[1]);
 			}
-			// points.push('z');
 		}
 
 		const path = document.createElementNS(svgNS, 'path');
@@ -81,7 +82,7 @@ class Draw {
 	/*
 
 	Multi Polygon
-	@Return Bounding Box
+	@Return [Created Elements, Bounding Box]
 
 	*/
 
@@ -180,8 +181,10 @@ class Draw {
 					if(feature.done){
 						
 						if(!feature.updated){
-							// console.log(feature.bounds)
+							
 							const isVisible = this.utils.isVisible(feature.bounds);
+
+							// If is visible and hide
 							if(isVisible && feature.hide){
 								delete feature.hide;
 								// console.log('Hide')
@@ -189,18 +192,21 @@ class Draw {
 									el.style.display = '';
 								}
 							} else if(!isVisible && !feature.hide){
+								// If is not visible and not hide
 								feature.hide = true;
-								// console.log('show')
 								for(let el of feature.elmts){
 									el.style.display = 'none';
 								}
 							}
+
+							// Skip Redraw
 							continue;
 						}
 
 						delete feature.hide;
 						delete feature.updated;
 
+						// Remove Elements to Redraw
 						if(feature.elmts){
 							for(let el of feature.elmts){
 								el.remove();
@@ -218,6 +224,7 @@ class Draw {
 
 					let result;
 					switch(feature.type){
+						
 						case 'MultiLineString':
 							let name = lID === 'trunks' ? feature.name : false;
 							result = this.line(fID, feature.coords, name, layerTarget);

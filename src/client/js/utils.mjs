@@ -67,7 +67,7 @@ class Utils {
 		const zoom = 15;//this.map.options.zoom;
 		const [lng, lat] = coords;
 
-		const [cLng, cLat] = this.map.center;
+		const [cLng, cLat] = this.map.viewBox.center;
 
 		// let scale = 360 * this.map.settings.scaleFactor;
 		const scale = TILE_SIZE * Math.pow(2, zoom) * 10;
@@ -102,7 +102,7 @@ class Utils {
 
 		const zoom = 15;
 
-		const [cLng, cLat] = this.map.center;
+		const [cLng, cLat] = viewBox.center;
 
 		const scale = TILE_SIZE * Math.pow(2, zoom) * 10;
 
