@@ -317,7 +317,7 @@ class Maps {
 		document.head.appendChild(link);
 
 		this.style = await(await fetch(`${path}/config.json`)).json();
-		console.log(this.style)
+		console.log('Map Style', this.style)
 		this.styleMap = [];
 
 		/*

@@ -1,6 +1,6 @@
 {
 	"name": "Surfy°Maps.Chrome",
-	"tiles": "https://sandbox.maps.surfy.one/data/tiles/{z}/{x}/{y}",
+	"tiles": "https://sandbox.maps.surfy.one/data/tiles/canary",
 	"background": "#fdfdfd",
 	"groups": {
 		"water": {

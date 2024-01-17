@@ -111,7 +111,7 @@ class Tiles {
 	load = async (zoomID, url) => {
 		let result;
 		try {
-			let rUrl = `/data/tiles/${url}`;
+			let rUrl = `${this.map.style.tiles}/${url}`;
 			result = await(await fetch(rUrl)).text();
 		} catch(e){
 			// Continue Regardless Error
