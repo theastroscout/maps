@@ -283,6 +283,22 @@ class Draw {
 			this.map.svg.append(text);
 		}
 	}
+
+	/*
+
+	Draw Circle
+
+	*/
+
+	circle = coords => {
+		const [x, y] = this.utils.xy(coords);
+		const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+		circle.setAttribute("cx", x);
+		circle.setAttribute("cy", y);
+		circle.setAttribute("r", "100");
+		circle.setAttribute("fill", "red");
+		this.map.svg.appendChild(circle);
+	}
 }
 
 export default Draw;

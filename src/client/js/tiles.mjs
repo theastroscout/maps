@@ -5,8 +5,10 @@ Tiles
 */
 
 const RE = 6378137; // Earth Radius
-const EPSILON = 1e-14;
-const LL_EPSILON = 1e-11;
+// const EPSILON = 1e-14;
+const EPSILON = 0;
+// const LL_EPSILON = 1e-11;
+const LL_EPSILON = 1e-5;
 const CE = 2 * Math.PI * RE; // Circumference of the Earth
 const TILE_SIZE = 512;
 
@@ -35,7 +37,7 @@ class Tiles {
 
 	*/
 
-	tile = (zoom, coords) => {
+	tile = (zoom, coords, max) => {
 		const [x, y] = this.utils._xy(coords);
 		const Z2 = Math.pow(2, zoom);
 
@@ -45,8 +47,11 @@ class Tiles {
 			xtile = 0
 		} else if(x >= 1){
 			xtile = parseInt(Z2 - 1, 10);
+		} else if(max){
+			xtile = parseInt(Math.ceil((x + EPSILON) * Z2), 10);
 		} else {
-			xtile = parseInt(Math.floor((x + EPSILON) * Z2), 10);
+			xtile = parseInt(Math.floor((x - EPSILON) * Z2), 10);
+			console.log(xtile)
 		}
 
 		let ytile;
@@ -55,8 +60,10 @@ class Tiles {
 			ytile = 0;
 		} else if(y >= 1){
 			ytile = parseInt(Z2 - 1, 10);
+		} else if(max){
+			ytile = parseInt(Math.ceil((y + EPSILON) * Z2), 10);
 		} else {
-			ytile = parseInt(Math.floor((y + EPSILON) * Z2), 10);
+			ytile = parseInt(Math.floor((y - EPSILON) * Z2), 10);
 		}
 
 		return [xtile, ytile]
@@ -83,13 +90,14 @@ class Tiles {
 		}
 
 		const xTiles = this.tile(zoomID, [bbox[0], bbox[1]]);
-		const yTiles = this.tile(zoomID, [bbox[2] - LL_EPSILON, bbox[3] + LL_EPSILON])
-		console.log(xTiles, yTiles);
+		// const yTiles = this.tile(zoomID, [bbox[2] - LL_EPSILON, bbox[3] + LL_EPSILON], true)
+		const yTiles = this.tile(zoomID, [bbox[2], bbox[3]], true);
+		// console.log(xTiles, yTiles);
 
 		// this.await = (yTiles[0] - xTiles[0] + 1) * (yTiles[1] - xTiles[1] + 1);
 
-		for(let x = xTiles[0] ; x <= yTiles[0]; x++){
-			for(let y = xTiles[1] ; y <= yTiles[1]; y++){
+		for(let x = xTiles[0] -1; x <= yTiles[0]; x++){
+			for(let y = xTiles[1] - 1; y <= yTiles[1]; y++){
 				let url = `${zoomID}/${x}/${y}`;
 				if(typeof this.storage.tiles[zoomID][url] === 'undefined'){
 					//console.log('Render', url);

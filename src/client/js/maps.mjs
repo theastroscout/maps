@@ -138,6 +138,7 @@ class Maps {
 		this.container.addEventListener('wheel', this.mouseHandler);
 
 		this.setCenter();
+		this.draw.circle(this.options.coords);
 
 		this.getStyle();
 		this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
@@ -198,11 +199,15 @@ class Maps {
 
 				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 
-				// this.options.coords = this.utils.viewBoxCenter(this.viewBox);
+				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
 
+				/*
 				let speedFactor = 400;
 				this.options.coords[0] -= (e.x - this.startPoint.x) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
 				this.options.coords[1] += (e.y - this.startPoint.y) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
+				this.options.coords[0] = Number(this.options.coords[0].toFixed(5));
+				this.options.coords[1] = Number(this.options.coords[1].toFixed(5));
+				*/
 
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`; 
 
@@ -211,10 +216,10 @@ class Maps {
 					y: e.y
 				};
 
-				clearTimeout(this.container.tmo);
-				this.container.tmo = setTimeout(() => {
+				// clearTimeout(this.container.tmo);
+				// this.container.tmo = setTimeout(() => {
 					this.update();
-				}, 50);
+				// }, 0);
 
 				break;
 			
@@ -411,6 +416,9 @@ class Maps {
 
 		const dx = x / this.viewBox.scale;
 		const dy = y / this.viewBox.scale;
+		this.viewBox.x = Math.round(dx - this.viewBox.w / 2);
+		this.viewBox.y = Math.round(dy - this.viewBox.h / 2);
+
 		this.viewBox.x = Math.round(dx - this.viewBox.w / 2);
 		this.viewBox.y = Math.round(dy - this.viewBox.h / 2);
 
