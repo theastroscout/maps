@@ -1,0 +1,9 @@
+{
+	"pbf_input": "/storage/maps/tiles/london/src.pbf",
+	"tmp_file": "/storage/maps/tmp/tmp.nodecache",
+	"geojson": "/storage/maps/tiles/london/geojson",
+	"data": "/storage/maps/tiles/london/data",
+	"minzoom": 2,
+	"maxzoom": 14,
+	"layersList": [ "roads", "buildings", "greens", "water", "railways", "landuse" ]
+}

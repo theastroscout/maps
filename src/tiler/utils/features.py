@@ -15,7 +15,7 @@ def addFeature(self, o, spec, coords):
 
 		spec['layer']['batch_num'] = spec['layer']['batch_num'] + 1
 
-		file_path = '{}/{}.{}.geojson'.format(self.config['geojson_folder'], spec['layer']['name'], spec['layer']['batch_num'])
+		file_path = '{}/{}.{}.geojson'.format(self.config['geojson'], spec['layer']['name'], spec['layer']['batch_num'])
 		# print('Create JSON', file_path)
 		spec['layer']['file_path'] = file_path
 		spec['layer']['features_amount'] = 0

@@ -1,0 +1,37 @@
+{
+	"pbf_input": "/storage/maps/tiles/canary/src.pbf",
+	"tmp_file": "/storage/maps/tmp/tmp.nodecache",
+	"geojson": "/storage/maps/tiles/canary/geojson",
+	"data": "/storage/maps/tiles/canary/data",
+	"minzoom": 2,
+	"maxzoom": 14,
+	"layers": [ "roads", "buildings", "greens", "water", "railways", "landuse" ],
+	"groups": {
+		"water": [
+				"water"			
+		],
+		"landuse": [
+			"landuse"
+		],
+		"green": [
+			"green"
+		],
+		"tunnels": [
+			"tunnels"
+		],
+		"roads": [
+			"bridges",
+			"services",
+			"streets",
+			"primaries",
+			"trunks",
+			"motorways"
+		],
+		"railways": [
+			"railways"
+		],
+		"buildings": [
+			"buildings"
+		]
+	}
+}

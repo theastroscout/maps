@@ -5,15 +5,7 @@ from shapely.geometry import LineString, MultiLineString, Polygon, MultiPolygon,
 from shapely.ops import linemerge
 import pandas as pd
 
-# Groups and Layers Map
-style_path = '/var/www/surfy.maps/src/styles/chrome/config.json'
-style = json.load(open(style_path, 'r'))
-
-# print(groups)
-
 geometry = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
-
-MEGA_LINE = []
 
 simple = {
 	'2': 0.001,
@@ -34,13 +26,17 @@ def parse_coords(coords):
 	return coords
 
 
-def compress(geojson, output):
+def compress(CONFIG, tile):
+	z,x,y = tile
+	geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
+	output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
+
 	z = str(z)
 	features = {}
 
-	for group_name, group in style['groups'].items():
+	for group_name, group in CONFIG['groups'].items():
 		features[group_name] = {}
-		for layer_name, layer in group['layers'].items():
+		for layer_name in group:
 			features[group_name][layer_name] = {}
 
 	data = json.load(open(geojson, 'r'))
@@ -181,24 +177,4 @@ def compress(geojson, output):
 
 				coords = json.dumps(coords, separators=(',', ':'))
 				target.write('\t' + coords + '\n')
-	
-
-if __name__ == '__main__':
-
-	# compress(14,8190,5447)
-	directory = '/storage/maps/tmp/tiles'
-	
-	pattern = r'tiles\/(\d+)\/(\d+)\/(\d+)\.geojson'
-
-	for root, dirs, files in os.walk(directory):
-		for file in files:
-			if file.endswith('.geojson'):
-				url = os.path.join(root, file)
-				match = re.search(pattern, url)
-				z = match.group(1)
-				x = match.group(2)
-				y = match.group(3)
-				compress(z,x,y)
-
-	print('Complete')
 

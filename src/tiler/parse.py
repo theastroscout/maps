@@ -5,20 +5,18 @@ import json
 from utils.osm import OSM_handler
 from tiles import create_tiles
 
-# Gather Layers Data
+CONFIG_NAME = 'canary'
+CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
+print(CONFIG)
 
-CONFIG = {
-	'pbf_input': '/storage/maps/extracts/canary.pbf',
-	'tmp_file': '/storage/maps/tmp/tmp.nodecache',
-	'geojson_folder': '/storage/maps/tmp/geojson',
-	'minzoom': 1,
-	'maxzoom': 14,
-	'layers_list': ['roads', 'buildings', 'greens', 'water', 'railways', 'landuse']
-}
+# Create GeoJSON Directory
+shutil.rmtree(CONFIG['geojson'], ignore_errors=True)
+os.makedirs(CONFIG['geojson'], exist_ok=True)
 
+# Create Data Directory
+shutil.rmtree(CONFIG['data'], ignore_errors=True)
+os.makedirs(CONFIG['data'], exist_ok=True)
 
-shutil.rmtree(CONFIG['geojson_folder'], ignore_errors=True)
-os.makedirs(CONFIG['geojson_folder'], exist_ok=True)
 
 class Parser:
 
@@ -28,7 +26,7 @@ class Parser:
 
 	def loadLayers(self):
 		self.layers = {}
-		self.layers_list = self.config['layers_list'];
+		self.layers_list = self.config['layers'];
 		for layer_name in self.layers_list:
 			# Get Layer Config
 			layer = json.load(open('./layers/{}.json'.format(layer_name), 'r'))
@@ -85,7 +83,11 @@ class Parser:
 		print('Completed for ', self.layers_list)
 
 if __name__ == '__main__':
+
+	print('Parse PBF...')
 	parser = Parser(CONFIG)
 
 	parser.go()
-	create_tiles()
+
+	print('Create Tiles...')
+	create_tiles(CONFIG)

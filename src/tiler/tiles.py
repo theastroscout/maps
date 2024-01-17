@@ -12,10 +12,9 @@ import mercantile
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import shape, box
-from utils.compress import compress
+from compress import compress
 
 INIT = True
-LAYERS = ['roads', 'buildings', 'greens', 'water']
 tiles = []
 
 def parse_layer(geojson_file, tiles_dir):
@@ -75,30 +74,27 @@ def parse_layer(geojson_file, tiles_dir):
 
 			# print('Output:', mode, output_file)
 
+'''
 
-def create_tiles(geojson_dir, tiles_dir):
+Create Tiles
+
+'''
+
+def create_tiles(CONFIG):
 	global INIT
 	global tiles
-	# Remove Tiles to Recreate
-	shutil.rmtree(tiles_dir, ignore_errors=True)
 
-	for f in os.listdir(geojson_dir):
-		path = os.path.join(geojson_dir, f)
+	for f in os.listdir(CONFIG['geojson']):
+		path = os.path.join(CONFIG['geojson'], f)
 		if os.path.isfile(path):
 			if INIT:
 				INIT = False
 			
-			print('Parse:', path)
-			parse_layer(path, tiles_dir)
+			print('Creating Tiles from {}'.format(path))
+			parse_layer(path, CONFIG['data'])
 
 	print('Compressing...')
 	for tile in tiles:
-		z,x,y = tile
-		geojson = '/storage/maps/tmp/tiles/{}/{}/{}.geojson'.format(z,x,y)
-		output = '/storage/maps/tmp/tiles/{}/{}/{}'.format(z,x,y)
-		compress(geojson, output)
+		compress(CONFIG, tile)
 
 	print('Complete')
-
-if __name__ == '__main__':
-	create_tiles('/storage/maps/tmp/geojson', '/storage/maps/tmp/tiles')
