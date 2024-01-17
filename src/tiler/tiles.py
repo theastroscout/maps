@@ -26,6 +26,9 @@ def parse_layer(geojson_file, tiles_dir):
 	# print('Bounding box', min_lng, min_lat, max_lng, max_lat)
 	
 	for zoom in (2, 4, 6, 8, 10, 12, 14):
+		
+		print('Parsing zoom {}'.format(zoom))
+
 		for tile in mercantile.tiles(min_lng, min_lat, max_lng, max_lat, zooms=zoom, truncate=False):
 			# print(tile)
 			south, west, north, east = mercantile.bounds(tile)

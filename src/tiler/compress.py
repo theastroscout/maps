@@ -48,7 +48,6 @@ def compress(CONFIG, tile):
 		group = feature['properties']['group']
 		layer = feature['properties']['layer']
 
-
 		# if 'name' in feature['properties'] and feature['properties']['name']:
 			# fID = group + layer + feature['properties']['name']
 		#	fID = feature['properties']['name']

@@ -31,7 +31,8 @@
 			"railways"
 		],
 		"buildings": [
-			"buildings"
+			"buildings",
+			"stadiums"
 		]
 	}
 }

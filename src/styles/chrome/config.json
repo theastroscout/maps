@@ -81,6 +81,10 @@
 				"buildings": {
 					"class": "building",
 					"features": {}
+				},
+				"stadiums": {
+					"class": "stadiums",
+					"features": {}
 				}
 			}
 		}
