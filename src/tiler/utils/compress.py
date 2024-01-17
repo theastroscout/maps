@@ -6,7 +6,7 @@ from shapely.ops import linemerge
 import pandas as pd
 
 # Groups and Layers Map
-style_path = '/var/www/surfy/maps/src/styles/classic.json'
+style_path = '/var/www/surfy.maps/src/styles/chrome/config.json'
 style = json.load(open(style_path, 'r'))
 
 # print(groups)
@@ -16,6 +16,8 @@ geometry = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
 MEGA_LINE = []
 
 simple = {
+	'2': 0.001,
+	'4': 0.001,
 	'6': 0.001,
 	'8': 0.001,
 	'10': 0.001,
@@ -32,7 +34,7 @@ def parse_coords(coords):
 	return coords
 
 
-def compress(z,x,y):
+def compress(geojson, output):
 	z = str(z)
 	features = {}
 
@@ -41,8 +43,7 @@ def compress(z,x,y):
 		for layer_name, layer in group['layers'].items():
 			features[group_name][layer_name] = {}
 
-	url = '/storage/maps/tmp/tiles/{}/{}/{}.geojson'.format(z,x,y)
-	data = json.load(open(url, 'r'))
+	data = json.load(open(geojson, 'r'))
 
 	for feature in data['features']:
 		parse_coords(feature['geometry']['coordinates'])
@@ -106,8 +107,7 @@ def compress(z,x,y):
 
 	'''
 
-	url = '/storage/maps/tmp/tiles/{}/{}/{}'.format(z,x,y)
-	target = open(url, 'w')
+	target = open(output, 'w')
 
 	for group_key, [group, layers] in enumerate(features.items()):
 
@@ -181,8 +181,6 @@ def compress(z,x,y):
 
 				coords = json.dumps(coords, separators=(',', ':'))
 				target.write('\t' + coords + '\n')
-
-	
 	
 
 if __name__ == '__main__':
