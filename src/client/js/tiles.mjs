@@ -107,8 +107,11 @@ class Tiles {
 				if(typeof this.storage.tiles[zoomID][url] === 'undefined'){
 					//console.log('Render', url);
 					// await this.load(zoomID, url);
+					if(['14/8190/5448','14/8191/5447','14/8189/5447'].includes(url)){
+						await this.load(zoomID, url);
+					}
 					let bounds = this.getBounds([zoomID,x,y]);
-					this.draw.rect(bounds, [zoomID,x,y].join('/'));
+					this.draw.rect(bounds, url);
 					this.storage.tiles[zoomID][url] = 1;
 				} else {
 					// console.log('Skip', url);
@@ -272,13 +275,6 @@ class Tiles {
 
 		*/
 
-		/*
-		const y = ytile / Z2 + EPSILON;
-		const r = Math.exp( (y - 0.5) * Math.PI) / 0.25
-		const sinlat = (r - 1) / (r + 1);
-		const lat = Math.asin(sinlat) / ( Math.PI / 180 );
-		*/
-
 		const y = ytile / Z2 + EPSILON;
 		const sinlat = Math.sin((2 * Math.atan(Math.exp(2 * Math.PI * (0.5 - y)))) - Math.PI / 2);
 		const lat = Math.asin(sinlat) * (180 / Math.PI);
@@ -287,50 +283,9 @@ class Tiles {
 		const sinlat2 = Math.sin((2 * Math.atan(Math.exp(2 * Math.PI * (0.5 - y2)))) - Math.PI / 2);
 		const lat2 = Math.asin(sinlat2) * (180 / Math.PI);
 
-		Now you need to check that features fit into the tiles
-
 		const bounds = [lng, lat, lng2, lat2];
-		// console.log(bounds, this.getBounds2(tile))
 		return bounds;
 		
-	}
-
-	getBounds2 = tile => {
-		const [zoom, xtile, ytile] = tile;
-
-		let tile_size = CE / Math.pow(2, zoom);
-
-		const Z2 = Math.pow(2, zoom);
-
-		// const [lng, lat] = [xtile / Z2 * 360.0 - 180.0, ytile / Z2];
-
-		// console.log([lng, lat]);
-
-		const ul_lon_deg = (xtile / Z2) * 360.0 - 180.0;
-		const ul_lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * ytile) / Z2)));
-		const ul_lat_deg = (180 / Math.PI) * ul_lat_rad;
-
-		const lr_lon_deg = ((xtile + 1) / Z2) * 360.0 - 180.0;
-		const lr_lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * (ytile + 1)) / Z2)));
-		const lr_lat_deg = (180 / Math.PI) * lr_lat_rad;
-
-		return [ul_lon_deg, lr_lat_deg, lr_lon_deg, ul_lat_deg];
-	}
-
-	getBounds_origin = tile => {
-		const [zoom, xtile, ytile] = tile;
-
-		const Z2 = Math.pow(2, zoom);
-
-		const ul_lon_deg = (xtile / Z2) * 360.0 - 180.0;
-		const ul_lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * ytile) / Z2)));
-		const ul_lat_deg = (180 / Math.PI) * ul_lat_rad;
-
-		const lr_lon_deg = ((xtile + 1) / Z2) * 360.0 - 180.0;
-		const lr_lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * (ytile + 1)) / Z2)));
-		const lr_lat_deg = (180 / Math.PI) * lr_lat_rad;
-
-		return [ul_lon_deg, lr_lat_deg, lr_lon_deg, ul_lat_deg];
 	}
 }
 
