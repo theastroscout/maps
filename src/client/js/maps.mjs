@@ -201,6 +201,9 @@ class Maps {
 
 				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
 
+
+				Try to figure out utils.viewBoxCenter, the problem should be right there.
+
 				/*
 				let speedFactor = 400;
 				this.options.coords[0] -= (e.x - this.startPoint.x) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
