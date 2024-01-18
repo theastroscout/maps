@@ -140,6 +140,9 @@ class Maps {
 		this.setCenter();
 		this.draw.circle(this.options.coords);
 
+		let coords = this.utils.viewBoxCenter(this.viewBox);
+		this.circle = this.draw.circle(coords, 'blue', 200);
+
 		this.getStyle();
 		this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 	}
@@ -201,8 +204,11 @@ class Maps {
 
 				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
 
+				let [x,y] = this.utils.xy(this.options.coords);
+				console.log(x,y)
+				this.circle.setAttribute('cx', x);
+				this.circle.setAttribute('cy', y);
 
-				Try to figure out utils.viewBoxCenter, the problem should be right there.
 
 				/*
 				let speedFactor = 400;

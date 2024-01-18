@@ -44,7 +44,7 @@ class Utils {
 
 	*/
 
-	xyCenter = coords => {
+	xyCenter2 = coords => {
 		const zoom = 15;//this.map.options.zoom;
 		const [lng, lat] = coords;
 
@@ -65,7 +65,7 @@ class Utils {
 		return [x, y];
 	}
 
-	xy = coords => {
+	xy2 = coords => {
 		const zoom = 15;//this.map.options.zoom;
 		const [lng, lat] = coords;
 
@@ -88,11 +88,61 @@ class Utils {
 		return [Number(x.toFixed(0)), Number(y.toFixed(0))];
 	}
 
+	xy = (coords, offset=true) => {
+		const [lng, lat] = coords;
+
+
+
+		let x = ((lng + 180) * (this.mapWidth / 360));
+
+		let latitudeToRadians = ((lat * Math.PI) / 180);
+		let mercN = Math.log(Math.tan((Math.PI / 4) + (latitudeToRadians / 2)));
+		
+		let y = ((this.mapHeight / 2) - ((this.mapWidth * mercN) / (2 * Math.PI)))
+		console.log(x, y);
+
+		return [x, y];
+	}
+
+	xyCenter = coords => {
+		return this.xy(coords, false);
+	}
+
+	xy3 = coords => {
+		const [lng, lat] = coords;
+		const [cLng, cLat] = this.map.viewBox.center;
+
+		// console.log(lng, cLng, lng - cLng)
+
+		const zoom = this.map.options.zoom;
+		const scale = 0.2 * Math.pow(2, (this.map.options.zoom - 16));
+		const w = this.map.svg.clientWidth / scale;
+		const h = this.map.svg.clientHeight / scale;
+		
+		const x = (lng + 180) * (w / 360) - cLng;
+		const y = (lat * -1 + 90) * (h / 180) - cLat;
+
+		return [x,y];
+	}
+
+
+
 	/*
 
 	Get Coordinates From View Box
 
 	*/
+
+	viewBoxCenter2 = viewBox => {
+		const zoom = this.map.options.zoom;
+		const [cLng, cLat] = this.map.viewBox.center;
+
+		const MAP_WIDTH = TILE_SIZE * Math.pow(2, zoom)// * 10;
+		const MAP_HEIGHT = TILE_SIZE * Math.pow(2, zoom)// * 10;
+		const y = ((-1 * lat) + 90) * (MAP_HEIGHT / 180) - cLat;
+		const x = (lng + 180) * (MAP_WIDTH / 360) - cLng;
+		return [lng, lat];
+	}
 
 	viewBoxCenter = viewBox => {
 		viewBox = viewBox || this.map.viewBox;
@@ -108,7 +158,8 @@ class Utils {
 
 		const scale = TILE_SIZE * Math.pow(2, zoom) * 10;
 
-		const lng = (x + cLng) * 360 / scale - 180;
+		// const lng = (x + cLng) * 360 / scale - 180;
+		const lng = ((x + cLng) / scale) * 360 - 180;
 
 		const mercatorY = 0.5 - (y + cLat) / scale;
 		const lat = (2 * Math.atan(Math.exp(2 * Math.PI * mercatorY)) - Math.PI / 2) * 180 / Math.PI;

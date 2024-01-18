@@ -290,14 +290,16 @@ class Draw {
 
 	*/
 
-	circle = coords => {
+	circle = (coords, color, radius) => {
 		const [x, y] = this.utils.xy(coords);
-		const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-		circle.setAttribute("cx", x);
-		circle.setAttribute("cy", y);
-		circle.setAttribute("r", "100");
-		circle.setAttribute("fill", "red");
+		const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+		circle.setAttribute('cx', x);
+		circle.setAttribute('cy', y);
+		circle.setAttribute('r', radius || 100);
+		circle.setAttribute('fill', color || 'red');
 		this.map.svg.appendChild(circle);
+
+		return circle;
 	}
 }
 
