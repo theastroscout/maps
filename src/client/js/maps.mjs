@@ -84,7 +84,7 @@ class Maps {
 		*/
 
 		this.viewBox = {
-			center: this.utils.xyCenter(this.options.coords)
+			center: this.utils.xy(this.options.coords, false)
 		};
 
 		/*
@@ -142,6 +142,17 @@ class Maps {
 
 		let coords = this.utils.viewBoxCenter(this.viewBox);
 		this.circle = this.draw.circle(coords, 'blue', 200);
+
+		coords = this.utils.leftTopCircle(this.viewBox);
+		console.log('Left Top', coords)
+		this.leftTopCircle = this.draw.circle(coords, 'green', 200);
+
+		coords = this.utils.rightBottomCircle(this.viewBox);
+		console.log('Right Bottom', coords)
+		this.rightBottomCircle = this.draw.circle(coords, 'purple', 200);
+
+
+		// this.draw.circle([-0.02197265625, 0.3326416015625], 'black', 200);
 
 		this.getStyle();
 		this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
@@ -205,9 +216,18 @@ class Maps {
 				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
 
 				let [x,y] = this.utils.xy(this.options.coords);
-				console.log(x,y)
 				this.circle.setAttribute('cx', x);
 				this.circle.setAttribute('cy', y);
+
+				let coords = this.utils.leftTopCircle(this.viewBox);
+				let [a,b] = this.utils.xy(coords);
+				this.leftTopCircle.setAttribute('cx', a);
+				this.leftTopCircle.setAttribute('cy', b);
+
+				coords = this.utils.rightBottomCircle(this.viewBox);
+				[a,b] = this.utils.xy(coords);
+				this.rightBottomCircle.setAttribute('cx', a);
+				this.rightBottomCircle.setAttribute('cy', b);
 
 
 				/*

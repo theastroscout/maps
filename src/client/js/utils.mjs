@@ -31,8 +31,8 @@ class Utils {
 	_xy = coords => {
 		const [lng, lat] = coords;
     	const x = lng / 360.0 + 0.5;
+    	
     	const sinlat = Math.sin(lat * ( Math.PI / 180 ));
-
 		const y = 0.5 - 0.25 * Math.log((1.0 + sinlat) / (1.0 - sinlat)) / Math.PI;
 
 		return [x, y];
@@ -115,10 +115,6 @@ class Utils {
 		return [x, y];
 	}
 
-	xyCenter = coords => {
-		return this.xy(coords, false);
-	}
-
 
 	viewBoxCenter = viewBox => {
 		const [cLng, cLat] = viewBox.center;
@@ -133,6 +129,42 @@ class Utils {
 
 		const dy = this.map.viewBox.y + this.map.viewBox.h / 2;
 		const y = dy + cLat;
+
+		const zoom = 15;
+
+		const scale = TILE_SIZE * Math.pow(2, zoom) * 10;
+
+		const lng = x / scale * 360 - 180;
+
+		const mercatorY = 0.5 - y / scale;
+		const lat = (2 * Math.atan(Math.exp(2 * Math.PI * mercatorY)) - Math.PI / 2) * 180 / Math.PI;
+
+		return [Number(lng.toFixed(6)), Number(lat.toFixed(6))];
+	}
+
+	leftTopCircle = viewBox => {
+		viewBox = viewBox || this.map.viewBox;
+		const [cLng, cLat] = viewBox.center;
+
+		const [x,y] = [viewBox.x + cLng, viewBox.y + cLat];
+
+		const zoom = 15;
+
+		const scale = TILE_SIZE * Math.pow(2, zoom) * 10;
+
+		const lng = x / scale * 360 - 180;
+
+		const mercatorY = 0.5 - y / scale;
+		const lat = (2 * Math.atan(Math.exp(2 * Math.PI * mercatorY)) - Math.PI / 2) * 180 / Math.PI;
+
+		return [Number(lng.toFixed(6)), Number(lat.toFixed(6))];
+	}
+
+	rightBottomCircle = viewBox => {
+		viewBox = viewBox || this.map.viewBox;
+		const [cLng, cLat] = viewBox.center;
+
+		const [x,y] = [viewBox.x + cLng + viewBox.w, viewBox.y + cLat + viewBox.h];
 
 		const zoom = 15;
 
@@ -264,13 +296,17 @@ class Utils {
 
 	*/
 
-	canvasBBox = () => {
+	canvasBBox2 = () => {
 		const center = this.c2p(this.map.options.coords);
 		const halfWidth = this.map.width / 2;
 		const halfHeight = this.map.height / 2;
 		const topLeft = this.p2c([center[0] - halfWidth, center[1] - halfHeight])
 		const bottomRight = this.p2c([center[0] + halfWidth, center[1] + halfHeight])
 		return [...topLeft, ...bottomRight];
+	}
+
+	canvasBBox = () => {
+		return [...this.leftTopCircle(), ...this.rightBottomCircle()];
 	}
 
 	/*
