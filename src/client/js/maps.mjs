@@ -425,8 +425,8 @@ class Maps {
 
 		const dx = x / this.viewBox.scale;
 		const dy = y / this.viewBox.scale;
-		this.viewBox.x = Math.round(dx - this.viewBox.w / 2);
-		this.viewBox.y = Math.round(dy - this.viewBox.h / 2);
+		// this.viewBox.x = Math.round(dx - this.viewBox.w / 2);
+		// this.viewBox.y = Math.round(dy - this.viewBox.h / 2);
 
 		this.viewBox.x = Math.round(dx - this.viewBox.w / 2);
 		this.viewBox.y = Math.round(dy - this.viewBox.h / 2);

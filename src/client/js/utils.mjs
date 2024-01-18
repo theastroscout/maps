@@ -91,21 +91,59 @@ class Utils {
 	xy = (coords, offset=true) => {
 		const [lng, lat] = coords;
 
+		let zoom = 15;
+		
+		let scale = TILE_SIZE * Math.pow(2, zoom) * 10;
 
-
-		let x = ((lng + 180) * (this.mapWidth / 360));
+		let x = (lng + 180) * (scale / 360);
 
 		let latitudeToRadians = ((lat * Math.PI) / 180);
 		let mercN = Math.log(Math.tan((Math.PI / 4) + (latitudeToRadians / 2)));
 		
-		let y = ((this.mapHeight / 2) - ((this.mapWidth * mercN) / (2 * Math.PI)))
-		console.log(x, y);
+		let y = ((scale / 2) - ((scale * mercN) / (2 * Math.PI)))
+
+		if(offset){
+			x -= this.map.viewBox.center[0];
+			y -= this.map.viewBox.center[1];
+		}
+
+		x = Math.floor(x);
+		y = Math.floor(y);
+
+		// console.log(x, y);
 
 		return [x, y];
 	}
 
 	xyCenter = coords => {
 		return this.xy(coords, false);
+	}
+
+
+	viewBoxCenter = viewBox => {
+		const [cLng, cLat] = viewBox.center;
+		viewBox = viewBox || this.map.viewBox;
+
+		viewBox.scale = 0.2 * Math.pow(2, (this.map.options.zoom - 16));
+		viewBox.w = this.map.svg.clientWidth / viewBox.scale;
+		viewBox.h = this.map.svg.clientHeight / viewBox.scale;
+
+		const dx = this.map.viewBox.x + this.map.viewBox.w / 2;
+		const x =  dx + cLng;
+
+		const dy = this.map.viewBox.y + this.map.viewBox.h / 2;
+		const y = dy + cLat;
+
+		const zoom = 15;
+
+		const scale = TILE_SIZE * Math.pow(2, zoom) * 10;
+
+		const lng = x / scale * 360 - 180;
+
+		const mercatorY = 0.5 - y / scale;
+		const lat = (2 * Math.atan(Math.exp(2 * Math.PI * mercatorY)) - Math.PI / 2) * 180 / Math.PI;
+
+		return [Number(lng.toFixed(6)), Number(lat.toFixed(6))];
 	}
 
 	xy3 = coords => {
@@ -144,7 +182,7 @@ class Utils {
 		return [lng, lat];
 	}
 
-	viewBoxCenter = viewBox => {
+	viewBoxCenter3 = viewBox => {
 		viewBox = viewBox || this.map.viewBox;
 		const dx = viewBox.x + viewBox.w / 2;
 		const dy = viewBox.y + viewBox.h / 2;
