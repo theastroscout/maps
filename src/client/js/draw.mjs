@@ -142,7 +142,25 @@ class Draw {
 
 	*/
 
-	render = () => {
+	render = items => {
+		console.log('Render', Object.keys(items).length);
+		for(let fID in items){
+			let feature = items[fID];
+
+			switch(feature.type){
+
+				case 'MultiPolygon':
+					
+					// result = this.polygon(feature.coords, layerTarget);
+					// feature.elmts = result.elmts;
+					// feature.bounds = result.bounds;
+
+					break;
+			}
+		}
+	}
+
+	render_draft = () => {
 		this.start = new Date();
 		// this.map.svg.innerHTML = '';
 
@@ -279,6 +297,49 @@ class Draw {
 		g.appendChild(rect);
 		
 
+		if(name){
+			const text = document.createElementNS(svgNS,'text');
+			text.setAttribute('x', x1 + width * .05);
+			text.setAttribute('y', y1 + width * .05);
+			text.setAttribute('font-size', '300');
+			text.setAttribute('fill', 'black');
+			text.textContent = name;
+			g.appendChild(text);
+		}
+
+		target = target || this.map.svg;
+		target.appendChild(g);
+
+		return g;
+	}
+
+	/*
+
+	Draw Bounds
+
+	*/
+
+	bounds = (bounds, name, target) => {
+		const svgNS = 'http://www.w3.org/2000/svg';
+		const g = document.createElementNS(svgNS, 'g');
+		g.classList.add('bounds');
+
+		const [x1,y1] = this.utils.xy([bounds[0],bounds[1]]);
+		const [x2,y2] = this.utils.xy([bounds[2],bounds[3]]);
+		const width = x2 - x1;
+		const height = y2 - y1;
+		const rect = document.createElementNS(svgNS, 'rect');
+		rect.setAttribute('x', x1);
+		rect.setAttribute('y', y1);
+		rect.setAttribute('width', width);
+		rect.setAttribute('height', height);
+		rect.setAttribute('stroke', 'black');
+		rect.setAttribute('strokeWidth', '10px');
+		rect.setAttribute('vector-effect', 'non-scaling-stroke');
+		rect.setAttribute('fill', 'none');
+
+		g.appendChild(rect);
+		
 		if(name){
 			const text = document.createElementNS(svgNS,'text');
 			text.setAttribute('x', x1 + width * .05);

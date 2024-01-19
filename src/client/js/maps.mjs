@@ -380,7 +380,7 @@ class Maps {
 
 		this.style = await(await fetch(`${path}/config.json`)).json();
 		console.log('Map Style', this.style)
-		this.styleMap = [];
+		this._styleMap = [];
 
 		/*
 
@@ -389,7 +389,7 @@ class Maps {
 		*/
 
 		for(let [groupName, group] of Object.entries(this.style['groups'])){
-			this.styleMap.push({
+			this._styleMap.push({
 				name: groupName,
 				layers: Object.keys(group.layers)
 			});

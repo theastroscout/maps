@@ -37,6 +37,8 @@ class Tiles {
 		this.utils = new Utils(map);
 		this.draw = new Draw(map);
 
+		this.processed = {};
+
 		this.container = document.createElementNS(this.map.svgNS, 'g');
 		this.container.classList.add('tiles');
 		this.map.svg.appendChild(this.container);
@@ -151,7 +153,7 @@ class Tiles {
 		const yTiles = this.tile(zoomID, [bbox[2], bbox[3]], true);
 		// console.log(xTiles, yTiles);
 
-		// this.await = (yTiles[0] - xTiles[0] + 1) * (yTiles[1] - xTiles[1] + 1);
+		// this.await = (yTiles[0] - xTiles[0]) * (yTiles[1] - xTiles[1]);
 
 		let visible = {};
 
@@ -164,12 +166,22 @@ class Tiles {
 				if(typeof this.storage.tiles[zoomID].items[url] === 'undefined'){
 					//console.log('Render', url);
 					// await this.load(zoomID, url);
-					// if(['14/8190/5448','14/8191/5447','14/8189/5447'].includes(url)){
-						// await this.load(zoomID, url);
-					// }
+
+					let tile = document.createElementNS(this.map.svgNS, 'g');
+						tile.setAttribute('tile', url);
+
+					this.storage.tiles[zoomID].container.append(tile);
+
+					for(let group of this.map._styleMap){
+						// console.log(group)
+						let groupEl = document.createElementNS(this.map.svgNS, 'g');
+						groupEl.classList.add(group.name);
+						tile.append(groupEl);
+					}
+
+
 					const bounds = this.getBounds([zoomID,x,y]);
-					const border = this.draw.rect(bounds, url, this.storage.tiles[zoomID].container);
-					border.setAttribute('tile', url);
+					const border = this.draw.bounds(bounds, url, tile);
 					// this.storage.src[zoomID][url] = 1;
 
 					/*
@@ -182,8 +194,19 @@ class Tiles {
 						id: url,
 						bounds: bounds,
 						hide: false,
-						border: border
+						border: border,
+						tile: tile,
+						features: {}
 					};
+
+					// if(['14/8190/5448','14/8191/5447','14/8189/5447'].includes(url)){
+					// if(['14/8190/5448'].includes(url)){
+						this.load(zoomID, url);
+					// }
+
+					
+
+
 				} else {
 
 					// Remove From Offload List
@@ -225,7 +248,7 @@ class Tiles {
 
 		*/
 
-		this.draw.render();		
+		// this.draw.render();	
 
 		return true;
 	}
@@ -246,7 +269,7 @@ class Tiles {
 			result = '0';
 		}
 		
-		this.storage.tiles[zoomID][url].src = result;
+		this.storage.tiles[zoomID].items[url].src = result;
 
 		if(result !== '0'){
 			this.parse(zoomID, url);
@@ -261,9 +284,86 @@ class Tiles {
 	*/
 
 	parse = (zoomID, url) => {
+
+		let processed = {};
+
+		let srcTile = this.storage.tiles[zoomID].items[url].src;
+		let features = srcTile.split('\n');
+			features.pop(); // Remove Last Empty Line
+
+		for(let item of features){
+			let chunks = item.split('\t');
+			let coords = JSON.parse(chunks.pop());
+
+			const group = this.map._styleMap[chunks[2]];
+
+			/*
+
+			Feature Object
+
+			*/
+
+			let feature = {
+				id: chunks[0],
+				type: geometryTypes[chunks[1]],
+				group: group.name,
+				layer: group.layers[chunks[3]],
+				coords: coords
+			};
+
+			// Get Name
+			if(chunks[4]){
+				feature.name = chunks[4];
+			}
+
+			// Get Center
+			if(chunks[5]){
+				feature.center = chunks[5].split(',').map(Number);
+			}
+
+			/*
+
+			Feature Pointer
+
+			*/
+
+			let featureItem = this.storage.features[feature.id];
+
+			if(!featureItem){
+
+				// Prepare a LineString for future merges
+
+				if(feature.type === 'LineString'){
+					feature.type = 'MultiLineString';
+					feature.coords = [feature.coords];
+				}
+
+				this.storage.tiles[zoomID].items[url].features[feature.id] = feature;
+
+				/*
+
+				Create New One
+
+				*/
+
+				this.storage.features[feature.id] = this.storage.tiles[zoomID].items[url].features[feature.id];
+				featureItem = this.storage.features[feature.id];
+				
+				// featureLink = this.storage.features[feature.id];
+			}
+
+			// featureItem.tiles[url] = 1;
+
+			processed[feature.id] = featureItem;
+		}
+
+		this.draw.render(processed);
+	}
+
+	parse_draft = (zoomID, url) => {
 		let groups = this.storage.sorted[zoomID];
 
-		let srcTile = this.storage.tiles[zoomID][url].src;
+		let srcTile = this.storage.tiles[zoomID].items[url].src;
 		let features = srcTile.split('\n');
 			features.pop(); // Remove Last Empty Line
 
