@@ -167,21 +167,49 @@ class Tiles {
 					//console.log('Render', url);
 					// await this.load(zoomID, url);
 
-					let tile = document.createElementNS(this.map.svgNS, 'g');
-						tile.setAttribute('tile', url);
+					let container = document.createElementNS(this.map.svgNS, 'g');
+						container.setAttribute('tile', url);
 
-					this.storage.tiles[zoomID].container.append(tile);
+					this.storage.tiles[zoomID].container.append(container);
+
+					/*
+
+					Create Groups and Layers
+
+					*/
+
+					let groups = {};
 
 					for(let group of this.map._styleMap){
 						// console.log(group)
 						let groupEl = document.createElementNS(this.map.svgNS, 'g');
 						groupEl.classList.add(group.name);
-						tile.append(groupEl);
+
+						/*
+
+						Layers
+
+						*/
+
+						let layers = {};
+						for(let layer of group.layers){
+							let layerEl = document.createElementNS(this.map.svgNS, 'g');
+							layerEl.classList.add(layer);
+							groupEl.appendChild(layerEl);
+							layers[layer] = layerEl;
+						}
+
+						// Append Group to Tile Container
+						container.appendChild(groupEl);
+
+						groups[group.name] = {
+							container: groupEl,
+							layers: layers
+						};
 					}
 
-
 					const bounds = this.getBounds([zoomID,x,y]);
-					const border = this.draw.bounds(bounds, url, tile);
+					const border = this.draw.bounds(bounds, url, container);
 					// this.storage.src[zoomID][url] = 1;
 
 					/*
@@ -195,21 +223,22 @@ class Tiles {
 						bounds: bounds,
 						hide: false,
 						border: border,
-						tile: tile,
+						container: container,
+						groups: groups,
 						features: {}
 					};
 
 					// if(['14/8190/5448','14/8191/5447','14/8189/5447'].includes(url)){
-					// if(['14/8190/5448'].includes(url)){
+					if(['14/8190/5448','14/8191/5448'].includes(url)){
 						this.load(zoomID, url);
-					// }
+					}
 
 					
 
 
 				} else {
 
-					// Remove From Offload List
+					// Remove Tile From Offload List
 
 					if(this.storage.tiles[zoomID].visible[url]){
 						delete this.storage.tiles[zoomID].visible[url];
@@ -218,7 +247,7 @@ class Tiles {
 					// Show if it has been hidden
 					let tile = this.storage.tiles[zoomID].items[url];
 					if(tile.hide){
-						tile.border.classList.remove('hide');
+						tile.container.classList.remove('hide');
 						tile.hide = false;
 					}
 				}
@@ -233,7 +262,7 @@ class Tiles {
 
 		for(let url in this.storage.tiles[zoomID].visible){
 			let tile = this.storage.tiles[zoomID].items[url];
-			tile.border.classList.add('hide');
+			tile.container.classList.add('hide');
 			tile.hide = true;
 		}
 
@@ -287,7 +316,8 @@ class Tiles {
 
 		let processed = {};
 
-		let srcTile = this.storage.tiles[zoomID].items[url].src;
+		let tile = this.storage.tiles[zoomID].items[url];
+		let srcTile = tile.src;
 		let features = srcTile.split('\n');
 			features.pop(); // Remove Last Empty Line
 
@@ -296,6 +326,8 @@ class Tiles {
 			let coords = JSON.parse(chunks.pop());
 
 			const group = this.map._styleMap[chunks[2]];
+			const layer = group.layers[chunks[3]];
+			const container = tile.groups[group.name].layers[layer];
 
 			/*
 
@@ -307,7 +339,8 @@ class Tiles {
 				id: chunks[0],
 				type: geometryTypes[chunks[1]],
 				group: group.name,
-				layer: group.layers[chunks[3]],
+				layer: layer,
+				container: container,
 				coords: coords
 			};
 
@@ -350,6 +383,19 @@ class Tiles {
 				featureItem = this.storage.features[feature.id];
 				
 				// featureLink = this.storage.features[feature.id];
+			} else {
+
+				/*
+
+				Union Features
+
+				*/
+
+				if(/Polygon/.test(feature.type)){
+					const union = polygonClipping.union(featureItem.coords, feature.coords);
+					featureItem.coords = union;
+				}
+
 			}
 
 			// featureItem.tiles[url] = 1;

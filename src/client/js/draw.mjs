@@ -147,13 +147,17 @@ class Draw {
 		for(let fID in items){
 			let feature = items[fID];
 
+			feature.done = true;
+
+			let result;
+
 			switch(feature.type){
 
 				case 'MultiPolygon':
 					
-					// result = this.polygon(feature.coords, layerTarget);
-					// feature.elmts = result.elmts;
-					// feature.bounds = result.bounds;
+					result = this.polygon(feature.coords, feature.container);
+					feature.elmts = result.elmts;
+					feature.bounds = result.bounds;
 
 					break;
 			}
