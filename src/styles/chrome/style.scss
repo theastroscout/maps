@@ -219,6 +219,9 @@ Surfy°Maps › Chrome
 
 				> g.buildings {
 					pointer-events: auto;
+					--opacity-values: 1 2, 3 4, 5 6;
+					--opacity: .5;
+					opacity: var(--opacity);
 
 					> g.buildings {
 						fill-rule: evenodd;

@@ -453,13 +453,21 @@ class Maps {
 		*/
 
 		let groups = {};
+		// console.log(this.sheet.rules.getPropertyValue('--opacity-values'))
 		for(let rule of this.sheet.rules){
 			let path = rule.selectorText.split('>').map(v => v.trim());
 			const prefix = path.slice(0, 5).join('/')
-			if(path[6] && prefix === '.SurfyMaps/svg.container/g.tiles/g.zoom/g.tile'){
-				let group = path[5].replace('g.', '');
-				let layer = path[6].replace('g.', '');
+			if(path[5] && prefix === '.SurfyMaps/svg.container/g.tiles/g.zoom/g.tile'){
 				
+				/*
+
+				Group
+
+				*/
+
+				let group = path[5].replace('g.', '');
+				
+				// Create Group if not exists
 				if(!groups[group]){
 					groups[group] = {
 						name: group,
@@ -467,7 +475,25 @@ class Maps {
 					}
 				}
 
-				groups[group].layers.push(layer);
+				/*
+
+				Layer
+
+				*/
+
+				if(path[6]){
+					
+					// Layer
+					let layer = path[6].replace('g.', '');
+					groups[group].layers.push(layer);
+
+				} else {
+
+					// Group Style
+					console.log(group, rule);
+					// console.log(rule.getPropertyValue('--opacity-values'))
+				}
+				
 				
 			}
 			// console.log(path, path.slice(0, 5).join('>'))
