@@ -25,19 +25,22 @@ class Tiles {
 
 		this.map = map;
 		this.storage = {
-			sorted: {},
+			// sorted: {},
 
 			tiles: {},
 			features: {}
 		};
 
-		// this.visible = {};
 		this.currentZoomID = this.map.zoomID;
 
 		this.utils = new Utils(map);
 		this.draw = new Draw(map);
 
-		this.processed = {};
+		/*
+
+		Create Tiles Container
+
+		*/
 
 		this.container = document.createElementNS(this.map.svgNS, 'g');
 		this.container.classList.add('tiles');
@@ -145,7 +148,7 @@ class Tiles {
 				visible: {},
 				items: {}
 			};
-			this.storage.sorted[zoomID] = JSON.parse(JSON.stringify(this.map.style.groups));
+			// this.storage.sorted[zoomID] = JSON.parse(JSON.stringify(this.map.style.groups));
 		}
 
 		const xTiles = this.tile(zoomID, [bbox[0], bbox[1]]);
@@ -260,16 +263,17 @@ class Tiles {
 
 		*/
 
+		// Remove joined tiles from the offload list
 		for(let url in visible){
 			let tile = this.storage.tiles[zoomID].items[url];
 			for(let joinTileURL in tile.joinTiles){
-				console.log('Remove From offload',joinTileURL);
-				if(this.storage.tiles[zoomID].visible[url]){
-					delete this.storage.tiles[zoomID].visible[url];
+				if(this.storage.tiles[zoomID].visible[joinTileURL]){
+					delete this.storage.tiles[zoomID].visible[joinTileURL];
 				}
 			}
 		}
 
+		// Hide invisible tiles
 		for(let url in this.storage.tiles[zoomID].visible){
 			let tile = this.storage.tiles[zoomID].items[url];
 			tile.container.classList.add('hide');
@@ -398,11 +402,14 @@ class Tiles {
 				this.storage.features[feature.id] = this.storage.tiles[zoomID].items[url].features[feature.id];
 				featureItem = this.storage.features[feature.id];
 				
-				// featureLink = this.storage.features[feature.id];
 			} else {
 
-				// console.log(featureItem.tileID)
-				// this.storage.tiles[zoomID].items[featureItem.tileID].joinTiles[url] = true;
+				/*
+
+				Add original tile to this one to keep them both visible
+
+				*/
+
 				tile.joinTiles[featureItem.tileID] = true;
 
 				/*

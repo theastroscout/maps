@@ -217,8 +217,6 @@ class Maps {
 
 				this.container.classList.add('move');
 
-				console.log('Start',this.viewBox)
-
 				document.addEventListener('mousemove', this.mouseHandler);
 				document.addEventListener('mouseup', this.mouseHandler);
 
@@ -243,23 +241,6 @@ class Maps {
 				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
 
 				/*
-				let [x,y] = this.utils.xy(this.options.coords);
-				this.circle.setAttribute('cx', x);
-				this.circle.setAttribute('cy', y);
-
-				let coords = this.utils.leftTopCircle(this.viewBox);
-				let [a,b] = this.utils.xy(coords);
-				this.leftTopCircle.setAttribute('cx', a);
-				this.leftTopCircle.setAttribute('cy', b);
-
-				coords = this.utils.rightBottomCircle(this.viewBox);
-				[a,b] = this.utils.xy(coords);
-				this.rightBottomCircle.setAttribute('cx', a);
-				this.rightBottomCircle.setAttribute('cy', b);
-				*/
-
-
-				/*
 				let speedFactor = 400;
 				this.options.coords[0] -= (e.x - this.startPoint.x) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
 				this.options.coords[1] += (e.y - this.startPoint.y) / (TILE_SIZE * Math.pow(2, this.options.zoom)) * speedFactor;
@@ -274,10 +255,13 @@ class Maps {
 					y: e.y
 				};
 
-				// clearTimeout(this.container.tmo);
-				// this.container.tmo = setTimeout(() => {
-					this.update();
-				// }, 0);
+				/*
+
+				Update Tiles
+
+				*/
+
+				this.update();				
 
 				break;
 			
@@ -301,7 +285,8 @@ class Maps {
 
 				Zoom
 
-				Rewrite: From Zoom to Scale
+				(!) Rewrite: From Zoom to Scale
+				Change zoom first, then calculate viewBox
 
 				*/
 
@@ -360,7 +345,6 @@ class Maps {
 	*/
 
 	getStyle = async style => {
-		// const svgNS = 'http://www.w3.org/2000/svg';
 
 		/*
 
@@ -475,7 +459,6 @@ class Maps {
 			if(path[6] && prefix === '.SurfyMaps/svg.container/g.tiles/g.zoom/g.tile'){
 				let group = path[5].replace('g.', '');
 				let layer = path[6].replace('g.', '');
-				console.log(group, layer)
 				
 				if(!groups[group]){
 					groups[group] = {
