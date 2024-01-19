@@ -19,10 +19,7 @@ class Maps {
 	
 	constructor(customOptions){
 
-		this.utils = new Utils(this);
-		this.tiles = new Tiles(this);
-		this.draw = new Draw(this);
-		this.animate = new Animate(this);
+		this.svgNS = 'http://www.w3.org/2000/svg';
 
 		/*
 
@@ -64,28 +61,17 @@ class Maps {
 		this.container = document.querySelector(this.options.selector);
 		this.container.classList.add('SurfyMaps');
 
-		this.container.insertAdjacentHTML('beforeEnd', '<svg></svg>');
-		this.svg = this.container.querySelector(':scope > svg');
+		this.width = this.container.clientWidth;
+		this.height = this.container.clientHeight;
+
+		// this.container.insertAdjacentHTML('beforeEnd', '<svg></svg>');
+		// this.svg = this.container.querySelector(':scope > svg');
+
+		this.svg = document.createElementNS(this.svgNS, 'svg');
 		this.svg.setAttribute('shape-rendering', 'geometricPrecision');
+		this.container.append(this.svg);
 
 		this.groups = {};
-		
-		this.svg.setAttribute('width', window.innerWidth);
-		this.svg.setAttribute('height', window.innerHeight);
-
-
-		this.width = this.svg.clientWidth;
-		this.height = this.svg.clientHeight;
-
-		/*
-
-		View Box
-
-		*/
-
-		this.viewBox = {
-			center: this.utils.xy(this.options.coords, false)
-		};
 
 		/*
 
@@ -117,15 +103,6 @@ class Maps {
 		this.helpers = {
 		};
 
-		/*
-
-		Resize
-
-		*/
-
-		window.addEventListener('resize', this.resize, { passive: true });
-		this.resize();
-
 		this.getZoomID();
 
 		/*
@@ -137,7 +114,9 @@ class Maps {
 		this.container.addEventListener('mousedown', this.mouseHandler);
 		this.container.addEventListener('wheel', this.mouseHandler);
 
-		this.setCenter();
+		// this.setCenter();
+
+		/*
 		this.draw.circle(this.options.coords);
 
 		let coords = this.utils.viewBoxCenter(this.viewBox);
@@ -150,13 +129,47 @@ class Maps {
 		coords = this.utils.rightBottomCircle(this.viewBox);
 		console.log('Right Bottom', coords)
 		this.rightBottomCircle = this.draw.circle(coords, 'purple', 200);
+		*/
 
 
 		// this.draw.circle([-0.02197265625, 0.3326416015625], 'black', 200);
 
+		/*
+
+		Initialise utils
+
+		*/
+
+		this.utils = new Utils(this);
+		this.tiles = new Tiles(this);
+		this.draw = new Draw(this);
+		this.animate = new Animate(this);
+
+		/*
+
+		View Box
+
+		*/
+
+		this.viewBox = {
+			center: this.utils.xy(this.options.coords, false)
+		};
+
+		/*
+
+		Load Style, Launch Map
+
+		*/
+
 		this.getStyle();
 		this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 	}
+
+	/*
+
+	Get Zoome ID
+
+	*/
 
 	getZoomID = () => {
 		this.zoomID = Math.min(Math.floor(this.options.zoom / 2) * 2, 14);
@@ -171,6 +184,15 @@ class Maps {
 	resize = () => {
 		this.width = this.container.clientWidth;
 		this.height = this.container.clientHeight;
+		
+		this.svg.setAttribute('width', this.width);
+		this.svg.setAttribute('height', this.height);
+
+		clearTimeout(this.resize.tmo);
+		this.resize.tmo = setTimeout(() => {
+			this.setCenter();
+			this.update();
+		}, 100);
 	}
 
 	/*
@@ -215,6 +237,7 @@ class Maps {
 
 				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
 
+				/*
 				let [x,y] = this.utils.xy(this.options.coords);
 				this.circle.setAttribute('cx', x);
 				this.circle.setAttribute('cy', y);
@@ -228,6 +251,7 @@ class Maps {
 				[a,b] = this.utils.xy(coords);
 				this.rightBottomCircle.setAttribute('cx', a);
 				this.rightBottomCircle.setAttribute('cy', b);
+				*/
 
 
 				/*
@@ -422,10 +446,25 @@ class Maps {
 		this.groups.texts.setAttribute('class', 'texts');
 		this.svg.appendChild(this.groups.texts);
 
+		/*
+
+		Initialise Map
+
+		*/
 
 		if(!this.states.ready){
 			this.states.ready = true;
-			this.tiles.get();
+
+			/*
+
+			Resize
+
+			*/
+
+			window.addEventListener('resize', this.resize, { passive: true });
+			this.resize();
+
+			// this.tiles.get();
 		}
 
 		return true;
@@ -436,7 +475,6 @@ class Maps {
 		
 		this.viewBox.scale = 0.2 * Math.pow(2, (this.options.zoom - 16));
 
-		console.log('Set Center', this.viewBox);
 		// $.map.options.zoom = 16;
 		// $.map.setCenter();
 

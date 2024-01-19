@@ -43,6 +43,38 @@ html {
 		shape-rendering: geometricprecision;
 
 		user-select: none;
+
+		/*
+
+		Tiles Container
+
+		*/
+
+		> g.tiles {
+
+			/*
+
+			Zoom Collection
+
+			*/
+
+			> g.zoom {
+
+				&.hide {
+					display: none;
+				}
+
+				/*
+
+				Tiles
+
+				*/
+
+				> g.hide {
+					display: none;
+				}
+			}
+		}
 	}
 
 	/*

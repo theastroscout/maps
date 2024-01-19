@@ -22,13 +22,24 @@ import './utils/polygon-clipping.js';
 class Tiles {
 
 	constructor(map){
+
 		this.map = map;
 		this.storage = {
+			sorted: {},
+
 			tiles: {},
-			sorted: {}
+			features: {}
 		};
+
+		// this.visible = {};
+		this.currentZoomID = this.map.zoomID;
+
 		this.utils = new Utils(map);
 		this.draw = new Draw(map);
+
+		this.container = document.createElementNS(this.map.svgNS, 'g');
+		this.container.classList.add('tiles');
+		this.map.svg.appendChild(this.container);
 	}
 
 	/*
@@ -80,44 +91,133 @@ class Tiles {
 		this.start = new Date();
 
 		let bbox = this.utils.canvasBBox();
+
+		/*
 		if(!this.asd){
 			this.asd = true;
-			this.draw.rect(bbox, 'Canvas Bounds');
+			const canvasBox = this.draw.rect(bbox, 'Init Canvas Bounds');
+			canvasBox.setAttribute('name','initCanvasBox');
 		}
+		*/
 		
 		let zoomID = this.map.zoomID;
-			zoomID = 14;
+		// zoomID = 14;
+
+		/*
+
+		Hide Zoom Collection and Reassign Current Zoom ID
+
+		*/
+
+		if(zoomID !== this.currentZoomID){
+
+			// Hide Zoom Collection
+			if(this.storage.tiles[this.currentZoomID]){
+				this.storage.tiles[this.currentZoomID].container.classList.add('hide');
+				this.storage.tiles[this.currentZoomID].hide = true;
+			}
+
+			// Show Zoom Collection
+			if(this.storage.tiles[zoomID]){
+				this.storage.tiles[zoomID].container.classList.remove('hide');
+				this.storage.tiles[zoomID].hide = false;
+			}
+
+			// Reassign Zoom ID
+			this.currentZoomID = zoomID;
+		}
+
+		/*
+
+		Create Tile Assets
+
+		*/
 
 		if(!this.storage.tiles[zoomID]){
-			this.storage.tiles[zoomID] = {};
-
+			const container = document.createElementNS(this.map.svgNS, 'g');
+			container.setAttribute('zoom', zoomID);
+			container.classList.add('zoom');
+			this.container.appendChild(container);
+			this.storage.tiles[zoomID] = {
+				container: container,
+				visible: {},
+				items: {}
+			};
 			this.storage.sorted[zoomID] = JSON.parse(JSON.stringify(this.map.style.groups));
 		}
 
 		const xTiles = this.tile(zoomID, [bbox[0], bbox[1]]);
 		// const yTiles = this.tile(zoomID, [bbox[2] - LL_EPSILON, bbox[3] + LL_EPSILON], true)
 		const yTiles = this.tile(zoomID, [bbox[2], bbox[3]], true);
-		console.log(xTiles, yTiles);
+		// console.log(xTiles, yTiles);
 
 		// this.await = (yTiles[0] - xTiles[0] + 1) * (yTiles[1] - xTiles[1] + 1);
 
+		let visible = {};
+
 		for(let x = xTiles[0]; x < yTiles[0]; x++){
-			for(let y = xTiles[1]; y <= yTiles[1]; y++){
+			for(let y = xTiles[1]; y < yTiles[1]; y++){
 				let url = `${zoomID}/${x}/${y}`;
-				if(typeof this.storage.tiles[zoomID][url] === 'undefined'){
+				
+				visible[url] = true;
+
+				if(typeof this.storage.tiles[zoomID].items[url] === 'undefined'){
 					//console.log('Render', url);
 					// await this.load(zoomID, url);
-					if(['14/8190/5448','14/8191/5447','14/8189/5447'].includes(url)){
-						await this.load(zoomID, url);
-					}
-					let bounds = this.getBounds([zoomID,x,y]);
-					this.draw.rect(bounds, url);
-					this.storage.tiles[zoomID][url] = 1;
+					// if(['14/8190/5448','14/8191/5447','14/8189/5447'].includes(url)){
+						// await this.load(zoomID, url);
+					// }
+					const bounds = this.getBounds([zoomID,x,y]);
+					const border = this.draw.rect(bounds, url, this.storage.tiles[zoomID].container);
+					border.setAttribute('tile', url);
+					// this.storage.src[zoomID][url] = 1;
+
+					/*
+
+					Extend Bounds while adding features
+
+					*/
+
+					this.storage.tiles[zoomID].items[url] = {
+						id: url,
+						bounds: bounds,
+						hide: false,
+						border: border
+					};
 				} else {
-					// console.log('Skip', url);
+
+					// Remove From Offload List
+
+					if(this.storage.tiles[zoomID].visible[url]){
+						delete this.storage.tiles[zoomID].visible[url];
+					}
+
+					// Show if it has been hidden
+					let tile = this.storage.tiles[zoomID].items[url];
+					if(tile.hide){
+						tile.border.classList.remove('hide');
+						tile.hide = false;
+					}
 				}
 			}
 		}
+
+		/*
+
+		Offload Unused Tiles
+
+		*/
+
+		for(let url in this.storage.tiles[zoomID].visible){
+			let tile = this.storage.tiles[zoomID].items[url];
+			tile.border.classList.add('hide');
+			tile.hide = true;
+		}
+
+		// Reassign visible tiles
+		this.storage.tiles[zoomID].visible = visible;
+
+
 
 		/*
 
@@ -146,7 +246,7 @@ class Tiles {
 			result = '0';
 		}
 		
-		this.storage.tiles[zoomID][url] = result;
+		this.storage.tiles[zoomID][url].src = result;
 
 		if(result !== '0'){
 			this.parse(zoomID, url);
@@ -163,8 +263,8 @@ class Tiles {
 	parse = (zoomID, url) => {
 		let groups = this.storage.sorted[zoomID];
 
-		let tile = this.storage.tiles[zoomID][url];
-		let features = tile.split('\n');
+		let srcTile = this.storage.tiles[zoomID][url].src;
+		let features = srcTile.split('\n');
 			features.pop(); // Remove Last Empty Line
 
 		for(let item of features){

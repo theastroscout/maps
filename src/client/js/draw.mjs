@@ -258,12 +258,14 @@ class Draw {
 
 	*/
 
-	rect = (bounds, name) => {
+	rect = (bounds, name, target) => {
 		const svgNS = 'http://www.w3.org/2000/svg';
+		const g = document.createElementNS(svgNS, 'g');
+
 		const [x1,y1] = this.utils.xy([bounds[0],bounds[1]]);
 		const [x2,y2] = this.utils.xy([bounds[2],bounds[3]]);
-		const width = Math.abs(x2 - x1);
-		const height = Math.abs(y2 - y1);
+		const width = x2 - x1;
+		const height = y2 - y1;
 		const rect = document.createElementNS(svgNS, 'rect');
 		rect.setAttribute('x', x1);
 		rect.setAttribute('y', y1);
@@ -274,7 +276,8 @@ class Draw {
 		rect.setAttribute('vector-effect', 'non-scaling-stroke');
 		rect.setAttribute('fill', 'none');
 
-		this.map.svg.appendChild(rect);
+		g.appendChild(rect);
+		
 
 		if(name){
 			const text = document.createElementNS(svgNS,'text');
@@ -283,8 +286,13 @@ class Draw {
 			text.setAttribute('font-size', '300');
 			text.setAttribute('fill', 'black');
 			text.textContent = name;
-			this.map.svg.append(text);
+			g.appendChild(text);
 		}
+
+		target = target || this.map.svg;
+		target.appendChild(g);
+
+		return g;
 	}
 
 	/*
