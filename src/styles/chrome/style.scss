@@ -220,16 +220,16 @@ Surfy°Maps › Chrome
 				> g.buildings {
 					pointer-events: auto;
 
-					> g.studiums {
-						fill-rule: evenodd;
-					}
-
 					> g.buildings {
 						fill-rule: evenodd;
 						fill: #f7f7f7;
 						stroke: #bfbfbf;
 						stroke-width: 1px;
 						vector-effect: non-scaling-stroke;
+					}
+
+					> g.studiums {
+						fill-rule: evenodd;
 					}
 				}
 

@@ -492,7 +492,7 @@ class Maps {
 			// console.log(path, path.slice(0, 5).join('>'))
 		}
 
-		this.map.style.groups = Object.values(groups);
+		this.map.style.groups = groups; // Object.values(groups);
 
 		/*
 

@@ -181,7 +181,8 @@ class Tiles {
 
 					let groups = {};
 
-					for(let group of this.map.style.groups){
+					for(let groupName in this.map.style.groups){
+						const group = this.map.style.groups[groupName];
 						// console.log(group)
 						let groupEl = document.createElementNS(this.map.svgNS, 'g');
 						groupEl.classList.add(group.name);
@@ -323,11 +324,15 @@ class Tiles {
 		let features = srcTile.split('\n');
 			features.pop(); // Remove Last Empty Line
 
+		let groupsMap = ['water','landuse','green','tunnels','roads','railways','buildings'];
+
 		for(let item of features){
 			let chunks = item.split('\t');
 			let coords = JSON.parse(chunks.pop());
 
-			const group = this.map.style.groups[chunks[2]];
+			const groupName = groupsMap[chunks[2]];
+			const group = this.map.style.groups[groupName];
+			console.log(chunks[2], groupName, group)
 			const layer = group.layers[chunks[3]];
 			const container = tile.groups[group.name].layers[layer];
 
