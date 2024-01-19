@@ -219,13 +219,14 @@ Surfy°Maps › Chrome
 
 				> g.buildings {
 					pointer-events: auto;
-					--opacity-values: 1 2, 3 4, 5 6;
-					--opacity: .5;
+					--opacity-rule: 14 0, 15 1;
+					--opacity: 1;
 					opacity: var(--opacity);
+					--fill: black; // #f7f7f7
 
 					> g.buildings {
 						fill-rule: evenodd;
-						fill: #f7f7f7;
+						fill: var(--fill);
 						stroke: #bfbfbf;
 						stroke-width: 1px;
 						vector-effect: non-scaling-stroke;

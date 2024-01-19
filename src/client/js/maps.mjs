@@ -490,7 +490,15 @@ class Maps {
 				} else {
 
 					// Group Style
-					console.log(group, rule);
+					console.log(group);
+					let opacityRule = rule.style.getPropertyValue('--opacity-rule');
+					if(opacityRule){
+						opacityRule = opacityRule.split(',').map(v => v.trim().split(' ').map(Number))
+						console.log(opacityRule);
+					}
+					console.log('');
+					// console.log(rule.style.getPropertyValue('--fill'));
+					// rule.style.setProperty('--fill', 'red');
 					// console.log(rule.getPropertyValue('--opacity-values'))
 				}
 				
