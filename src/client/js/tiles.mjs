@@ -169,6 +169,7 @@ class Tiles {
 
 					let container = document.createElementNS(this.map.svgNS, 'g');
 						container.setAttribute('tile', url);
+						container.classList.add('tile');
 
 					this.storage.tiles[zoomID].container.append(container);
 
@@ -180,7 +181,7 @@ class Tiles {
 
 					let groups = {};
 
-					for(let group of this.map._styleMap){
+					for(let group of this.map.style.groups){
 						// console.log(group)
 						let groupEl = document.createElementNS(this.map.svgNS, 'g');
 						groupEl.classList.add(group.name);
@@ -292,6 +293,7 @@ class Tiles {
 		let result;
 		try {
 			let rUrl = `${this.map.style.tiles}/${url}`;
+			console.log(rUrl)
 			result = await(await fetch(rUrl)).text();
 		} catch(e){
 			// Continue Regardless Error
@@ -325,7 +327,7 @@ class Tiles {
 			let chunks = item.split('\t');
 			let coords = JSON.parse(chunks.pop());
 
-			const group = this.map._styleMap[chunks[2]];
+			const group = this.map.style.groups[chunks[2]];
 			const layer = group.layers[chunks[3]];
 			const container = tile.groups[group.name].layers[layer];
 

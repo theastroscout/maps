@@ -120,9 +120,14 @@ class Utils {
 		const [cLng, cLat] = viewBox.center;
 		viewBox = viewBox || this.map.viewBox;
 
+		/*
+
+		if(!viewBox.scale){
 		viewBox.scale = 0.2 * Math.pow(2, (this.map.options.zoom - 16));
-		viewBox.w = this.map.svg.clientWidth / viewBox.scale;
-		viewBox.h = this.map.svg.clientHeight / viewBox.scale;
+		viewBox.w = Math.round(this.map.svg.clientWidth / viewBox.scale);
+		viewBox.h = Math.round(this.map.svg.clientHeight / viewBox.scale);
+
+		*/
 
 		const dx = this.map.viewBox.x + this.map.viewBox.w / 2;
 		const x =  dx + cLng;

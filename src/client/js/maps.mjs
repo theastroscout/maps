@@ -2,6 +2,8 @@
 
 Maps
 
+Move Tunnels to the Roads
+
 */
 
 import Tiles from './tiles.mjs';
@@ -69,9 +71,10 @@ class Maps {
 
 		this.svg = document.createElementNS(this.svgNS, 'svg');
 		this.svg.setAttribute('shape-rendering', 'geometricPrecision');
+		this.svg.classList.add('container');
 		this.container.append(this.svg);
 
-		this.groups = {};
+		// this.groups = {};
 
 		/*
 
@@ -214,6 +217,8 @@ class Maps {
 
 				this.container.classList.add('move');
 
+				console.log('Start',this.viewBox)
+
 				document.addEventListener('mousemove', this.mouseHandler);
 				document.addEventListener('mouseup', this.mouseHandler);
 
@@ -232,6 +237,8 @@ class Maps {
 				
 				this.viewBox.x = Math.round(this.viewBox.x + dx);
 				this.viewBox.y = Math.round(this.viewBox.y + dy);
+
+				console.log('Move',this.viewBox)
 
 				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 
@@ -296,6 +303,8 @@ class Maps {
 
 				Zoom
 
+				Rewrite: From Zoom to Scale
+
 				*/
 
 				this.container.classList.add('move');
@@ -353,16 +362,7 @@ class Maps {
 	*/
 
 	getStyle = async style => {
-		const svgNS = 'http://www.w3.org/2000/svg';
-
-		/*
-
-		Definitions
-
-		*/
-
-		const defs = document.createElementNS(svgNS, 'defs');
-		this.svg.appendChild(defs);
+		// const svgNS = 'http://www.w3.org/2000/svg';
 
 		/*
 
@@ -370,23 +370,30 @@ class Maps {
 
 		*/
 
-		const path = `/styles/${style || this.options.style}`;
+		this.style = {
+			url: `/styles/${style || this.options.style}`
+		};
+		
+		this.style.obj = document.createElement('link');
+		this.style.obj.rel = 'stylesheet';
+		this.style.obj.type = 'text/css';
+		this.style.obj.href = this.style.url + '/style.scss';
+		this.style.obj.map = this;
 
-		let link = document.createElement('link');
-		link.rel = 'stylesheet';
-		link.type = 'text/css';
-		link.href = path + '/style.scss';
-		document.head.appendChild(link);
+		this.style.obj.onload = this.parseStyle;
+		document.head.appendChild(this.style.obj);
 
+		/*
 		this.style = await(await fetch(`${path}/config.json`)).json();
 		console.log('Map Style', this.style)
 		this._styleMap = [];
+		*/
 
 		/*
 
 		Parse Style
 
-		*/
+		
 
 		for(let [groupName, group] of Object.entries(this.style['groups'])){
 			this._styleMap.push({
@@ -398,11 +405,6 @@ class Maps {
 			this.groups[groupName].layers = {};
 			this.groups[groupName].setAttribute('class', groupName);
 
-			/*
-
-			Create Layers
-
-			*/
 
 			for(let layer in group.layers){
 				let layerItem = group.layers[layer];
@@ -436,15 +438,61 @@ class Maps {
 		this.groups.general.setAttribute('class', 'general');
 		this.svg.appendChild(this.groups.general);
 
-		/*
-
-		Text
-
-		*/
-
 		this.groups.texts = document.createElementNS(svgNS, 'g');
 		this.groups.texts.setAttribute('class', 'texts');
 		this.svg.appendChild(this.groups.texts);
+
+		*/
+
+		
+
+		return true;
+	}
+
+	parseStyle(e){
+
+		/*
+
+		Definitions
+
+		*/
+
+		const defs = document.createElementNS(this.map.svgNS, 'defs');
+		this.map.svg.appendChild(defs);
+
+		const rootStyles = getComputedStyle(this.map.container);
+		this.map.style.name = rootStyles.getPropertyValue('--surfy-maps-style-name').replace(/['"]+/g, '');
+		this.map.style.tiles = rootStyles.getPropertyValue('--surfy-maps-tiles').replace(/['"]+/g, '');
+
+		/*
+
+		Collect Groups and Layers
+
+		*/
+
+		let groups = {};
+		for(let rule of this.sheet.rules){
+			let path = rule.selectorText.split('>').map(v => v.trim());
+			const prefix = path.slice(0, 5).join('/')
+			if(path[6] && prefix === '.SurfyMaps/svg.container/g.tiles/g.zoom/g.tile'){
+				let group = path[5].replace('g.', '');
+				let layer = path[6].replace('g.', '');
+				console.log(group, layer)
+				
+				if(!groups[group]){
+					groups[group] = {
+						name: group,
+						layers: []
+					}
+				}
+
+				groups[group].layers.push(layer);
+				
+			}
+			// console.log(path, path.slice(0, 5).join('>'))
+		}
+
+		this.map.style.groups = Object.values(groups);
 
 		/*
 
@@ -452,8 +500,8 @@ class Maps {
 
 		*/
 
-		if(!this.states.ready){
-			this.states.ready = true;
+		if(!this.map.states.ready){
+			this.map.states.ready = true;
 
 			/*
 
@@ -461,14 +509,16 @@ class Maps {
 
 			*/
 
-			window.addEventListener('resize', this.resize, { passive: true });
-			this.resize();
-
-			// this.tiles.get();
+			window.addEventListener('resize', this.map.resize, { passive: true });
+			this.map.resize();
 		}
+	};
 
-		return true;
-	}
+	/*
+
+	Set Center of the Map
+
+	*/
 
 	setCenter = (coords,animate) => {
 		const [x, y] = this.utils.xy(coords || this.options.coords);
@@ -478,8 +528,8 @@ class Maps {
 		// $.map.options.zoom = 16;
 		// $.map.setCenter();
 
-		this.viewBox.w = this.svg.clientWidth / this.viewBox.scale;
-		this.viewBox.h = this.svg.clientHeight / this.viewBox.scale;
+		this.viewBox.w = Math.round(this.svg.clientWidth / this.viewBox.scale);
+		this.viewBox.h = Math.round(this.svg.clientHeight / this.viewBox.scale);
 
 		const dx = x / this.viewBox.scale;
 		const dy = y / this.viewBox.scale;
