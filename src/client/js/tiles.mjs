@@ -227,6 +227,7 @@ class Tiles {
 						border: border,
 						container: container,
 						groups: groups,
+						joinTiles: {},
 						features: {}
 					};
 
@@ -234,9 +235,6 @@ class Tiles {
 					if(['14/8190/5448','14/8191/5448'].includes(url)){
 						this.load(zoomID, url);
 					}
-
-					
-
 
 				} else {
 
@@ -261,6 +259,16 @@ class Tiles {
 		Offload Unused Tiles
 
 		*/
+
+		for(let url in visible){
+			let tile = this.storage.tiles[zoomID].items[url];
+			for(let joinTileURL in tile.joinTiles){
+				console.log('Remove From offload',joinTileURL);
+				if(this.storage.tiles[zoomID].visible[url]){
+					delete this.storage.tiles[zoomID].visible[url];
+				}
+			}
+		}
 
 		for(let url in this.storage.tiles[zoomID].visible){
 			let tile = this.storage.tiles[zoomID].items[url];
@@ -332,7 +340,7 @@ class Tiles {
 
 			const groupName = groupsMap[chunks[2]];
 			const group = this.map.style.groups[groupName];
-			console.log(chunks[2], groupName, group)
+			
 			const layer = group.layers[chunks[3]];
 			const container = tile.groups[group.name].layers[layer];
 
@@ -344,6 +352,7 @@ class Tiles {
 
 			let feature = {
 				id: chunks[0],
+				tileID: tile.id,
 				type: geometryTypes[chunks[1]],
 				group: group.name,
 				layer: layer,
@@ -391,6 +400,10 @@ class Tiles {
 				
 				// featureLink = this.storage.features[feature.id];
 			} else {
+
+				// console.log(featureItem.tileID)
+				// this.storage.tiles[zoomID].items[featureItem.tileID].joinTiles[url] = true;
+				tile.joinTiles[featureItem.tileID] = true;
 
 				/*
 

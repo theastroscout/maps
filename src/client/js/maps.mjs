@@ -238,8 +238,6 @@ class Maps {
 				this.viewBox.x = Math.round(this.viewBox.x + dx);
 				this.viewBox.y = Math.round(this.viewBox.y + dy);
 
-				console.log('Move',this.viewBox)
-
 				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 
 				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
