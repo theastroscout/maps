@@ -222,11 +222,10 @@ Surfy°Maps › Chrome
 					--opacity-rule: 14 0, 15.5 1;
 					--opacity: 1;
 					opacity: var(--opacity);
-					--fill: black; // #f7f7f7
 
 					> g.buildings {
 						fill-rule: evenodd;
-						fill: var(--fill);
+						fill: #f7f7f7;
 						stroke: #bfbfbf;
 						stroke-width: 1px;
 						vector-effect: non-scaling-stroke;

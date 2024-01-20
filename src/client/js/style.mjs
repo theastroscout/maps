@@ -133,7 +133,7 @@ class Style {
 
 	/*
 
-	Calculate Values
+	Calculate Style Values
 
 	*/
 

@@ -36,7 +36,7 @@ class Maps {
 			coords: [-0.026704,51.505599], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 14
+			zoom: 12
 		};
 
 		
@@ -578,6 +578,8 @@ class Maps {
 		} else {
 			this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
 		}
+
+		this.style.render();
 	}
 }
 

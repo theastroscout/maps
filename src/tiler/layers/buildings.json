@@ -16,7 +16,7 @@
 					"layer": "stadiums",
 					"values": [ "stadium" ],
 					"properties": [ "name" ],
-					"minzoom": 13,
+					"minzoom": 14,
 					"centroid": true
 				},
 				{
@@ -24,7 +24,7 @@
 					"layer": "buildings",
 					"values": "any",
 					"properties": [ "name", "building" ],
-					"minzoom": 12
+					"minzoom": 14
 				}
 			]
 		}

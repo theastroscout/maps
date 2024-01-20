@@ -16,7 +16,7 @@
 					"layer": "green",
 					"values": [ "grass" ],
 					"properties": [ ],
-					"minzoom": 13
+					"minzoom": 14
 				}
 			],
 
@@ -26,7 +26,7 @@
 					"layer": "green",
 					"values": [ "park", "garden", "pitch", "playground" ],
 					"properties": [ ],
-					"minzoom": 8
+					"minzoom": 14
 				}
 			],
 
@@ -36,7 +36,7 @@
 					"layer": "green",
 					"values": [ "tree_row", "shrubbery" ],
 					"properties": [ ],
-					"minzoom": 13
+					"minzoom": 14
 				}
 			]
 		}
