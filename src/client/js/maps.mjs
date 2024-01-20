@@ -6,7 +6,7 @@ Move Tunnels to the Roads
 
 */
 
-import Styles from './styles.mjs';
+import Style from './style.mjs';
 import Tiles from './tiles.mjs';
 import Utils from './utils.mjs';
 import Draw from './draw.mjs';
@@ -144,7 +144,7 @@ class Maps {
 
 		*/
 
-		this.styles = new Styles(this);
+		this.style = new Style(this);
 		this.utils = new Utils(this);
 		this.tiles = new Tiles(this);
 		this.draw = new Draw(this);
@@ -166,7 +166,7 @@ class Maps {
 
 		*/
 
-		this.getStyle();
+		this.style.get();
 		this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 	}
 
