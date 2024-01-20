@@ -140,6 +140,8 @@ class Style {
 	render = () => {
 		for(let rule of this.rules){
 			console.log(rule);
+			const v = this.map.utils.getValue(rule.rule);
+			rule.obj.style.setProperty('--opacity', v);
 		}
 	}
 };
