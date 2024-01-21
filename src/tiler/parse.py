@@ -9,14 +9,6 @@ CONFIG_NAME = 'london'
 CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 print(CONFIG)
 
-# Create GeoJSON Directory
-shutil.rmtree(CONFIG['geojson'], ignore_errors=True)
-os.makedirs(CONFIG['geojson'], exist_ok=True)
-
-# Create Data Directory
-shutil.rmtree(CONFIG['data'], ignore_errors=True)
-os.makedirs(CONFIG['data'], exist_ok=True)
-
 
 class Parser:
 
@@ -84,10 +76,21 @@ class Parser:
 
 if __name__ == '__main__':
 
+	'''
+	# Create GeoJSON Directory
+	shutil.rmtree(CONFIG['geojson'], ignore_errors=True)
+	os.makedirs(CONFIG['geojson'], exist_ok=True)
+
+	# Create Data Directory
+	shutil.rmtree(CONFIG['data'], ignore_errors=True)
+	os.makedirs(CONFIG['data'], exist_ok=True)
+
 	print('Parse PBF...')
 	parser = Parser(CONFIG)
 
 	parser.go()
+
+	'''
 
 	print('Create Tiles...')
 	create_tiles(CONFIG)

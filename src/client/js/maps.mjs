@@ -36,7 +36,7 @@ class Maps {
 			coords: [-0.026704,51.505599], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 12
+			zoom: 11
 		};
 
 		
@@ -208,7 +208,11 @@ class Maps {
 
 	mouseHandler = e => {
 
-		// https://stackoverflow.com/questions/52576376/how-to-zoom-in-on-a-complex-svg-structure
+		/*
+
+		https://stackoverflow.com/questions/52576376/how-to-zoom-in-on-a-complex-svg-structure
+
+		*/
 
 		switch(e.type){
 			case 'mousedown':
