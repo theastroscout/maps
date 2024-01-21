@@ -52,7 +52,7 @@ def parse_layer(geojson_file, tiles_dir):
 
 def make_tile(data):
 	[df, tile, zoom, tiles, tiles_dir] = data
-	# print('Parse Tile', tile)
+	print('Parse Tile', tile)
 	south, west, north, east = mercantile.bounds(tile)
 
 	tile_bbox = box(south, west, north, east)
@@ -98,6 +98,8 @@ def make_tile(data):
 	else:
 		df_temp.to_file(output_file, driver='GeoJSON', mode=mode)
 		tiles.append([tile.z, tile.x, tile.y])
+
+	return True
 
 '''
 
