@@ -12,7 +12,7 @@ import mercantile
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import shape, box
-from compress import compress
+from compress import compress_tiles
 
 import multiprocessing
 num_cores = multiprocessing.cpu_count()
@@ -130,7 +130,8 @@ def create_tiles(CONFIG):
 			print('Creating Tiles from {}'.format(path))
 			parse_layer(path, CONFIG['data'])
 
-	print('Compressing...')
+	compress_tiles(CONFIG)
+	# print('Compressing...')
 	# for tile in tiles:
 	# 	compress(CONFIG, tile)
 

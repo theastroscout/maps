@@ -26,6 +26,7 @@ def parse_coords(coords):
 	return coords
 
 def compress_tiles(CONFIG):
+	print('Compress tiles')
 	# geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
 	# output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
 
