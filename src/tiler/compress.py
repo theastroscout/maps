@@ -6,6 +6,8 @@ from shapely.geometry import LineString, MultiLineString, Polygon, MultiPolygon,
 from shapely.ops import linemerge
 import pandas as pd
 
+import multiprocessing
+
 geometry = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
 
 simple = {
@@ -34,18 +36,26 @@ def compress_tiles(CONFIG):
 	# output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
 
 	tiles_dir = CONFIG['data']
+	bunch = []
 	for root, dirs, files in os.walk(tiles_dir):
 		for file in files:
 			path = os.path.join(root, file)
 			tile = re.findall(r'/(\d+)/(\d+)/(\d+)\.geojson', path)[0]
-			compress(CONFIG, tile)
+			bunch.append([CONFIG, tile])
+			# compress(CONFIG, tile)
+
+	if len(bunch):
+		num_cores = multiprocessing.cpu_count()
+		with multiprocessing.Pool(processes=num_cores) as pool:
+				pool.map(compress, bunch)
 
 	end_time = time.time()
-	print('Tiles compressed in {}s'.format(end_time - start_time))
+	print('Tiles compressed in {}s'.format(round(end_time - start_time,3)))
 
 
 
-def compress(CONFIG, tile):
+def compress(data):
+	[CONFIG, tile] = data
 	z,x,y = tile
 	geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
 	output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)

@@ -41,6 +41,8 @@ def parse_layer(geojson_file, tiles_dir):
 			#	tiles.append([tile.z, tile.x, tile.y])
 			
 			bunch.append([df,tile,zoom,tiles_dir])
+
+			'''
 			if len(bunch) == 8:
 				# print('Run bunch', len(bunch))
 
@@ -48,6 +50,7 @@ def parse_layer(geojson_file, tiles_dir):
 					pool.map(make_tile, bunch)
 
 				bunch = []
+			'''
 
 		if len(bunch):
 			# print('Run bunch', len(bunch))
@@ -135,7 +138,7 @@ def create_tiles(CONFIG):
 			parse_layer(path, CONFIG['data'])
 
 	end_time = time.time()
-	print('Tiles created in {}s'.format(end_time - start_time))
+	print('Tiles created in {}s'.format(round(end_time - start_time,3)))
 	compress_tiles(CONFIG)
 	# print('Compressing...')
 	# for tile in tiles:

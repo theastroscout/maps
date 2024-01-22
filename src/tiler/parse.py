@@ -92,4 +92,4 @@ if __name__ == '__main__':
 	create_tiles(CONFIG)
 
 	end_time = time.time()
-	print('Full Parse Completed in {}s'.format(end_time - start_time))
+	print('Full Parse Completed in {}s'.format(round(end_time - start_time,3)))
