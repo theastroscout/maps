@@ -35,24 +35,30 @@ def parse_layer(geojson_file, tiles_dir):
 
 		bunch = []
 		for tile in mercantile.tiles(min_lng, min_lat, max_lng, max_lat, zooms=zoom, truncate=False):
+
+			output_dir = os.path.join(tiles_dir, str(tile.z), str(tile.x))
+			output_file = os.path.join(output_dir, f'{tile.y}.geojson')
+			if not os.path.exists(output_file):
+				tiles.append([tile.z, tile.x, tile.y])
 			
 			bunch.append([df,tile,zoom,tiles,tiles_dir])
 			if len(bunch) == 8:
 				# print('Run bunch', len(bunch))
+
 				with multiprocessing.Pool(processes=num_cores) as pool:
 					pool.map(make_tile, bunch)
 
 				bunch = []
 
 		if len(bunch):
-			print('Run bunch', len(bunch))
+			# print('Run bunch', len(bunch))
 			with multiprocessing.Pool(processes=num_cores) as pool:
 				pool.map(make_tile, bunch)
 
 
 def make_tile(data):
 	[df, tile, zoom, tiles, tiles_dir] = data
-	print('Parse Tile', tile)
+	
 	south, west, north, east = mercantile.bounds(tile)
 
 	tile_bbox = box(south, west, north, east)
@@ -62,6 +68,7 @@ def make_tile(data):
 	df_temp = df_temp[df_temp.geometry.intersects(tile_bbox)]
 	
 	if df_temp.empty:
+		# print('Intersects empty')
 		return False # continue # Skip if tile is empty
 
 	df_temp.geometry = df_temp.geometry.intersection(tile_bbox) # , align=False
@@ -69,6 +76,7 @@ def make_tile(data):
 	# Zoom filter
 	df_temp = df_temp[(zoom >= df_temp['minzoom']) & (zoom <= df_temp['maxzoom'])]
 	if df_temp.empty:
+		# print('Skip Zoom Limits')
 		return False # continue # Skip if tile is empty
 
 	# Simplification
@@ -84,9 +92,9 @@ def make_tile(data):
 
 	df_temp = df_temp.round(3)
 
-	if INIT:
-		mode = 'w'
-	elif os.path.exists(output_file):
+	# print('Create Tile', tile, output_file)
+
+	if os.path.exists(output_file):
 		mode = 'a'
 	else:
 		mode = 'w'
