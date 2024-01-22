@@ -37,8 +37,8 @@ def parse_layer(geojson_file, tiles_dir):
 
 			output_dir = os.path.join(tiles_dir, str(tile.z), str(tile.x))
 			output_file = os.path.join(output_dir, f'{tile.y}.geojson')
-			if not os.path.exists(output_file):
-				tiles.append([tile.z, tile.x, tile.y])
+			#if not os.path.exists(output_file):
+			#	tiles.append([tile.z, tile.x, tile.y])
 			
 			bunch.append([df,tile,zoom,tiles_dir])
 			if len(bunch) == 8:
