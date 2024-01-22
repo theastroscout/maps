@@ -7,6 +7,7 @@ The write mode, ‘w’ to overwrite the existing file and ‘a’ to append.
 
 import os
 os.environ['USE_PYGEOS'] = '0'
+import time
 import shutil
 import mercantile
 import geopandas as gpd
@@ -114,8 +115,11 @@ Create Tiles
 '''
 
 def create_tiles(CONFIG):
+
 	global INIT
 	global tiles
+
+	start_time = time.time()
 
 	# Create Data Directory
 	shutil.rmtree(CONFIG['data'], ignore_errors=True)
@@ -130,9 +134,11 @@ def create_tiles(CONFIG):
 			print('Creating Tiles from {}'.format(path))
 			parse_layer(path, CONFIG['data'])
 
+	end_time = time.time()
+	print('Tiles created in {}s'.format(end_time - start_time))
 	compress_tiles(CONFIG)
 	# print('Compressing...')
 	# for tile in tiles:
 	# 	compress(CONFIG, tile)
 
-	print('Complete')
+	

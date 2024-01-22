@@ -1,4 +1,5 @@
 import os
+import time
 import re
 import json
 from shapely.geometry import LineString, MultiLineString, Polygon, MultiPolygon, mapping
@@ -27,6 +28,8 @@ def parse_coords(coords):
 
 def compress_tiles(CONFIG):
 	print('Compress tiles')
+
+	start_time = time.time()
 	# geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
 	# output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
 
@@ -36,6 +39,9 @@ def compress_tiles(CONFIG):
 			path = os.path.join(root, file)
 			tile = re.findall(r'/(\d+)/(\d+)/(\d+)\.geojson', path)[0]
 			compress(CONFIG, tile)
+
+	end_time = time.time()
+	print('Tiles compressed in {}s'.format(end_time - start_time))
 
 
 

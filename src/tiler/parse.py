@@ -1,11 +1,12 @@
 import os
 import shutil
 import json
+import time
 
 from utils.osm import OSM_handler
 from tiles import create_tiles
 
-CONFIG_NAME = 'london'
+CONFIG_NAME = 'canary'
 CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 print(CONFIG)
 
@@ -76,21 +77,19 @@ class Parser:
 
 if __name__ == '__main__':
 
-	'''
+	start_time = time.time()
+	
 	# Create GeoJSON Directory
 	shutil.rmtree(CONFIG['geojson'], ignore_errors=True)
 	os.makedirs(CONFIG['geojson'], exist_ok=True)
-
-	# Create Data Directory
-	shutil.rmtree(CONFIG['data'], ignore_errors=True)
-	os.makedirs(CONFIG['data'], exist_ok=True)
 
 	print('Parse PBF...')
 	parser = Parser(CONFIG)
 
 	parser.go()
 
-	'''
-
 	print('Create Tiles...')
 	create_tiles(CONFIG)
+
+	end_time = time.time()
+	print('Full Parse Completed in {}s'.format(end_time - start_time))
