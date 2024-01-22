@@ -25,6 +25,18 @@ def parse_coords(coords):
 			coords[idx] = round(c, 6)
 	return coords
 
+def compress_tiles(CONFIG):
+	# geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
+	# output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
+
+	tiles_dir = CONFIG['data']
+	for root, dirs, files in os.walk(tiles_dir):
+		for file in files:
+			path = os.path.join(root, file)
+			tile = re.findall(r'/(\d+)/(\d+)/(\d+)\.geojson', path)[0]
+			compress(CONFIG, tile)
+
+
 
 def compress(CONFIG, tile):
 	z,x,y = tile
@@ -177,3 +189,9 @@ def compress(CONFIG, tile):
 				coords = json.dumps(coords, separators=(',', ':'))
 				target.write('\t' + coords + '\n')
 
+
+if __name__ == '__main__':
+	CONFIG_NAME = 'london'
+	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
+
+	compress_tiles(CONFIG)

@@ -18,11 +18,9 @@ import multiprocessing
 num_cores = multiprocessing.cpu_count()
 
 INIT = True
-tiles = []
 
 def parse_layer(geojson_file, tiles_dir):
 	global INIT
-	global tiles
 	global num_cores
 	df = gpd.read_file(geojson_file, driver='GeoJSON')
 	min_lng, min_lat, max_lng, max_lat = df.geometry.total_bounds
@@ -41,7 +39,7 @@ def parse_layer(geojson_file, tiles_dir):
 			if not os.path.exists(output_file):
 				tiles.append([tile.z, tile.x, tile.y])
 			
-			bunch.append([df,tile,zoom,tiles,tiles_dir])
+			bunch.append([df,tile,zoom,tiles_dir])
 			if len(bunch) == 8:
 				# print('Run bunch', len(bunch))
 
@@ -57,7 +55,7 @@ def parse_layer(geojson_file, tiles_dir):
 
 
 def make_tile(data):
-	[df, tile, zoom, tiles, tiles_dir] = data
+	[df, tile, zoom, tiles_dir] = data
 	
 	south, west, north, east = mercantile.bounds(tile)
 
@@ -105,7 +103,7 @@ def make_tile(data):
 		merged_df.to_file(output_file, driver='GeoJSON', mode='w')
 	else:
 		df_temp.to_file(output_file, driver='GeoJSON', mode=mode)
-		tiles.append([tile.z, tile.x, tile.y])
+		# tiles.append([tile.z, tile.x, tile.y])
 
 	return True
 
@@ -133,7 +131,7 @@ def create_tiles(CONFIG):
 			parse_layer(path, CONFIG['data'])
 
 	print('Compressing...')
-	for tile in tiles:
-		compress(CONFIG, tile)
+	# for tile in tiles:
+	# 	compress(CONFIG, tile)
 
 	print('Complete')
