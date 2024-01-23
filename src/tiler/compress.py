@@ -21,6 +21,9 @@ simple = {
 	'14': 0.00001
 }
 
+def count_vertices(df):
+	return len(df.get_coordinates())
+
 def parse_coords(coords):
 	for idx, c in enumerate(coords):
 		if isinstance(c, list):
@@ -41,8 +44,11 @@ def compress_tiles(CONFIG):
 	for root, dirs, files in os.walk(tiles_dir):
 		for file in files:
 			path = os.path.join(root, file)
-			tile = re.findall(r'/(\d+)/(\d+)/(\d+)\.geojson', path)[0]
-			bunch.append([CONFIG, tile])
+			tile = re.findall(r'/(\d+)/(\d+)/(\d+)\.geojson', path)
+			if tile:
+				# compress([CONFIG, tile[0]])
+				# exit()
+				bunch.append([CONFIG, tile[0]])
 			# compress(CONFIG, tile)
 
 	if len(bunch):
@@ -52,15 +58,51 @@ def compress_tiles(CONFIG):
 
 	end_time = time.time()
 	print('Tiles compressed in {}s'.format(round(end_time - start_time,3)))
-	print('Nodes amount:',sum(result))
+	print(result)
+	print('Nodes amount:', sum(row[0] for row in result))
+	print('Nodes amount:', sum(row[1] for row in result))
 
 
 
 def compress(data):
 	[CONFIG, tile] = data
 	z,x,y = tile
+	print('Compres', tile)
 	geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
 	output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
+
+	compressed_json = CONFIG['data'] + '/{}/{}/{}.compressed.geojson'.format(z,x,y)
+
+	df = gpd.read_file(geojson, driver='GeoJSON')
+
+	OUTPUT = [count_vertices(df)]
+	
+	series = gpd.GeoSeries(df['geometry'])
+	series = series.simplify(tolerance=.0001, preserve_topology=True)
+	df['geometry'] = series
+
+	print(df.crs)
+	crs='EPSG:3395'
+	df = df.to_crs(crs) if df.crs is not None else df
+	df = df[df['geometry'].area >= .00001]
+
+	crs='EPSG:4326'
+	df = df.to_crs(crs) if df.crs is not None else df
+	# print(df2)
+
+	OUTPUT.append(count_vertices(df))
+
+	if df.empty:
+		return OUTPUT
+
+
+	df.to_file(compressed_json, driver='GeoJSON', mode='w')
+
+	
+	# print(df)
+	# exit()
+
+	geojson = compressed_json
 
 	z = str(z)
 	features = {}
@@ -179,8 +221,7 @@ def compress(data):
 					for m in coords:
 						for c in m:
 							
-							poly = Polygon(c)
-							
+							poly = Polygon(c)							
 							simplified_line = poly.simplify(simple[z], preserve_topology=True)
 							poly_mapped = mapping(simplified_line)['coordinates'][0]
 							new_coords.append(poly_mapped)
@@ -208,12 +249,15 @@ def compress(data):
 				coords = json.dumps(coords, separators=(',', ':'))
 				target.write('\t' + coords + '\n')
 
-	df = gpd.read_file(geojson, driver='GeoJSON')
-	return len(df.simplify(tolerance=.1, preserve_topology=True))
+	return OUTPUT
+	# df = gpd.read_file(geojson, driver='GeoJSON')
+	# df = df.simplify(tolerance=.1, preserve_topology=True)
+	# return count_vertices(df)
+	# return len(df.simplify(tolerance=.1, preserve_topology=True))
 
 
 if __name__ == '__main__':
-	CONFIG_NAME = 'london'
+	CONFIG_NAME = 'canary'
 	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 
 	compress_tiles(CONFIG)
