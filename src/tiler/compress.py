@@ -2,6 +2,7 @@ import os
 import time
 import re
 import json
+import geopandas as gpd
 from shapely.geometry import LineString, MultiLineString, Polygon, MultiPolygon, mapping
 from shapely.ops import linemerge
 import pandas as pd
@@ -47,10 +48,11 @@ def compress_tiles(CONFIG):
 	if len(bunch):
 		num_cores = multiprocessing.cpu_count()
 		with multiprocessing.Pool(processes=num_cores) as pool:
-				pool.map(compress, bunch)
+				result = pool.map(compress, bunch)
 
 	end_time = time.time()
 	print('Tiles compressed in {}s'.format(round(end_time - start_time,3)))
+	print('Nodes amount:',sum(result))
 
 
 
@@ -205,6 +207,9 @@ def compress(data):
 
 				coords = json.dumps(coords, separators=(',', ':'))
 				target.write('\t' + coords + '\n')
+
+	df = gpd.read_file(geojson, driver='GeoJSON')
+	return len(df.simplify(tolerance=.1, preserve_topology=True))
 
 
 if __name__ == '__main__':
