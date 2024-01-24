@@ -142,9 +142,32 @@ class Tiles {
 			const container = document.createElementNS(this.map.svgNS, 'g');
 			container.setAttribute('zoom', zoomID);
 			container.classList.add('zoom');
+
+			/*
+
+			Create Groups and Layers
+
+			*/
+
+			let groups = {};
+
+			for(let groupName in this.map.style.groups){
+				const group = this.map.style.groups[groupName];
+				let groupEl = document.createElementNS(this.map.svgNS, 'g');
+				groupEl.classList.add(group.name);
+				container.appendChild(groupEl);
+				groups[groupName] = {
+					container: groupEl,
+					tiles: {}
+				};
+			}
+
+
 			this.container.appendChild(container);
+
 			this.storage.tiles[zoomID] = {
 				container: container,
+				groups: groups,
 				visible: {},
 				items: {}
 			};

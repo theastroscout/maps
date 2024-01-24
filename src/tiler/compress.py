@@ -324,7 +324,12 @@ def compress(data):
 								# coordinates_list = [list(poly.exterior.coords) for poly in gdf['geometry'].iloc[0]]
 								# 
 								# coordinates_list = [list(poly.exterior.coords) if poly.exterior else [] for poly in gdf['geometry'].iloc[0]]
-								coordinates_list = [list(gdf['geometry'].iloc[0].exterior.coords)]
+
+								if gdf['geometry'][0].geom_type == 'Polygon':
+									coordinates_list = [list(gdf['geometry'].iloc[0].exterior.coords)]
+								else:
+									coordinates_list = [list(poly.exterior.coords) for poly in gdf['geometry'].iloc[0].geoms]
+
 								# print(coordinates_list)
 								new_coords.append(coordinates_list)
 							# print('\n\n')
@@ -365,6 +370,8 @@ def compress(data):
 
 if __name__ == '__main__':
 	CONFIG_NAME = 'canary'
+	CONFIG_NAME = 'isle-of-dogs'
+	CONFIG_NAME = 'london'
 	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 
 	compress_tiles(CONFIG)

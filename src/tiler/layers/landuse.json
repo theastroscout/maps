@@ -16,7 +16,7 @@
 					"layer": "landuse",
 					"values": "any",
 					"properties": [ ],
-					"minzoom": 8
+					"minzoom": 10
 				}
 			]
 		}

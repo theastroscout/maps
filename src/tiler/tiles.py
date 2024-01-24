@@ -66,6 +66,11 @@ def make_tile(data):
 	tile_bbox = box(south, west, north, east)
 	
 	df_temp = df.copy()
+
+	# Zoom filter
+	df_temp = df_temp[(zoom >= df_temp['minzoom']) & (zoom <= df_temp['maxzoom'])]
+	if df_temp.empty:
+		return False # continue # Skip if tile is empty
 	
 	df_temp = df_temp[df_temp.geometry.intersects(tile_bbox)]
 	
@@ -73,13 +78,10 @@ def make_tile(data):
 		# print('Intersects empty')
 		return False # continue # Skip if tile is empty
 
-	df_temp.geometry = df_temp.geometry.intersection(tile_bbox) # , align=False
 
-	# Zoom filter
-	df_temp = df_temp[(zoom >= df_temp['minzoom']) & (zoom <= df_temp['maxzoom'])]
-	if df_temp.empty:
-		# print('Skip Zoom Limits')
-		return False # continue # Skip if tile is empty
+	# df_temp.geometry = df_temp.geometry.intersection(tile_bbox) # , align=False
+
+	
 
 	# Simplification
 	# c = len(df_temp.geometry.get_coordinates())
@@ -92,7 +94,7 @@ def make_tile(data):
 	output_file = os.path.join(output_dir, f'{tile.y}.geojson')
 	os.makedirs(output_dir, exist_ok=True)
 
-	df_temp = df_temp.round(3)
+	# df_temp = df_temp.round(3)
 
 	# print('Create Tile', tile, output_file)
 
