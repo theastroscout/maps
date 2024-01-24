@@ -13,15 +13,13 @@
 			"building": [
 				{
 					"group": "buildings",
-					"layer": "stadiums",
+					"class": "stadium",
 					"values": [ "stadium" ],
 					"properties": [ "name" ],
-					"minzoom": 14,
-					"centroid": true
+					"minzoom": 14
 				},
 				{
 					"group": "buildings",
-					"layer": "buildings",
 					"values": "any",
 					"properties": [ "name", "building" ],
 					"minzoom": 14

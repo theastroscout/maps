@@ -13,7 +13,6 @@
 			"landuse": [
 				{
 					"group": "green",
-					"layer": "green",
 					"values": [ "grass" ],
 					"properties": [ ],
 					"minzoom": 14
@@ -23,8 +22,16 @@
 			"leisure": [
 				{
 					"group": "green",
-					"layer": "green",
-					"values": [ "park", "garden", "pitch", "playground" ],
+					"values": [ "park" ],
+					"properties": [ "name" ],
+					"minzoom": 14
+				}
+			],
+
+			"leisure": [
+				{
+					"group": "green",
+					"values": [ "garden", "pitch", "playground" ],
 					"properties": [ ],
 					"minzoom": 14
 				}
@@ -33,7 +40,6 @@
 			"natural": [
 				{
 					"group": "green",
-					"layer": "green",
 					"values": [ "tree_row", "shrubbery" ],
 					"properties": [ ],
 					"minzoom": 14

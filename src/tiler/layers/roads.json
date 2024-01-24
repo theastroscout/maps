@@ -11,8 +11,7 @@
 		"area": {
 			"man_made": [
 				{
-					"group": "roads",
-					"layer": "bridges",
+					"group": "bridges",
 					"values": [ "bridge" ],
 					"properties": [ "name" ],
 					"minzoom": 14
@@ -23,24 +22,24 @@
 			"highway": [
 				{
 					"group": "roads",
-					"layer": "motorways",
+					"layer": "highways",
 					"values": [ "motorway" ],
 					"properties": [ "name", "tunnel" ],
-					"minzoom": 5
+					"minzoom": 8
 				},
 				{
 					"group": "roads",
-					"layer": "trunks",
+					"layer": "highways",
 					"values": [ "trunk" ],
 					"properties": [ "name", "tunnel" ],
-					"minzoom": 5
+					"minzoom": 8
 				},
 				{
 					"group": "roads",
-					"layer": "primaries",
+					"layer": "highways",
 					"values": [ "primary" ],
 					"properties": [ "name", "tunnel" ],
-					"minzoom": 5
+					"minzoom": 8
 				},
 
 				{
@@ -53,7 +52,7 @@
 
 				{
 					"group": "roads",
-					"layer": "services",
+					"layer": "streets",
 					"values": [ "service" ],
 					"properties": [ "name", "tunnel" ],
 					"minzoom": 14

@@ -13,7 +13,6 @@
 			"landuse": [
 				{
 					"group": "landuse",
-					"layer": "landuse",
 					"values": "any",
 					"properties": [ ],
 					"minzoom": 10

@@ -13,7 +13,6 @@
 			"natural": [
 				{
 					"group": "water",
-					"layer": "water",
 					"values": [ "water" ],
 					"properties": [ "name" ],
 					"minzoom": 8
