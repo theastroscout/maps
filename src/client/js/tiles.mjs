@@ -148,6 +148,8 @@ class Tiles {
 				visible: {},
 				items: {}
 			};
+
+			this.storage.features[zoomID] = {};
 			// this.storage.sorted[zoomID] = JSON.parse(JSON.stringify(this.map.style.groups));
 		}
 
@@ -380,7 +382,7 @@ class Tiles {
 
 			*/
 
-			let featureItem = this.storage.features[feature.id];
+			let featureItem = this.storage.features[zoomID][feature.id];
 
 			if(!featureItem){
 
@@ -399,8 +401,8 @@ class Tiles {
 
 				*/
 
-				this.storage.features[feature.id] = this.storage.tiles[zoomID].items[url].features[feature.id];
-				featureItem = this.storage.features[feature.id];
+				this.storage.features[zoomID][feature.id] = this.storage.tiles[zoomID].items[url].features[feature.id];
+				featureItem = this.storage.features[zoomID][feature.id];
 				
 			} else {
 

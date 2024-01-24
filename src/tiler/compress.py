@@ -1,3 +1,9 @@
+'''
+
+	Compress and Formating GeoJSON tiles
+
+'''
+
 import os
 import time
 import re
@@ -9,8 +15,10 @@ import pandas as pd
 
 import multiprocessing
 
+# Geometry Types for Index
 geometry = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
 
+# Simplification Ration
 simple = {
 	'2': 0.001,
 	'4': 0.001,
@@ -21,62 +29,102 @@ simple = {
 	'14': 0.00001
 }
 
+# Vertices Counter
 def count_vertices(df):
 	return len(df.get_coordinates())
 
-def parse_coords(coords):
+# Fix Coords Precision. Round Coords to 6 Decimals
+def fix_coords_precision(coords):
 	for idx, c in enumerate(coords):
 		if isinstance(c, list):
-			parse_coords(c)
+			fix_coords_precision(c)
 		else:
 			coords[idx] = round(c, 6)
 	return coords
 
+'''
+
+	Compress Tiles
+
+'''
+
 def compress_tiles(CONFIG):
 	print('Compress tiles')
 
+	# Load Compressor Config with simplification
+	COMPRESSOR_CONFIG = json.load(open('./configs/compress.json', 'r'))
+
 	start_time = time.time()
-	# geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
-	# output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
 
 	tiles_dir = CONFIG['data']
+	
+	'''
+
+	Collect Data for further processing
+
+	'''
+
 	bunch = []
+
 	for root, dirs, files in os.walk(tiles_dir):
 		for file in files:
 			path = os.path.join(root, file)
 			tile = re.findall(r'/(\d+)/(\d+)/(\d+)\.geojson', path)
 			if tile:
-				# compress([CONFIG, tile[0]])
-				# exit()
-				bunch.append([CONFIG, tile[0]])
-			# compress(CONFIG, tile)
+				bunch.append([tile[0], COMPRESSOR_CONFIG, CONFIG])
 
+	'''
+
+	Processing Data
+
+	'''
 	if len(bunch):
 		num_cores = multiprocessing.cpu_count()
 		with multiprocessing.Pool(processes=num_cores) as pool:
 				result = pool.map(compress, bunch)
 
+	'''
+
+	Output Statistics
+
+	'''
+
 	end_time = time.time()
 	print('Tiles compressed in {}s'.format(round(end_time - start_time,3)))
-	print(result)
-	print('Nodes amount:', sum(row[0] for row in result))
-	print('Nodes amount:', sum(row[1] for row in result))
+	
+	# Vertices
+	before = sum(row[0] for row in result)
+	after = sum(row[1] for row in result)
+	print('Points {} / {} :: {}%'.format(before, after, round(after/before*100,2)))
 
+'''
 
+	Compress and Formating Tile Data
+
+'''
 
 def compress(data):
-	[CONFIG, tile] = data
+	
+	# Get Input Params
+	[tile, COMPRESSOR_CONFIG, CONFIG] = data
+
+	# Extract Tile Features
 	z,x,y = tile
-	print('Compres', tile)
+
+	print('Compressing {}'.format(tile))
+
 	geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
 	output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
+	
+	'''
 
-	compressed_json = CONFIG['data'] + '/{}/{}/{}.compressed.geojson'.format(z,x,y)
-
+	# Load Data Frame
 	df = gpd.read_file(geojson, driver='GeoJSON')
 
 	OUTPUT = [count_vertices(df)]
-	
+
+	compressed_json = CONFIG['data'] + '/{}/{}/{}.compressed.geojson'.format(z,x,y)
+
 	series = gpd.GeoSeries(df['geometry'])
 	series = series.simplify(tolerance=.0001, preserve_topology=True)
 	df['geometry'] = series
@@ -96,13 +144,12 @@ def compress(data):
 		return OUTPUT
 
 
+
 	df.to_file(compressed_json, driver='GeoJSON', mode='w')
 
-	
-	# print(df)
-	# exit()
-
 	geojson = compressed_json
+
+	'''
 
 	z = str(z)
 	features = {}
@@ -112,10 +159,20 @@ def compress(data):
 		for layer_name in group:
 			features[group_name][layer_name] = {}
 
+	'''
+
+	Parse Geo JSON
+
+	'''
+
+	# Load Geo JSON
 	data = json.load(open(geojson, 'r'))
 
+	# Parse Features
 	for feature in data['features']:
-		parse_coords(feature['geometry']['coordinates'])
+		
+		# Fix Coords Precision
+		feature['geometry']['coordinates'] = fix_coords_precision(feature['geometry']['coordinates'])
 		
 		g_type = feature['geometry']['type']
 		group = feature['properties']['group']
@@ -167,8 +224,6 @@ def compress(data):
 			featureItem['coords'] = featureItem['coords'] + feature['geometry']['coordinates']
 
 
-	# print(json.dumps(features, indent=4))
-
 	'''
 
 		Write Features to the target file
@@ -178,6 +233,13 @@ def compress(data):
 	target = open(output, 'w')
 
 	for group_key, [group, layers] in enumerate(features.items()):
+
+		# Get Compressor Config
+
+		compress_config = False
+		if group in COMPRESSOR_CONFIG and z in COMPRESSOR_CONFIG[group]:
+			compress_config = COMPRESSOR_CONFIG[group][z]
+
 
 		for layer_key, [layer, feature_items] in enumerate(features[group].items()):
 
@@ -214,17 +276,61 @@ def compress(data):
 
 				elif feature['type'] == 'MultiPolygon':
 
-					# Simplify MultiPolygon
+					# Compress MultiPolygon
 
-					new_coords = []
+					if compress_config:
+						new_coords = []
 
-					for m in coords:
-						for c in m:
-							
-							poly = Polygon(c)							
-							simplified_line = poly.simplify(simple[z], preserve_topology=True)
-							poly_mapped = mapping(simplified_line)['coordinates'][0]
-							new_coords.append(poly_mapped)
+						for multy_polygon in coords:
+							multipolygon = MultiPolygon([Polygon(c) for c in multy_polygon])
+
+							gdf = gpd.GeoDataFrame(geometry=[multipolygon])
+
+							if 'tolerance' in compress_config:
+								gdf['geometry'] = gdf.simplify(tolerance=compress_config['tolerance'], preserve_topology=True)
+								# print(gdf['geometry'])
+								# print(gdf['geometry'])
+								# print(' ')
+								# print(' ')
+
+							# print('Before',gdf['geometry'])
+							# print('\n')
+							if 'avoidArea' in compress_config:
+
+								# print(gdf['geometry'].area)
+								#crs='EPSG:3395'
+								# gdf = gdf.to_crs(crs) if gdf.crs is not None else gdf
+								# print('??',gdf['geometry'])
+								# print(gdf['geometry'][0].area)
+								# print(compress_config['avoidArea'])
+								#if len(gdf['geometry']) == 1:
+								# print(gdf['geometry'][0].area, compress_config['avoidArea'], gdf['geometry'][0].area >= compress_config['avoidArea'])
+
+								
+								# print(gdf)
+								# if not gdf.empty:
+								#	print(gdf)
+
+								# crs='EPSG:4326'
+								# gdf = gdf.to_crs(crs) if gdf.crs is not None else gdf
+
+								gdf = gdf[gdf['geometry'].area >= compress_config['avoidArea']]
+
+							# print('After',gdf)
+							if not gdf.empty:
+								# print(gdf['geometry'][0])
+								# print(gdf['geometry'][0].geom_type)
+								# coordinates_list = [list(poly.exterior.coords) for poly in gdf['geometry'].iloc[0].geoms]
+								# coordinates_list = [list(poly.exterior.coords) for poly in gdf['geometry'].iloc[0]]
+								# 
+								# coordinates_list = [list(poly.exterior.coords) if poly.exterior else [] for poly in gdf['geometry'].iloc[0]]
+								coordinates_list = [list(gdf['geometry'].iloc[0].exterior.coords)]
+								# print(coordinates_list)
+								new_coords.append(coordinates_list)
+							# print('\n\n')
+
+						coords = new_coords
+
 				
 				# Create Properties
 					
@@ -249,12 +355,13 @@ def compress(data):
 				coords = json.dumps(coords, separators=(',', ':'))
 				target.write('\t' + coords + '\n')
 
-	return OUTPUT
-	# df = gpd.read_file(geojson, driver='GeoJSON')
-	# df = df.simplify(tolerance=.1, preserve_topology=True)
-	# return count_vertices(df)
-	# return len(df.simplify(tolerance=.1, preserve_topology=True))
+	return [1,1]
 
+'''
+
+	Test
+
+'''
 
 if __name__ == '__main__':
 	CONFIG_NAME = 'canary'

@@ -1,6 +1,9 @@
 #!/bin/bash
 # London -0.510375,51.28676,0.334015,51.691873
-osmium extract --bbox -0.510375,51.28676,0.334015,51.691873 \
--o /storage/maps/tiles/london/src.pbf \
+# Isle of Dogs -0.043467,51.481788,0.008584,51.516483
+folder=/storage/maps/tiles/isle-of-dogs
+mkdir $folder
+osmium extract --bbox -0.043467,51.481788,0.008584,51.516483 \
+-o $folder/src.pbf \
 /storage/maps/planet-latest.osm.pbf
 echo "Complete"

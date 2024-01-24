@@ -6,10 +6,6 @@ import time
 from utils.osm import OSM_handler
 from tiles import create_tiles
 
-CONFIG_NAME = 'canary'
-CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
-print(CONFIG)
-
 
 class Parser:
 
@@ -76,6 +72,10 @@ class Parser:
 		print('Completed for ', self.layers_list)
 
 if __name__ == '__main__':
+
+	CONFIG_NAME = 'canary'
+	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
+	print(CONFIG)
 
 	start_time = time.time()
 	
