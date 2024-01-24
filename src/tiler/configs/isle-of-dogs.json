@@ -1,0 +1,38 @@
+{
+	"pbf_input": "/storage/maps/tiles/isle-of-dogs/src.pbf",
+	"tmp_file": "/storage/maps/tmp/tmp.nodecache",
+	"geojson": "/storage/maps/tiles/isle-of-dogs/geojson",
+	"data": "/storage/maps/tiles/isle-of-dogs/data",
+	"minzoom": 2,
+	"maxzoom": 14,
+	"layers": [ "roads", "buildings", "greens", "water", "railways", "landuse" ],
+	"groups": {
+		"water": [
+				"water"			
+		],
+		"landuse": [
+			"landuse"
+		],
+		"green": [
+			"green"
+		],
+		"tunnels": [
+			"tunnels"
+		],
+		"roads": [
+			"bridges",
+			"services",
+			"streets",
+			"primaries",
+			"trunks",
+			"motorways"
+		],
+		"railways": [
+			"railways"
+		],
+		"buildings": [
+			"buildings",
+			"stadiums"
+		]
+	}
+}
