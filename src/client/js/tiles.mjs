@@ -143,31 +143,11 @@ class Tiles {
 			container.setAttribute('zoom', zoomID);
 			container.classList.add('zoom');
 
-			/*
-
-			Create Groups and Layers
-
-			*/
-
-			let groups = {};
-
-			for(let groupName in this.map.style.groups){
-				const group = this.map.style.groups[groupName];
-				let groupEl = document.createElementNS(this.map.svgNS, 'g');
-				groupEl.classList.add(group.name);
-				container.appendChild(groupEl);
-				groups[groupName] = {
-					container: groupEl,
-					tiles: {}
-				};
-			}
-
-
 			this.container.appendChild(container);
 
 			this.storage.tiles[zoomID] = {
 				container: container,
-				groups: groups,
+				groups: {},
 				visible: {},
 				items: {}
 			};
@@ -372,6 +352,34 @@ class Tiles {
 			
 			const layer = group.layers[chunks[3]];
 			const container = tile.groups[group.name].layers[layer];
+
+			/*
+
+			Create Assets
+
+			*/
+
+			if(!this.storage.tiles[zoomID].groups[groupName]){
+				const container = document.createElementNS(this.map.svgNS, 'g');
+				container.classList.add(groupName);
+				this.storage.tiles[zoomID].container.appendChild(container);
+
+				this.storage.tiles[zoomID].groups[groupName] = {
+					container: container,
+					tiles: {}
+				};
+			}
+
+			if(!this.storage.tiles[zoomID].groups[groupName].tiles[url]){
+				const container = document.createElementNS(this.map.svgNS, 'g');
+				container.setAttribute('tile', url);
+				container.classList.add('tile');
+				this.storage.tiles[zoomID].groups[groupName].container.appendChild(container);
+
+				this.storage.tiles[zoomID].groups[groupName].tiles[url] = {
+					container: container
+				};
+			}
 
 			/*
 
