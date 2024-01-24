@@ -16,7 +16,7 @@
 					"layer": "water",
 					"values": [ "water" ],
 					"properties": [ "name" ],
-					"minzoom": 10
+					"minzoom": 8
 				}
 			]
 		}

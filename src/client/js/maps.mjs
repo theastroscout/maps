@@ -297,7 +297,7 @@ class Maps {
 				*/
 
 				this.container.classList.add('move');
-				const zoomSpeed = Number.isInteger(e.deltaY) ? .08 : .15;
+				const zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
 
 				var dw = this.viewBox.w * Math.sign(e.deltaY) * zoomSpeed;
 				var dh = this.viewBox.h * Math.sign(e.deltaY) * zoomSpeed;

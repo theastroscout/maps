@@ -288,51 +288,20 @@ def compress(data):
 
 							if 'tolerance' in compress_config:
 								gdf['geometry'] = gdf.simplify(tolerance=compress_config['tolerance'], preserve_topology=True)
-								# print(gdf['geometry'])
-								# print(gdf['geometry'])
-								# print(' ')
-								# print(' ')
 
-							# print('Before',gdf['geometry'])
-							# print('\n')
-							if 'avoidArea' in compress_config:
-
-								# print(gdf['geometry'].area)
-								#crs='EPSG:3395'
-								# gdf = gdf.to_crs(crs) if gdf.crs is not None else gdf
-								# print('??',gdf['geometry'])
-								# print(gdf['geometry'][0].area)
-								# print(compress_config['avoidArea'])
-								#if len(gdf['geometry']) == 1:
-								# print(gdf['geometry'][0].area, compress_config['avoidArea'], gdf['geometry'][0].area >= compress_config['avoidArea'])
-
-								
-								# print(gdf)
-								# if not gdf.empty:
-								#	print(gdf)
-
-								# crs='EPSG:4326'
-								# gdf = gdf.to_crs(crs) if gdf.crs is not None else gdf
-
+							if not gdf.empty and 'avoidArea' in compress_config:
 								gdf = gdf[gdf['geometry'].area >= compress_config['avoidArea']]
 
-							# print('After',gdf)
+							
 							if not gdf.empty:
-								# print(gdf['geometry'][0])
-								# print(gdf['geometry'][0].geom_type)
-								# coordinates_list = [list(poly.exterior.coords) for poly in gdf['geometry'].iloc[0].geoms]
-								# coordinates_list = [list(poly.exterior.coords) for poly in gdf['geometry'].iloc[0]]
-								# 
-								# coordinates_list = [list(poly.exterior.coords) if poly.exterior else [] for poly in gdf['geometry'].iloc[0]]
 
 								if gdf['geometry'][0].geom_type == 'Polygon':
 									coordinates_list = [list(gdf['geometry'].iloc[0].exterior.coords)]
 								else:
 									coordinates_list = [list(poly.exterior.coords) for poly in gdf['geometry'].iloc[0].geoms]
 
-								# print(coordinates_list)
+								
 								new_coords.append(coordinates_list)
-							# print('\n\n')
 
 						coords = new_coords
 
@@ -371,7 +340,7 @@ def compress(data):
 if __name__ == '__main__':
 	CONFIG_NAME = 'canary'
 	CONFIG_NAME = 'isle-of-dogs'
-	CONFIG_NAME = 'london'
+	# CONFIG_NAME = 'london'
 	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 
 	compress_tiles(CONFIG)
