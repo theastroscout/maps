@@ -93,6 +93,8 @@ class Tiles {
 	*/
 
 	get = async () => {
+
+		const zoomID = this.map.zoomID;
 		
 		/*
 
@@ -116,7 +118,6 @@ class Tiles {
 		*/
 
 		const bbox = this.utils.canvasBBox();
-		const zoomID = this.map.zoomID;
 
 		const xTiles = this.tile(zoomID, [bbox[0], bbox[1]]);
 		const yTiles = this.tile(zoomID, [bbox[2], bbox[3]], true);
@@ -371,7 +372,6 @@ class Tiles {
 		let result;
 		try {
 			let rUrl = `${this.map.style.tiles}/${url}`;
-			console.log(rUrl)
 			result = await(await fetch(rUrl)).text();
 		} catch(e){
 			// Continue Regardless Error
@@ -394,6 +394,52 @@ class Tiles {
 
 	parse = (zoomID, url) => {
 
+		const groupsMap = ['water','landuse','green','bridges','roads','railways','buildings'];
+		const layers = {
+			roads: ['streets','highways']
+		}
+
+		let tile = this.storage.tiles[zoomID].items[url];
+		let features = tile.src.split('\n');
+			features.pop(); // Remove Last Empty Line
+
+		let processed = {};
+
+		for(let item of features){
+			let chunks = item.split('\t');
+			let coords = JSON.parse(chunks.pop());
+			
+			const fID = chunks.shift();
+			const geomType = chunks.shift();
+			const groupName = groupsMap[chunks.shift()];
+
+			if(groupName !== 'roads'){
+				continue;
+			}
+
+			const group = this.map.style.groups[groupName];
+
+			let feature = {
+				id: fID,
+				group: groupName,
+				type: geometryTypes[geomType],
+				coords: coords
+			};
+
+			if(Number(chunks[0])){
+				feature.layer = layers[groupName][chunks.shift()];
+			}
+
+			if(chunks[0]){
+				feature.name = chunks.shift();
+			}
+
+			
+
+			console.log(chunks)
+			console.log(feature)
+
+		}
 	}
 
 	parse2 = (zoomID, url) => {

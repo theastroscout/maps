@@ -49,8 +49,8 @@ class Style {
 		// console.log(this.sheet.rules.getPropertyValue('--opacity-values'))
 		for(let rule of rules){
 			let path = rule.selectorText.split('>').map(v => v.trim());
-			const prefix = path.slice(0, 5).join('/')
-			if(path[5] && prefix === '.SurfyMaps/svg.container/g.tiles/g.zoom/g.tile'){
+			const prefix = path.slice(0, 4).join('/')
+			if(path[4] && prefix === '.SurfyMaps/svg.container/g.tiles/g.zoom'){
 				
 				/*
 
@@ -58,7 +58,7 @@ class Style {
 
 				*/
 
-				let group = path[5].replace('g.', '');
+				let group = path[4].replace('g.', '');
 				
 				// Create Group if not exists
 				if(!groups[group]){
@@ -74,11 +74,11 @@ class Style {
 
 				*/
 
-				if(path[6]){
+				if(path[5]){
 					
 					// Layer
-					let layer = path[6].replace('g.', '');
-					groups[group].layers.push(layer);
+					// let layer = path[6].replace('g.', '');
+					// groups[group].layers.push(layer);
 
 				} else {
 
