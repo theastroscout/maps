@@ -472,7 +472,7 @@ class Tiles {
 
 			if(!zoomObj.groups[feature.group].tiles[url]){
 				const tileContainer = document.createElementNS(this.map.svgNS, 'g');
-				tileContainer.classList.add(url);
+				tileContainer.setAttribute('tile',url);
 				zoomObj.groups[feature.group].container.appendChild(tileContainer);
 
 				zoomObj.groups[feature.group].tiles[url] = tileContainer;
