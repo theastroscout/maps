@@ -93,6 +93,66 @@ class Tiles {
 	*/
 
 	get = async () => {
+		
+		/*
+
+		Create Tile Assets
+
+		*/
+
+		if(!this.storage.tiles[zoomID]){
+			this.storage.tiles[zoomID] = {
+				groups: {}, // Store Groups
+				items: {} // Store Tiles inside Groups
+			};
+
+			this.storage.features[zoomID] = {};
+		}
+
+		/*
+
+		Get Tiles List
+
+		*/
+
+		const bbox = this.utils.canvasBBox();
+		const zoomID = this.map.zoomID;
+
+		const xTiles = this.tile(zoomID, [bbox[0], bbox[1]]);
+		const yTiles = this.tile(zoomID, [bbox[2], bbox[3]], true);
+
+		for(let x = xTiles[0]; x < yTiles[0]; x++){
+			for(let y = xTiles[1]; y < yTiles[1]; y++){
+				let url = `${zoomID}/${x}/${y}`;
+
+				if(typeof this.storage.tiles[zoomID].items[url] === 'undefined'){
+
+					/*
+
+					Load Tile
+
+					*/
+
+					this.storage.tiles[zoomID].items[url] = {
+						id: url,
+					};
+
+					this.load(zoomID, url);
+
+				} else {
+
+					/*
+
+					Show Tile
+
+					*/
+				}
+			}
+		}
+
+	}
+
+	get2 = async () => {
 		this.start = new Date();
 
 		let bbox = this.utils.canvasBBox();
@@ -146,7 +206,7 @@ class Tiles {
 			this.container.appendChild(container);
 
 			this.storage.tiles[zoomID] = {
-				container: container,
+				// container: container,
 				groups: {},
 				visible: {},
 				items: {}
@@ -333,6 +393,10 @@ class Tiles {
 	*/
 
 	parse = (zoomID, url) => {
+
+	}
+
+	parse2 = (zoomID, url) => {
 
 		let processed = {};
 
