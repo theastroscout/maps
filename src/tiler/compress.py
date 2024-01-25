@@ -304,8 +304,8 @@ def compress(data):
 			if 'name' in feature:
 				properties.append(feature['name'])
 
-			if 'center' in feature:
-				properties.append(feature['center'])
+			# if 'center' in feature:
+			#	properties.append(feature['center'])
 
 			properties = '\t'.join(properties)
 			target_file.write(properties)

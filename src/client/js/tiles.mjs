@@ -103,7 +103,13 @@ class Tiles {
 		*/
 
 		if(!this.storage.tiles[zoomID]){
+			const container = document.createElementNS(this.map.svgNS, 'g');
+			container.classList.add('zoom');
+			container.setAttribute('zoom', zoomID);
+			this.container.appendChild(container);
+			
 			this.storage.tiles[zoomID] = {
+				container: container,
 				groups: {}, // Store Groups
 				items: {} // Store Tiles inside Groups
 			};
@@ -399,7 +405,8 @@ class Tiles {
 			roads: ['streets','highways']
 		}
 
-		let tile = this.storage.tiles[zoomID].items[url];
+		let zoomObj = this.storage.tiles[zoomID];
+		let tile = zoomObj.items[url];
 		let features = tile.src.split('\n');
 			features.pop(); // Remove Last Empty Line
 
@@ -413,7 +420,7 @@ class Tiles {
 			const geomType = chunks.shift();
 			const groupName = groupsMap[chunks.shift()];
 
-			if(groupName !== 'roads'){
+			if(groupName !== 'landuse'){
 				continue;
 			}
 
@@ -434,10 +441,35 @@ class Tiles {
 				feature.name = chunks.shift();
 			}
 
+			/*
+
+			Create Group if none exists
+
+			*/
+
+			if(!zoomObj.groups[feature.group]){
+				
+				// Create Container
+				const container = document.createElementNS(this.map.svgNS, 'g');
+				container.classList.add(feature.group);
+				zoomObj.container.appendChild(container);
+
+				// Create Group Object
+				zoomObj.groups[feature.group] = {
+					container: container,
+					tiles: {}
+				};
+			}
+
+			/*
+
+			Create Tile if none exists
+
+			*/
+
 			
 
-			console.log(chunks)
-			console.log(feature)
+
 
 		}
 	}
