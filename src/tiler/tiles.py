@@ -13,50 +13,44 @@ import mercantile
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import shape, box
-from compress import compress_tiles
 
 import multiprocessing
 num_cores = multiprocessing.cpu_count()
 
-INIT = True
+'''
 
-def parse_layer(geojson_file, tiles_dir):
-	global INIT
+	Make Tiles
+
+'''
+
+def tiles(geojson_file, tiles_dir):
 	global num_cores
 	df = gpd.read_file(geojson_file, driver='GeoJSON')
 	min_lng, min_lat, max_lng, max_lat = df.geometry.total_bounds
 
 	# print('Bounding box', min_lng, min_lat, max_lng, max_lat)
 	
+	bunch = []
 	for zoom in (2, 4, 6, 8, 10, 12, 14):
 		
 		print('Parsing zoom {}'.format(zoom))
-
-		bunch = []
 		for tile in mercantile.tiles(min_lng, min_lat, max_lng, max_lat, zooms=zoom, truncate=False):
 
 			output_dir = os.path.join(tiles_dir, str(tile.z), str(tile.x))
 			output_file = os.path.join(output_dir, f'{tile.y}.geojson')
-			#if not os.path.exists(output_file):
-			#	tiles.append([tile.z, tile.x, tile.y])
 			
 			bunch.append([df,tile,zoom,tiles_dir])
 
-			'''
-			if len(bunch) == 8:
-				# print('Run bunch', len(bunch))
+	# Run Bunch
+	if len(bunch):
+		with multiprocessing.Pool(processes=num_cores) as pool:
+			pool.map(make_tile, bunch)
 
-				with multiprocessing.Pool(processes=num_cores) as pool:
-					pool.map(make_tile, bunch)
+'''
 
-				bunch = []
-			'''
+	Make Tile
 
-		if len(bunch):
-			# print('Run bunch', len(bunch))
-			with multiprocessing.Pool(processes=num_cores) as pool:
-				pool.map(make_tile, bunch)
-
+'''
 
 def make_tile(data):
 	[df, tile, zoom, tiles_dir] = data
@@ -70,46 +64,27 @@ def make_tile(data):
 	# Zoom filter
 	df_temp = df_temp[(zoom >= df_temp['minzoom']) & (zoom <= df_temp['maxzoom'])]
 	if df_temp.empty:
-		return False # continue # Skip if tile is empty
+		return False # Skip if tile is empty
 	
+	# Intersects Filter
 	df_temp = df_temp[df_temp.geometry.intersects(tile_bbox)]
-	
 	if df_temp.empty:
-		# print('Intersects empty')
-		return False # continue # Skip if tile is empty
-
-
-	# df_temp.geometry = df_temp.geometry.intersection(tile_bbox) # , align=False
-
-	
-
-	# Simplification
-	# c = len(df_temp.geometry.get_coordinates())
-	# df_temp = df_temp.simplify(tolerance=0.00001, preserve_topology=True)
-	# nc = len(df_temp.geometry.get_coordinates())
-	# print(c, nc, nc / c * 100)
+		return False # Skip if tile is empty
 
 	# Make Directory
 	output_dir = os.path.join(tiles_dir, str(tile.z), str(tile.x))
 	output_file = os.path.join(output_dir, f'{tile.y}.geojson')
 	os.makedirs(output_dir, exist_ok=True)
 
-	# df_temp = df_temp.round(3)
-
-	# print('Create Tile', tile, output_file)
 
 	if os.path.exists(output_file):
-		mode = 'a'
-	else:
-		mode = 'w'
-
-	if mode == 'a':
+		# Merge
 		existed_df = gpd.read_file(output_file, driver='GeoJSON')
 		merged_df = pd.concat([existed_df, df_temp])
 		merged_df.to_file(output_file, driver='GeoJSON', mode='w')
 	else:
-		df_temp.to_file(output_file, driver='GeoJSON', mode=mode)
-		# tiles.append([tile.z, tile.x, tile.y])
+		# Create new one
+		df_temp.to_file(output_file, driver='GeoJSON', mode='w')
 
 	return True
 
@@ -120,8 +95,6 @@ Create Tiles
 '''
 
 def create_tiles(CONFIG):
-
-	global INIT
 	global tiles
 
 	start_time = time.time()
@@ -132,18 +105,11 @@ def create_tiles(CONFIG):
 
 	for f in os.listdir(CONFIG['geojson']):
 		path = os.path.join(CONFIG['geojson'], f)
-		if os.path.isfile(path):
-			if INIT:
-				INIT = False
-			
+		if os.path.isfile(path):			
 			print('Creating Tiles from {}'.format(path))
-			parse_layer(path, CONFIG['data'])
+			tiles(path, CONFIG['data'])
 
 	end_time = time.time()
 	print('Tiles created in {}s'.format(round(end_time - start_time,3)))
-	compress_tiles(CONFIG)
-	# print('Compressing...')
-	# for tile in tiles:
-	# 	compress(CONFIG, tile)
 
 	

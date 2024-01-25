@@ -1,6 +1,6 @@
 import osmium
 import shapely.wkb as wkblib
-from shapely.geometry import mapping as mapper, LineString, Polygon
+from shapely.geometry import mapping as mapper, shape, LineString, Polygon
 wkbfab = osmium.geom.WKBFactory()
 
 '''
@@ -53,5 +53,16 @@ def getLine(self, o, compress=False):
 
 '''
 
+def set_precision(coords, precision):
+	result = []
+	try:
+		return round(coords, precision)
+	except TypeError:
+		for coord in coords:
+			result.append(set_precision(coord, precision))
+	return result
+
 def mapping(self, coords):
-	return mapper(coords)
+	c = mapper(coords)
+	c['coordinates'] = set_precision(c['coordinates'], 6)
+	return c

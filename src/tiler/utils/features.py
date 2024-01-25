@@ -9,16 +9,16 @@ Add Features
 def addFeature(self, o, spec, coords):
 
 	# Create a File Object
-	if 'file_path' not in spec['layer']:
-		if 'batch_num' not in spec['layer']:
-			spec['layer']['batch_num'] = 0
+	if 'file_path' not in spec['config']:
+		if 'batch_num' not in spec['config']:
+			spec['config']['batch_num'] = 0
 
-		spec['layer']['batch_num'] = spec['layer']['batch_num'] + 1
+		spec['config']['batch_num'] = spec['config']['batch_num'] + 1
 
-		file_path = '{}/{}.{}.geojson'.format(self.config['geojson'], spec['layer']['name'], spec['layer']['batch_num'])
-		# print('Create JSON', file_path)
-		spec['layer']['file_path'] = file_path
-		spec['layer']['features_amount'] = 0
+		file_path = '{}/{}.{}.geojson'.format(self.config['geojson'], spec['config']['name'], spec['config']['batch_num'])
+		
+		spec['config']['file_path'] = file_path
+		spec['config']['features_amount'] = 0
 
 		'''
 
@@ -27,14 +27,14 @@ def addFeature(self, o, spec, coords):
 		'''
 
 		file = open(file_path, 'w', encoding='utf8')
-		header = json.dumps(spec['layer']['obj'], ensure_ascii=False)
+		header = json.dumps(spec['config']['obj'], ensure_ascii=False)
 		header = header.replace(']}', '')
 		file.write(header)
-		spec['layer']['file'] = file
-		spec['layer']['delimiter'] = '\n'
+		spec['config']['file'] = file
+		spec['config']['delimiter'] = '\n'
 
 	# Count Features
-	spec['layer']['features_amount'] = spec['layer']['features_amount'] + 1
+	spec['config']['features_amount'] = spec['config']['features_amount'] + 1
 
 	'''
 
@@ -67,11 +67,11 @@ def addFeature(self, o, spec, coords):
 
 	# print(feature)
 
-	feature = spec['layer']['delimiter'] + json.dumps(feature, ensure_ascii=False)
-	spec['layer']['file'].write(feature)
+	feature = spec['config']['delimiter'] + json.dumps(feature, ensure_ascii=False)
+	spec['config']['file'].write(feature)
 
-	if spec['layer']['delimiter'] == '\n':
-		spec['layer']['delimiter'] = ',\n'
+	if spec['config']['delimiter'] == '\n':
+		spec['config']['delimiter'] = ',\n'
 
 	return True
 	

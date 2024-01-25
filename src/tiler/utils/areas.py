@@ -22,7 +22,6 @@ def areaParse(self, o):
 	# Added Center Of Polygon to set Names
 	# Panda's shit do not support list, so we go with string then
 	if 'name' in spec['properties'] and spec['properties']['name']:
-		# print('Name', o.tags.get('name'))
 		center = '{},{}'.format(round(polygon.centroid.x, 5), round(polygon.centroid.y, 5))
 		spec['properties']['center'] = center
 	

@@ -16,7 +16,7 @@ import pandas as pd
 import multiprocessing
 
 # Geometry Types for Index
-geometry = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
+geometries = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
 
 # Simplification Ration
 simple = {
@@ -33,14 +33,9 @@ simple = {
 def count_vertices(df):
 	return len(df.get_coordinates())
 
-# Fix Coords Precision. Round Coords to 6 Decimals
-def fix_coords_precision(coords):
-	for idx, c in enumerate(coords):
-		if isinstance(c, list):
-			fix_coords_precision(c)
-		else:
-			coords[idx] = round(c, 6)
-	return coords
+def fit_coords(coords):
+	# return [' '.join(map(str, [round(lon * 1000000), round(lat * 1000000)])) for lon, lat in coords]
+	return [(round(lon * 1000000), round(lat * 1000000)) for lon, lat in coords]
 
 '''
 
@@ -49,10 +44,6 @@ def fix_coords_precision(coords):
 '''
 
 def compress_tiles(CONFIG):
-	print('Compress tiles')
-
-	# Load Compressor Config with simplification
-	COMPRESSOR_CONFIG = json.load(open('./configs/compress.json', 'r'))
 
 	start_time = time.time()
 
@@ -71,7 +62,7 @@ def compress_tiles(CONFIG):
 			path = os.path.join(root, file)
 			tile = re.findall(r'/(\d+)/(\d+)/(\d+)\.geojson', path)
 			if tile:
-				bunch.append([tile[0], COMPRESSOR_CONFIG, CONFIG])
+				bunch.append([tile[0], CONFIG])
 
 	'''
 
@@ -81,7 +72,7 @@ def compress_tiles(CONFIG):
 	if len(bunch):
 		num_cores = multiprocessing.cpu_count()
 		with multiprocessing.Pool(processes=num_cores) as pool:
-				result = pool.map(compress, bunch)
+			pool.map(compress, bunch)
 
 	'''
 
@@ -91,11 +82,6 @@ def compress_tiles(CONFIG):
 
 	end_time = time.time()
 	print('Tiles compressed in {}s'.format(round(end_time - start_time,3)))
-	
-	# Vertices
-	before = sum(row[0] for row in result)
-	after = sum(row[1] for row in result)
-	print('Points {} / {} :: {}%'.format(before, after, round(after/before*100,2)))
 
 '''
 
@@ -106,58 +92,18 @@ def compress_tiles(CONFIG):
 def compress(data):
 	
 	# Get Input Params
-	[tile, COMPRESSOR_CONFIG, CONFIG] = data
+	[tile, CONFIG] = data
 
 	# Extract Tile Features
 	z,x,y = tile
 
 	print('Compressing {}'.format(tile))
 
-	geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
-	output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
-	
-	'''
-
-	# Load Data Frame
-	df = gpd.read_file(geojson, driver='GeoJSON')
-
-	OUTPUT = [count_vertices(df)]
-
-	compressed_json = CONFIG['data'] + '/{}/{}/{}.compressed.geojson'.format(z,x,y)
-
-	series = gpd.GeoSeries(df['geometry'])
-	series = series.simplify(tolerance=.0001, preserve_topology=True)
-	df['geometry'] = series
-
-	print(df.crs)
-	crs='EPSG:3395'
-	df = df.to_crs(crs) if df.crs is not None else df
-	df = df[df['geometry'].area >= .00001]
-
-	crs='EPSG:4326'
-	df = df.to_crs(crs) if df.crs is not None else df
-	# print(df2)
-
-	OUTPUT.append(count_vertices(df))
-
-	if df.empty:
-		return OUTPUT
-
-
-
-	df.to_file(compressed_json, driver='GeoJSON', mode='w')
-
-	geojson = compressed_json
-
-	'''
-
 	z = str(z)
 	features = {}
 
 	for group_name, group in CONFIG['groups'].items():
 		features[group_name] = {}
-		for layer_name in group:
-			features[group_name][layer_name] = {}
 
 	'''
 
@@ -166,67 +112,211 @@ def compress(data):
 	'''
 
 	# Load Geo JSON
+	geojson = CONFIG['data'] + '/{}/{}/{}.geojson'.format(z,x,y)
 	data = json.load(open(geojson, 'r'))
 
-	# Parse Features
+	'''
+
+		Parse Features
+
+	'''
+
 	for feature in data['features']:
 		
-		# Fix Coords Precision
-		feature['geometry']['coordinates'] = fix_coords_precision(feature['geometry']['coordinates'])
-		
-		g_type = feature['geometry']['type']
-		group = feature['properties']['group']
-		layer = feature['properties']['layer']
+		geom_type = feature['geometry']['type']
+		group_name = feature['properties']['group']
 
-		# if 'name' in feature['properties'] and feature['properties']['name']:
-			# fID = group + layer + feature['properties']['name']
-		#	fID = feature['properties']['name']
-		# else:
 		if group == 'roads' and 'name' in feature['properties']:
+			
+			'''
+
+				Assume that feature id is a name if feature's type is road
+				It's ok as we talk about one tile only
+
+			'''
+
 			fID = feature['properties']['name']
 		else:
 			fID = feature['properties']['id']
 
-		# Create Feature
-		if fID not in features[group][layer]:
-			features[group][layer][fID] = {
-				'type': g_type,
+		'''
+
+			Create Feature if not exists
+
+		'''
+
+		if fID not in features[group_name]:
+			features[group_name][fID] = {
+				'type': geom_type,
 				'id': feature['properties']['id'],
-				'group': group,
-				'layer': layer,
+				'group': group_name,
 				'coords': []
 			}
 
-		featureItem = features[group][layer][fID]
+			# Set Layer Name
+			if 'layer' in feature['properties'] and feature['properties']['layer']:
+				layer = CONFIG['groups'][group_name]['layers'].index(feature['properties']['layer'])
+				features[group_name][fID]['layer'] = str(layer)
 
+			# Set Class
+			if 'class' in feature['properties'] and feature['properties']['class']:
+				features[group_name][fID]['class'] = feature['properties']['class']
 
-		if 'name' in feature['properties'] and feature['properties']['name']:
-			featureItem['name'] = feature['properties']['name']
+			# Set Name
+			if 'name' in feature['properties'] and feature['properties']['name']:
+				features[group_name][fID]['name'] = feature['properties']['name']
 
-		if 'center' in feature['properties'] and feature['properties']['center']:
-			featureItem['center'] = feature['properties']['center']
+			# Set Center Coordinates
+			if 'center' in feature['properties'] and feature['properties']['center']:
+				features[group_name][fID]['center'] = feature['properties']['center']
+
+		featureItem = features[group_name][fID]
 
 		
-		if g_type in ['LineString','MultiLineString']:
+		# Merge Coordinates for the Same Feature ID
+		if geom_type in ['LineString','MultiLineString']:
 			
 			featureItem['type'] = 'MultiLineString'
 
 			coords = feature['geometry']['coordinates']
 
-			if g_type == 'LineString':
+			if geom_type == 'LineString':
 				coords = [coords]
 			featureItem['coords'] = featureItem['coords'] + coords
 
-		elif g_type == 'Polygon':
+		elif geom_type == 'Polygon':
 			featureItem['type'] = 'MultiPolygon'
 			featureItem['coords'] = featureItem['coords'] + [feature['geometry']['coordinates']]
-		elif g_type == 'MultiPolygon':
+
+		elif geom_type == 'MultiPolygon':
 			featureItem['coords'] = featureItem['coords'] + feature['geometry']['coordinates']
 
 
 	'''
 
 		Write Features to the target file
+
+	'''
+
+	output = CONFIG['data'] + '/{}/{}/{}'.format(z,x,y)
+	target_file = open(output, 'w')
+
+	# We need to store group_key instead of group name
+
+	for group_key, group_name in enumerate(features):
+		# print(group_key, group_name)
+		group = features[group_name]
+
+		for fID, feature in group.items():
+
+			'''
+
+			Process Coordinates
+
+			'''
+
+			coords = feature['coords']
+
+			# Get Compress Configuration
+
+			compress_config = False
+			if 'compress' in CONFIG['groups'][group_name] and z in CONFIG['groups'][group_name]['compress']:
+				compress_config = CONFIG['groups'][group_name]['compress'][z]
+
+			# print(compress_config)
+
+			if feature['type'] == 'MultiLineString':
+				coords = [LineString(c) for c in coords]
+				coords = linemerge(coords)
+
+				if compress_config and 'tolerance' in compress_config:
+					if coords.geom_type == 'LineString':
+						feature['type'] = 'LineString'
+
+						# Simplify Line String
+
+						simplified_line = coords.simplify(compress_config['tolerance'])
+						coords = list(simplified_line.coords)
+						coords = fit_coords(coords)
+
+					else:
+						
+						# Simplify MultiLine String
+
+						new_coords = []
+						for line in coords.geoms:
+							simplified_line = line.simplify(compress_config['tolerance'])
+							c = fit_coords(list(simplified_line.coords))
+							new_coords.append(c)
+
+						coords = new_coords;
+				else:
+					coords = fit_coords(list(coords.coords))
+
+			elif feature['type'] == 'MultiPolygon':
+				new_coords = []
+
+				for multy_polygon in coords:
+					multipolygon = MultiPolygon([Polygon(c) for c in multy_polygon])
+
+					gdf = gpd.GeoDataFrame(geometry=[multipolygon])
+
+					if compress_config:
+
+						if 'tolerance' in compress_config:
+							gdf['geometry'] = gdf.simplify(tolerance=compress_config['tolerance'], preserve_topology=True)
+
+						if not gdf.empty and 'avoidArea' in compress_config:
+							gdf = gdf[gdf['geometry'].area >= compress_config['avoidArea']]
+					
+					if not gdf.empty:
+
+						if gdf['geometry'][0].geom_type == 'Polygon':
+							feature['type'] = 'Polygon'
+							coordinates_list = fit_coords(list(gdf['geometry'].iloc[0].exterior.coords))
+						else:
+							coordinates_list = [fit_coords(list(poly.exterior.coords)) for poly in gdf['geometry'].iloc[0].geoms]
+
+						new_coords.append(coordinates_list)
+
+				coords = new_coords
+
+
+
+			'''
+
+				Create Feature
+
+			'''
+
+			if not len(coords):
+				continue
+				
+			properties = [
+				str(feature['id']),
+				str(geometries.index(feature['type'])),
+				str(group_key)
+			]
+
+			if 'layer' in feature:
+				properties.append(feature['layer'])
+
+			if 'name' in feature:
+				properties.append(feature['name'])
+
+			if 'center' in feature:
+				properties.append(feature['center'])
+
+			properties = '\t'.join(properties)
+			target_file.write(properties)
+
+			# print(coords)
+			coords = json.dumps(coords, separators=(',', ':'))
+			target_file.write('\t' + coords + '\n')
+
+	# print('')
+
+
 
 	'''
 
@@ -328,8 +418,9 @@ def compress(data):
 
 				coords = json.dumps(coords, separators=(',', ':'))
 				target.write('\t' + coords + '\n')
+	'''
 
-	return [1,1]
+	return True
 
 '''
 
@@ -339,7 +430,7 @@ def compress(data):
 
 if __name__ == '__main__':
 	CONFIG_NAME = 'canary'
-	CONFIG_NAME = 'isle-of-dogs'
+	# CONFIG_NAME = 'isle-of-dogs'
 	# CONFIG_NAME = 'london'
 	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 

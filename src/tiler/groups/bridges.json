@@ -1,0 +1,22 @@
+{
+	"name": "bridges",
+	"obj": {
+		"name": "bridges",
+		"type": "FeatureCollection",
+		"description": "",
+		"features": []
+	},
+
+	"filters": {
+		"area": {
+			"man_made": [
+				{
+					"group": "bridges",
+					"values": [ "bridge" ],
+					"properties": [ "name" ],
+					"minzoom": 14
+				}
+			]
+		}
+	}
+}

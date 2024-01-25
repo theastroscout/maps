@@ -14,11 +14,11 @@ from utils.geometries import getPolygon, getLine, mapping
 
 class OSM_handler(osmium.SimpleHandler):
 
-	def __init__(self, config, layers):
+	def __init__(self, config, groups):
 		# super(OSM_handler, self).__init__()	
 		osmium.SimpleHandler.__init__(self)
 		self.config = config
-		self.layers = layers
+		self.groups = groups
 
 	# node = nodeParse
 	getConfig = getConfig
