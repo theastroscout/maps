@@ -142,6 +142,7 @@ class Tiles {
 
 					this.storage.tiles[zoomID].items[url] = {
 						id: url,
+						containers: []
 					};
 
 					this.load(zoomID, url);
@@ -388,6 +389,8 @@ class Tiles {
 
 		if(result !== '0'){
 			this.parse(zoomID, url);
+		} else {
+			this.storage.tiles[zoomID].items[url] = false;
 		}
 		
 	}
@@ -467,11 +470,52 @@ class Tiles {
 
 			*/
 
-			
+			if(!zoomObj.groups[feature.group].tiles[url]){
+				const tileContainer = document.createElementNS(this.map.svgNS, 'g');
+				tileContainer.classList.add(url);
+				zoomObj.groups[feature.group].container.appendChild(tileContainer);
 
+				zoomObj.groups[feature.group].tiles[url] = tileContainer;
 
+				tile.containers.push(tileContainer);
+			}
+
+			// Attach Tile Container to the Feature
+			feature.container = zoomObj.groups[feature.group].tiles[url];
+
+			/*
+
+			Append Feature
+
+			*/
+
+			let featureItem = this.storage.features[zoomID][feature.id];
+
+			if(!featureItem){
+
+				/*
+
+				Create New One
+
+				*/
+
+				this.storage.features[zoomID][feature.id] = feature;
+				featureItem = this.storage.features[zoomID][feature.id];
+
+			} else {
+
+				/*
+
+				Join Features
+
+				*/
+			}
+
+			processed[feature.id] = featureItem;
 
 		}
+
+		this.draw.render(processed);
 	}
 
 	parse2 = (zoomID, url) => {

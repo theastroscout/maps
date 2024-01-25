@@ -102,6 +102,56 @@ class Draw {
 				
 				points.push('M');
 				for(let i = 0, l=poly.length; i < l; ++i) {
+					const p = this.utils.xy([poly[i][0]/1000000,poly[i][1]/1000000]);
+					if(i == 1){
+						points.push('L')
+					}
+					points.push(p.join(','));
+
+					/*
+
+					Bounds
+
+					*/
+
+					minX = Math.min(minX, p[0]);
+					minY = Math.min(minY, p[1]);
+					maxX = Math.max(maxX, p[0]);
+					maxY = Math.max(maxY, p[1]);
+				}
+
+				points.push('z');
+				
+			}
+
+			const path = document.createElementNS(svgNS, 'path');
+			path.setAttribute('d', points.join(' '));
+			target.appendChild(path);
+			elmts.push(path);
+		}
+
+		return {
+			elmts: 	elmts,
+			bounds: [minX, minY, maxX, maxY]
+		};
+	}
+
+	polygon2 = (items, target) => {
+		
+		const svgNS = 'http://www.w3.org/2000/svg';
+
+		let elmts = [];
+		let minX = Infinity;
+		let minY = Infinity;
+		let maxX = -Infinity;
+		let maxY = -Infinity;
+		
+		for(let polygons of items){
+			let points = [];
+			for(let poly of polygons){
+				
+				points.push('M');
+				for(let i = 0, l=poly.length; i < l; ++i) {
 					const p = this.utils.xy(poly[i]);
 					if(i == 1){
 						points.push('L')
@@ -143,6 +193,45 @@ class Draw {
 	*/
 
 	render = items => {
+		console.log('Render', Object.keys(items).length);
+
+		for(let fID in items){
+			let feature = items[fID];
+
+			/*
+
+			Redraw
+
+			*/
+
+			if(feature.elmts){
+				for(let e of feature.elmts){
+					e.remove();
+				}
+			}
+
+			let result;
+
+			switch(feature.type){
+
+				case 'Polygon':
+					result = this.polygon([feature.coords], feature.container);
+					feature.elmts = result.elmts;
+					feature.bounds = result.bounds;
+					break;
+
+				case 'MultiPolygon':
+					
+					result = this.polygon(feature.coords, feature.container);
+					feature.elmts = result.elmts;
+					feature.bounds = result.bounds;
+
+					break;
+			}
+		}
+	}
+
+	render2 = items => {
 		console.log('Render', Object.keys(items).length);
 		for(let fID in items){
 			let feature = items[fID];
