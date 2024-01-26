@@ -512,7 +512,8 @@ class Tiles {
 				id: fID,
 				group: groupName,
 				type: geometryTypes[geomType],
-				coords: coords
+				coords: coords,
+				bounds: [Infinity,Infinity,-Infinity,-Infinity]
 			};
 
 			if(Number(chunks[0])){
@@ -588,6 +589,26 @@ class Tiles {
 				Join Features
 
 				*/
+
+				// tile.joinTiles[featureItem.tileID] = true;
+
+				/*
+
+				Union Features
+
+				*/
+
+				if(/Polygon/.test(feature.type)){
+
+					const union = polygonClipping.union(featureItem.coords, feature.coords);
+					// console.log(featureItem.coords)
+					// console.log(union)
+					// console.log('')
+					
+					featureItem.type = 'MultiPolygon';
+					featureItem.coords = union;
+					
+				}
 			}
 
 			processed[feature.id] = featureItem;
@@ -708,7 +729,7 @@ class Tiles {
 
 				*/
 
-				tile.joinTiles[featureItem.tileID] = true;
+				// tile.joinTiles[featureItem.tileID] = true;
 
 				/*
 
