@@ -24,7 +24,7 @@ html {
 	*/
 
 	&.move {
-		> svg {
+		> svg.container {
 			pointer-events: none;
 		}
 	}
@@ -35,7 +35,7 @@ html {
 
 	*/
 
-	> svg {
+	> svg.container {
 		background-color: #fdfdfd;
 		backface-visibility: hidden;
 		transform: translate3d(0,0,0);

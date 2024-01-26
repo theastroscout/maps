@@ -95,6 +95,31 @@ class Tiles {
 	get = async () => {
 
 		const zoomID = this.map.zoomID;
+
+		/*
+
+		Hide Zoom Group
+
+		*/
+
+		if(zoomID !== this.currentZoomID){
+
+			// Hide Zoom Collection
+			if(this.storage.tiles[this.currentZoomID]){
+				this.storage.tiles[this.currentZoomID].container.classList.add('hide');
+				this.storage.tiles[this.currentZoomID].hide = true;
+			}
+
+			// Show Zoom Collection
+			if(this.storage.tiles[zoomID]){
+				this.storage.tiles[zoomID].container.classList.remove('hide');
+				this.storage.tiles[zoomID].hide = false;
+			}
+
+			// Reassign Zoom ID
+			this.currentZoomID = zoomID;
+
+		}
 		
 		/*
 
@@ -128,9 +153,13 @@ class Tiles {
 		const xTiles = this.tile(zoomID, [bbox[0], bbox[1]]);
 		const yTiles = this.tile(zoomID, [bbox[2], bbox[3]], true);
 
+		let visibleTiles = {};
+
 		for(let x = xTiles[0]; x < yTiles[0]; x++){
 			for(let y = xTiles[1]; y < yTiles[1]; y++){
 				let url = `${zoomID}/${x}/${y}`;
+
+				visibleTiles[url] = true;
 
 				if(typeof this.storage.tiles[zoomID].items[url] === 'undefined'){
 
@@ -424,7 +453,7 @@ class Tiles {
 			const groupName = groupsMap[chunks.shift()];
 
 			if(groupName !== 'landuse'){
-				continue;
+				// continue;
 			}
 
 			const group = this.map.style.groups[groupName];
