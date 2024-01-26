@@ -132,11 +132,17 @@ class Tiles {
 			container.classList.add('zoom');
 			container.setAttribute('zoom', zoomID);
 			this.container.appendChild(container);
+
+			const boundaries = document.createElementNS(this.map.svgNS, 'g');
+			boundaries.classList.add('bounds');
+			container.appendChild(boundaries);
 			
 			this.storage.tiles[zoomID] = {
 				container: container,
+				boundaries: boundaries,
 				groups: {}, // Store Groups
-				items: {} // Store Tiles inside Groups
+				items: {}, // Store Tiles inside Groups
+				visible: {}, // To store currently visible tiles
 			};
 
 			this.storage.features[zoomID] = {};
@@ -176,6 +182,15 @@ class Tiles {
 
 					this.load(zoomID, url);
 
+					/*
+
+					Draw Bounding Box
+
+					*/
+
+					const bounds = this.getBounds([zoomID,x,y]);
+					const border = this.draw.bounds(bounds, url, this.storage.tiles[zoomID].boundaries);
+
 				} else {
 
 					/*
@@ -183,9 +198,44 @@ class Tiles {
 					Show Tile
 
 					*/
+
+					// Remove Tile From Offload List
+
+					if(this.storage.tiles[zoomID].visible[url]){
+						delete this.storage.tiles[zoomID].visible[url];
+					}
+
+					// Show if it has been hidden
+					let tile = this.storage.tiles[zoomID].items[url];
+					if(tile && tile.hide){
+						tile.hide = false;
+						for(let g of tile.containers){
+							g.classList.remove('hide');
+						}
+					}
 				}
 			}
 		}
+
+		/*
+
+		Hide Tiles
+
+		*/
+
+		// Hide invisible tiles
+		for(let url in this.storage.tiles[zoomID].visible){
+			let tile = this.storage.tiles[zoomID].items[url];
+			if(tile && !tile.hide){
+				tile.hide = true;
+				for(let g of tile.containers){
+					g.classList.add('hide');
+				}
+			}
+		}
+
+		// Reassign visible tiles
+		this.storage.tiles[zoomID].visible = visibleTiles;
 
 	}
 

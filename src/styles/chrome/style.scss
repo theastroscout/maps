@@ -28,7 +28,7 @@ Surfy°Maps › Chrome
 
 			*/
 
-			> g.water {
+			> g.water {				
 				pointer-events: none;
 				fill: #e9eaeb;
 			}
@@ -42,6 +42,10 @@ Surfy°Maps › Chrome
 			> g.landuse {
 				pointer-events: none;
 				fill: #ededed;
+
+				--opacity-rule: 14 1, 15.5 0;
+				--opacity: 1;
+				opacity: var(--opacity);
 			}
 
 			/*
@@ -190,6 +194,16 @@ Surfy°Maps › Chrome
 				> text {
 					text-rendering: optimizeSpeed;
 				}
+			}
+
+			/*
+
+			Bounds
+
+			*/
+
+			> g.bounds {
+				pointer-events: none;
 			}
 		}
 	}

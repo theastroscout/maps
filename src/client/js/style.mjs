@@ -47,6 +47,7 @@ class Style {
 
 		let groups = {};
 		// console.log(this.sheet.rules.getPropertyValue('--opacity-values'))
+		let position = 0;
 		for(let rule of rules){
 			let path = rule.selectorText.split('>').map(v => v.trim());
 			const prefix = path.slice(0, 4).join('/')
@@ -63,9 +64,11 @@ class Style {
 				// Create Group if not exists
 				if(!groups[group]){
 					groups[group] = {
+						position: position,
 						name: group,
 						layers: []
 					}
+					position++;
 				}
 
 				/*
@@ -139,7 +142,6 @@ class Style {
 
 	render = () => {
 		for(let rule of this.rules){
-			console.log(rule);
 			const v = this.map.utils.getValue(rule.rule);
 			rule.obj.style.setProperty('--opacity', v);
 		}

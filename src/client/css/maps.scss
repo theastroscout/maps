@@ -68,12 +68,21 @@ html {
 
 				/*
 
-				Tiles
+				Groups
 
 				*/
 
-				> g.hide {
-					display: none;
+				> g {
+					
+					/*
+
+					Tiles
+
+					*/
+
+					> g.hide {
+						display: none;
+					}
 				}
 			}
 		}
