@@ -11,7 +11,7 @@
 			"compress": {
 				"14": {
 					"tolerance": 0.00001,
-					"avoidArea": 0.00000001
+					"disabled_avoidArea": 0.00000001
 				}
 			}
 		},
@@ -35,15 +35,15 @@
 			"compress": {
 				"14": {
 					"tolerance": 0.00001,
-					"avoidArea": 0.00000001
+					"disabled_avoidArea": 0.00000001
 				}
 			}
 		},
 		"bridges": {
 			"compress": {
 				"14": {
-					"tolerance": 0.00001,
-					"avoidArea": 0.00000001
+					"disabled_tolerance": 0.00001,
+					"disabled_avoidArea": 0.00000001
 				}
 			}
 		},
@@ -72,7 +72,7 @@
 			"compress": {
 				"14": {
 					"tolerance": 0.00001,
-					"avoidArea": 0.00000001
+					"disabled_avoidArea": 0.00000001
 				}
 			}
 		}

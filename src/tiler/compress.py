@@ -71,6 +71,7 @@ def compress_tiles(CONFIG):
 	'''
 	if len(bunch):
 		num_cores = multiprocessing.cpu_count()
+		num_cores = 1
 		with multiprocessing.Pool(processes=num_cores) as pool:
 			pool.map(compress, bunch)
 
@@ -226,10 +227,14 @@ def compress(data):
 			# print(compress_config)
 
 			if feature['type'] == 'MultiLineString':
+				print('Parse MultiLineString')
 				coords = [LineString(c) for c in coords]
+				print('Converted')
 				coords = linemerge(coords)
+				print('Merged')
 
 				if compress_config and 'tolerance' in compress_config:
+					print('????')
 					if coords.geom_type == 'LineString':
 						feature['type'] = 'LineString'
 
@@ -251,6 +256,10 @@ def compress(data):
 
 						coords = new_coords;
 				else:
+					print('1.Coords')
+					print(coords)
+					print('2.Coords')
+					print(coords.coords)
 					coords = fit_coords(list(coords.coords))
 
 			elif feature['type'] == 'MultiPolygon':

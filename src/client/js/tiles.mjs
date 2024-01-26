@@ -177,7 +177,8 @@ class Tiles {
 
 					this.storage.tiles[zoomID].items[url] = {
 						id: url,
-						containers: []
+						containers: [],
+						joinTiles: {}, // To store Join Tiles
 					};
 
 					this.load(zoomID, url);
@@ -222,6 +223,16 @@ class Tiles {
 		Hide Tiles
 
 		*/
+
+		// Remove joined tiles from the offload list
+		for(let url in visibleTiles){
+			let tile = this.storage.tiles[zoomID].items[url];
+			for(let joinTileURL in tile.joinTiles){
+				if(this.storage.tiles[zoomID].visible[joinTileURL]){
+					delete this.storage.tiles[zoomID].visible[joinTileURL];
+				}
+			}
+		}
 
 		// Hide invisible tiles
 		for(let url in this.storage.tiles[zoomID].visible){
@@ -510,6 +521,7 @@ class Tiles {
 
 			let feature = {
 				id: fID,
+				tileID: tile.id,
 				group: groupName,
 				type: geometryTypes[geomType],
 				coords: coords,
@@ -590,7 +602,7 @@ class Tiles {
 
 				*/
 
-				// tile.joinTiles[featureItem.tileID] = true;
+				tile.joinTiles[featureItem.tileID] = true;
 
 				/*
 
