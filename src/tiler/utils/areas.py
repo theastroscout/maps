@@ -7,12 +7,19 @@ Area Parser
 def areaParse(self, o):
 	if not o.visible:
 		return True
-	
+
 	# Get Specification
 	spec = self.getConfig(o, 'area')
+
+	if o.id == 704819231:
+		print(o)
+		print(o.type)
+		print(spec)
 	
 	if not spec:
 		return True
+
+	# print('area')
 
 	# Get Polygon
 	polygon = self.getPolygon(o)

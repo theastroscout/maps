@@ -37,7 +37,7 @@ class Parser:
 			# Fitting zoom
 
 			for type_name, type_item in group_config['filters'].items():
-				for tag, filters in type_item.items():
+				for tag, filters in reversed(type_item.items()):
 					for filter_item in filters:
 						if 'minzoom' not in filter_item:
 							filter_item['minzoom'] = self.config['minzoom']

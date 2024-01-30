@@ -22,17 +22,8 @@
 			"leisure": [
 				{
 					"group": "green",
-					"values": [ "park" ],
+					"values": [ "park", "garden", "pitch", "playground" ],
 					"properties": [ "name" ],
-					"minzoom": 14
-				}
-			],
-
-			"leisure": [
-				{
-					"group": "green",
-					"values": [ "garden", "pitch", "playground" ],
-					"properties": [ ],
 					"minzoom": 14
 				}
 			],

@@ -7,11 +7,14 @@ Way Parser
 def wayParse(self, o):
 	if not o.visible:
 		return True
+
 	
 	# Get Specification
 	spec = self.getConfig(o, 'way')
 	
 	if not spec:
+		if o.is_closed():
+			return self.area(o)
 		return True
 
 	#print(spec)

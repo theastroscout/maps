@@ -34,7 +34,7 @@
 		"green": {
 			"compress": {
 				"14": {
-					"tolerance": 0.00001,
+					"disable_tolerance": 0.00001,
 					"disabled_avoidArea": 0.00000001
 				}
 			}
