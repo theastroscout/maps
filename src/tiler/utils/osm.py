@@ -4,7 +4,7 @@ from utils.ways import wayParse
 from utils.areas import areaParse
 from utils.configs import getConfig
 from utils.features import addFeature
-from utils.geometries import getPolygon, getLine, mapping
+from utils.geometries import getPolygon, getPolygonFromWay, getLine, mapping
 
 '''
 
@@ -26,8 +26,10 @@ class OSM_handler(osmium.SimpleHandler):
 	
 	# Geometry
 	getPolygon = getPolygon
+	getPolygonFromWay = getPolygonFromWay
 	getLine = getLine
 	
 	mapping = mapping
-	way = wayParse
+
 	area = areaParse
+	way = wayParse

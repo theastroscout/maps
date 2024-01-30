@@ -3,6 +3,10 @@ import shapely.wkb as wkblib
 from shapely.geometry import mapping as mapper, shape, LineString, Polygon
 wkbfab = osmium.geom.WKBFactory()
 
+def getPolygonFromWay(self, o):
+	coords = [(n.lon, n.lat) for n in o.nodes]
+	return Polygon(coords)
+
 '''
 
 	Get Polygon
@@ -10,7 +14,7 @@ wkbfab = osmium.geom.WKBFactory()
 '''
 
 def getPolygon(self, o):
-	
+
 	try:
 		wkbshape = wkbfab.create_multipolygon(o)
 	except:

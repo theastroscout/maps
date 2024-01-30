@@ -71,7 +71,8 @@ def compress_tiles(CONFIG):
 	'''
 	if len(bunch):
 		num_cores = multiprocessing.cpu_count()
-		num_cores = 1
+		#for b in bunch:
+		#	compress(b)
 		with multiprocessing.Pool(processes=num_cores) as pool:
 			pool.map(compress, bunch)
 
@@ -173,9 +174,11 @@ def compress(data):
 
 		featureItem = features[group_name][fID]
 
-		
+		feature_is_line = bool(re.search(r'Line', geom_type))
+		feature_item_is_line = bool(re.search(r'Line', featureItem['type']))
+
 		# Merge Coordinates for the Same Feature ID
-		if geom_type in ['LineString','MultiLineString']:
+		if geom_type in ['LineString', 'MultiLineString']:
 			
 			featureItem['type'] = 'MultiLineString'
 
@@ -191,6 +194,8 @@ def compress(data):
 
 		elif geom_type == 'MultiPolygon':
 			featureItem['coords'] = featureItem['coords'] + feature['geometry']['coordinates']
+
+
 
 
 	'''
@@ -227,19 +232,14 @@ def compress(data):
 			# print(compress_config)
 
 			if feature['type'] == 'MultiLineString':
-				print('Parse MultiLineString')
 				coords = [LineString(c) for c in coords]
-				print('Converted')
 				coords = linemerge(coords)
-				print('Merged')
 
 				if compress_config and 'tolerance' in compress_config:
-					print('????')
 					if coords.geom_type == 'LineString':
 						feature['type'] = 'LineString'
 
 						# Simplify Line String
-
 						simplified_line = coords.simplify(compress_config['tolerance'])
 						coords = list(simplified_line.coords)
 						coords = fit_coords(coords)
@@ -255,17 +255,23 @@ def compress(data):
 							new_coords.append(c)
 
 						coords = new_coords;
-				else:
-					print('1.Coords')
-					print(coords)
-					print('2.Coords')
-					print(coords.coords)
+					
+				elif coords.geom_type == 'LineString':
 					coords = fit_coords(list(coords.coords))
+				else:
+					new_coords = []
+					for line in coords.geoms:
+						c = fit_coords(list(line.coords))
+						new_coords.append(c)
+
+					coords = new_coords;
+
 
 			elif feature['type'] == 'MultiPolygon':
 				new_coords = []
 
 				for multy_polygon in coords:
+
 					multipolygon = MultiPolygon([Polygon(c) for c in multy_polygon])
 
 					gdf = gpd.GeoDataFrame(geometry=[multipolygon])
