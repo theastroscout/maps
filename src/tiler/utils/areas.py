@@ -1,3 +1,5 @@
+import osmium
+
 '''
 
 Area Parser
@@ -9,12 +11,7 @@ def areaParse(self, o):
 		return True
 
 	# Get Specification
-	spec = self.getConfig(o, 'area')
-
-	if o.id == 704819231:
-		print(o)
-		print(o.type)
-		print(spec)
+	spec = self.getConfig(o, 'area')	
 	
 	if not spec:
 		return True
@@ -22,7 +19,17 @@ def areaParse(self, o):
 	# print('area')
 
 	# Get Polygon
-	polygon = self.getPolygon(o)
+	if isinstance(o, osmium.Way):
+		polygon = self.getPolygonFromWay(o)
+	else:
+		polygon = self.getPolygon(o)
+
+	if 2==3 and o.id == 704819231:
+		print(o)
+		print(spec)
+		print(polygon)
+		exit()
+
 	if not polygon:
 		return True
 

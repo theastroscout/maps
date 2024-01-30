@@ -29,7 +29,8 @@ class Parser:
 		
 		self.groups = {}
 
-		for group_name in self.config['groups']:
+		for group_name in reversed(self.config['groups']):
+			print(group_name)
 			
 			# Get Group Config
 			group_config = json.load(open('./groups/{}.json'.format(group_name), 'r'))
