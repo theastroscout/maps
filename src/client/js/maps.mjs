@@ -36,7 +36,7 @@ class Maps {
 			coords: [-0.026704,51.505599], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 12
+			zoom: 14.5
 		};
 
 		
@@ -116,6 +116,7 @@ class Maps {
 		*/
 
 		this.container.addEventListener('mousedown', this.mouseHandler);
+		this.container.addEventListener('touchstart', this.mouseHandler);
 		this.container.addEventListener('wheel', this.mouseHandler);
 
 		// this.setCenter();
@@ -215,10 +216,10 @@ class Maps {
 		*/
 
 		switch(e.type){
-			case 'mousedown':
+			case 'mousedown': case 'touchstart':
 				this.startPoint = {
-					x: e.x,
-					y: e.y
+					x: e.x || e.touches[0].clientX,
+					y: e.y || e.touches[0].clientY
 				};
 
 				this.container.classList.add('move');
@@ -226,9 +227,15 @@ class Maps {
 				document.addEventListener('mousemove', this.mouseHandler);
 				document.addEventListener('mouseup', this.mouseHandler);
 
+				document.addEventListener('touchmove', this.mouseHandler);
+				document.addEventListener('touchend', this.mouseHandler);
+
+				e.preventDefault();
+				e.stopPropagation();
+
 				break;
 			
-			case 'mousemove':
+			case 'mousemove': case 'touchmove':
 
 				/*
 
@@ -236,8 +243,9 @@ class Maps {
 
 				*/
 				
-				var dx = (this.startPoint.x - e.x) / this.viewBox.scale;
-				var dy = (this.startPoint.y - e.y) / this.viewBox.scale;
+				var dx = (this.startPoint.x - (e.x || e.touches[0].clientX)) / this.viewBox.scale;
+				var dy = (this.startPoint.y - (e.y || e.touches[0].clientY)) / this.viewBox.scale;
+
 				
 				this.viewBox.x = Math.round(this.viewBox.x + dx);
 				this.viewBox.y = Math.round(this.viewBox.y + dy);
@@ -257,8 +265,8 @@ class Maps {
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`; 
 
 				this.startPoint = {
-					x: e.x,
-					y: e.y
+					x: e.x || e.touches[0].clientX,
+					y: e.y || e.touches[0].clientY
 				};
 
 				/*
@@ -271,7 +279,7 @@ class Maps {
 
 				break;
 			
-			case 'mouseup':
+			case 'mouseup': case 'touchend':
 
 				/*
 
@@ -282,6 +290,9 @@ class Maps {
 				this.container.classList.remove('move');
 				document.removeEventListener('mousemove', this.mouseHandler);
 				document.removeEventListener('mouseup', this.mouseHandler);
+
+				document.removeEventListener('touchmove', this.mouseHandler);
+				document.removeEventListener('touchend', this.mouseHandler);
 
 				break;
 

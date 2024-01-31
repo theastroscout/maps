@@ -20,7 +20,81 @@ class Draw {
 
 	*/
 
-	line = (id, coords, name, target) => {
+	line = feature => {
+		const svgNS = 'http://www.w3.org/2000/svg';
+
+		if(typeof feature.coords[0][0] === 'number'){
+			feature.coords = [feature.coords];
+		}
+
+		let elmts = [];
+		let minX = Infinity;
+		let minY = Infinity;
+		let maxX = -Infinity;
+		let maxY = -Infinity;
+
+		let points = [];
+		for(let line of feature.coords){
+			points.push('M');
+			for(let i = 0, l=line.length; i < l; ++i) {
+				const p = this.utils.xy([line[i][0]/1000000,line[i][1]/1000000]);
+				if(i == 1){
+					points.push('L')
+				}
+				points.push(p.join(','))
+
+				/*
+
+				Bounds
+
+				*/
+
+				minX = Math.min(minX, p[0]);
+				minY = Math.min(minY, p[1]);
+				maxX = Math.max(maxX, p[0]);
+				maxY = Math.max(maxY, p[1]);
+			}
+		}
+
+		const pathID = 'road'+feature.id;
+
+		const path = document.createElementNS(svgNS, 'path');
+		path.setAttribute('d', points.join(' '));
+		path.setAttribute('id', pathID);
+		if(feature.roads){
+			feature.roads.defs.appendChild(path);
+
+			const border = document.createElementNS(svgNS, 'use');
+			border.setAttribute('href', '#'+pathID);
+			feature.roads.layers[feature.layer].border.appendChild(border);
+
+			const fill = document.createElementNS(svgNS, 'use');
+			fill.setAttribute('href', '#'+pathID);
+			feature.roads.layers[feature.layer].fill.appendChild(fill);
+
+		} else {
+			feature.container.appendChild(path);
+		}
+		elmts.push(path);
+
+		/*
+		if(name){
+			const text = document.createElementNS(svgNS, 'text');
+			const textPath = document.createElementNS(svgNS, 'textPath');
+			textPath.textContent = (name + ' ').repeat(1);
+			textPath.setAttribute('href', '#road'+id);
+			text.appendChild(textPath);
+			this.map.groups.texts.appendChild(text);
+
+			elmts.push(text);
+		}
+		*/
+
+		feature.elmts = elmts;
+		feature.bounds = [minX, minY, maxX, maxY];
+	}
+
+	line_origin = (id, coords, name, target) => {
 		const svgNS = 'http://www.w3.org/2000/svg';
 
 		if(typeof coords[0][0] === 'number'){
@@ -213,6 +287,11 @@ class Draw {
 			let result;
 
 			switch(feature.type){
+
+				case 'LineString':
+					this.line(feature);
+
+					break;
 
 				case 'Polygon':
 					result = this.polygon([feature.coords], feature.container);
@@ -426,8 +505,8 @@ class Draw {
 		rect.setAttribute('y', y1);
 		rect.setAttribute('width', width);
 		rect.setAttribute('height', height);
-		rect.setAttribute('stroke', 'black');
-		rect.setAttribute('strokeWidth', '10px');
+		rect.setAttribute('stroke', 'red');
+		rect.setAttribute('strokeWidth', '20px');
 		rect.setAttribute('vector-effect', 'non-scaling-stroke');
 		rect.setAttribute('fill', 'none');
 

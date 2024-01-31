@@ -83,6 +83,24 @@ Surfy°Maps › Chrome
 			> g.roads {
 				pointer-events: none;
 
+				> g {
+					// Tile
+
+					> g.border {
+						fill: none;
+						stroke: #d8d8d8;
+						stroke-width: 24px;
+						stroke-linecap: round;
+					}
+
+					> g.fill {
+						fill: none;
+						stroke: #ff00ff;
+						stroke-width: 20px;
+						stroke-linecap: round;
+					}
+				}
+
 				/*
 
 				Services
