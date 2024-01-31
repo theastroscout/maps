@@ -199,9 +199,9 @@ class Draw {
 			}
 
 			const path = document.createElementNS(svgNS, 'path');
-			path.setAttribute('stroke', 'red')
-			path.setAttribute('stroke-width', 20)
-			path.setAttribute('fill', 'black')
+			// path.setAttribute('stroke', 'red')
+			// path.setAttribute('stroke-width', 20)
+			// path.setAttribute('fill', 'black')
 			path.setAttribute('d', points.join(' '));
 			target.appendChild(path);
 			elmts.push(path);
