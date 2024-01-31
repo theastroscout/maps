@@ -72,6 +72,8 @@ class Maps {
 
 		this.svg = document.createElementNS(this.svgNS, 'svg');
 		this.svg.setAttribute('shape-rendering', 'geometricPrecision');
+		this.svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  		this.svg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
 		this.svg.classList.add('container');
 		this.container.append(this.svg);
 
