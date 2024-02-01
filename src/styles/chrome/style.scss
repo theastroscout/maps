@@ -55,7 +55,7 @@ Surfy°Maps › Chrome
 			*/
 
 			> g.green {
-				// pointer-events: none;
+				pointer-events: none;
 				fill: #ededed;
 			}
 
@@ -66,7 +66,7 @@ Surfy°Maps › Chrome
 			*/
 
 			> g.bridges {
-				// pointer-events: none;
+				pointer-events: none;
 				fill-rule: evenodd;
 				fill: #ebebeb;
 				stroke: #bfbfbf;
@@ -81,85 +81,47 @@ Surfy°Maps › Chrome
 			*/
 
 			> g.roads {
-				pointer-events: none;
+				// pointer-events: none;
 
 				> g {
 					// Tile
 
 					> g.border {
-						fill: none;
-						stroke: #d8d8d8;
-						stroke-width: 24px;
-						stroke-linecap: round;
+						
+
+						> g.streets {
+							fill: none;
+							stroke-linecap: round;
+							stroke: #d8d8d8;
+							stroke-width: 34px;
+						}
+
+						> g.highways {
+							fill: none;
+							stroke-linecap: round;
+							stroke: #d8d8d8;
+							stroke-width: 54px;
+						}
 					}
 
 					> g.fill {
-						fill: none;
-						stroke: #ff00ff;
-						stroke-width: 20px;
-						stroke-linecap: round;
+
+						> g.streets {
+							fill: none;
+							stroke-linecap: round;
+							stroke: #ffffff;
+							stroke-width: 30px;
+						}
+
+						> g.highways {
+							fill: none;
+							stroke-linecap: round;
+							stroke: #ffffff;
+							stroke-width: 50px;
+						}
 					}
 				}
 
-				/*
-
-				Services
-
-				*/
-
-				> use.servicesBorder {
-					fill: none;
-					stroke: #d8d8d8;
-					stroke-width: 24px;
-					stroke-linecap: round;
-				}
-
-				> use.services {
-					fill: none;
-					stroke: #ffffff;
-					stroke-width: 20px;
-					stroke-linecap: round;
-				}
-
-				/*
-
-				Streets
-
-				*/
-
-				> use.streetsBorder {
-					fill: none;
-					stroke: #d8d8d8;
-					stroke-width: 34px;
-					stroke-linecap: round;
-				}
-
-				> use.streets {
-					fill: none;
-					stroke: #ffffff;
-					stroke-width: 30px;
-					stroke-linecap: round;
-				}
-
-				/*
-
-				Primaries
-
-				*/
-
-				> use.highwaysBorder {
-					fill: none;
-					stroke: #d8d8d8;
-					stroke-width: 54px;
-					stroke-linecap: round;
-				}
-
-				> use.highways {
-					fill: none;
-					stroke: #ffffff;
-					stroke-width: 50px;
-					stroke-linecap: round;
-				}
 			}
 
 			/*
@@ -171,6 +133,7 @@ Surfy°Maps › Chrome
 			> g.railways {
 				pointer-events: none;
 				fill: none;
+				stroke: #d6d6d6;
 				stroke: red;
 				stroke-width: 1px;
 			}

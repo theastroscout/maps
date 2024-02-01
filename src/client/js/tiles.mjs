@@ -315,7 +315,7 @@ class Tiles {
 				bounds: [Infinity,Infinity,-Infinity,-Infinity]
 			};
 
-			if(Number(chunks[0])){
+			if(Number.isInteger(Number(chunks[0]))){
 				feature.layer = layers[groupName][chunks.shift()];
 			}
 
@@ -332,6 +332,11 @@ class Tiles {
 			let featureItem = this.storage.features[zoomID][feature.id];
 
 			if(!featureItem){
+
+				if(feature.type === 'LineString'){
+					feature.type = 'MultiLineString';
+					feature.coords = [feature.coords]
+				}
 
 				/*
 
@@ -351,6 +356,39 @@ class Tiles {
 						container: container,
 						tiles: {},
 						layers: {}
+					};
+
+					if(feature.group === 'roads'){
+						// Definitions
+						const defs = document.createElementNS(this.map.svgNS, 'defs');
+						zoomObj.groups[feature.group].container.appendChild(defs);
+
+						// Create Borders Container
+						const border = document.createElementNS(this.map.svgNS, 'g');
+						border.classList.add('border');
+						zoomObj.groups[feature.group].container.appendChild(border);
+
+						// Create Fill Container
+						const fill = document.createElementNS(this.map.svgNS, 'g');
+						fill.classList.add('fill');
+						zoomObj.groups[feature.group].container.appendChild(fill);
+					}
+				}
+
+				/*
+
+				Create Layers
+
+				*/
+
+				if(feature.layer && !zoomObj.groups[feature.group].layers[feature.layer]){
+
+					
+
+					zoomObj.groups[feature.group].layers[feature.layer] = {
+						defs: defs,
+						border: layerBorder,
+						fill: layerFill
 					};
 				}
 
@@ -373,6 +411,8 @@ class Tiles {
 				// Attach Tile Container to the Feature
 				feature.container = zoomObj.groups[feature.group].tiles[url];
 
+
+
 				
 
 				/*
@@ -383,6 +423,7 @@ class Tiles {
 
 				if(feature.group === 'roads'){
 
+					/*
 					if(!tile.roads){
 						tile.roads = {
 							layers: {}
@@ -405,6 +446,8 @@ class Tiles {
 						tile.roads.fill = fill;
 					}
 
+					// console.log(feature.layer)
+
 					if(!tile.roads.layers[feature.layer]){
 						const layerBorder = document.createElementNS(this.map.svgNS, 'g');
 						layerBorder.classList.add(feature.layer);
@@ -421,6 +464,7 @@ class Tiles {
 					}
 
 					feature.roads = tile.roads;
+					*/
 				}
 
 				/*
@@ -452,6 +496,7 @@ class Tiles {
 					featureItem.coords = [...featureItem.coords, ...feature.coords];
 				} else if(feature.type === 'LineString'){
 					featureItem.coords.push(feature.coords);
+
 				} else if(/Polygon/.test(feature.type)){
 
 					const union = polygonClipping.union(featureItem.coords, feature.coords);

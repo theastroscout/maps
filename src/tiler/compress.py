@@ -10,7 +10,7 @@ import re
 import json
 import geopandas as gpd
 from shapely.geometry import LineString, MultiLineString, Polygon, MultiPolygon, mapping
-from shapely.ops import linemerge
+from shapely.ops import linemerge, unary_union
 import pandas as pd
 
 import multiprocessing
@@ -128,8 +128,8 @@ def compress(data):
 		geom_type = feature['geometry']['type']
 		group_name = feature['properties']['group']
 
-		if group_name == 'bridges':
-			fID = feature['properties']['id']
+		if group_name in ['landuse', 'green']:
+			fID = group_name # Flatten all geometries
 		elif group_name == 'roads' and 'name' in feature['properties']:
 			
 			'''
@@ -275,6 +275,10 @@ def compress(data):
 				for multy_polygon in coords:
 
 					multipolygon = MultiPolygon([Polygon(c) for c in multy_polygon])
+					
+					if group_name in ['green','landuse']:
+						# Flatten all geomtries
+						multipolygon = unary_union(multipolygon)
 
 					gdf = gpd.GeoDataFrame(geometry=[multipolygon])
 
@@ -292,6 +296,13 @@ def compress(data):
 							feature['type'] = 'Polygon'
 							coordinates_list = fit_coords(list(gdf['geometry'].iloc[0].exterior.coords))
 						else:
+
+							# if group_name in ['green','landuse', 'bridges']:
+								# unary_union
+								# gdf['geometry'] = gdf['geometry'].unary_union
+								# feature['type'] = 'Polygon'
+								# coordinates_list = fit_coords(list(gdf['geometry'].iloc[0].exterior.coords))
+							# else:
 							coordinates_list = [fit_coords(list(poly.exterior.coords)) for poly in gdf['geometry'].iloc[0].geoms]
 
 						new_coords.append(coordinates_list)

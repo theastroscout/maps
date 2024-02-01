@@ -17,14 +17,13 @@ zoom
 		tile
 
 	roads
-		tile
-			defs
-			border
-				street
-				highway
-			fill
-				street
-				highway
+		defs
+			tile
+			
+		streetBorder
+		highwayBorder
+		streetFill
+		highwayFill
 
 	railway
 		tile

@@ -23,8 +23,9 @@ class Draw {
 	line = feature => {
 		const svgNS = 'http://www.w3.org/2000/svg';
 
-		if(typeof feature.coords[0][0] === 'number'){
-			feature.coords = [feature.coords];
+		let coords = [...feature.coords];
+		if(typeof coords[0][0] === 'number'){
+			coords = [coords];
 		}
 
 		let elmts = [];
@@ -33,8 +34,13 @@ class Draw {
 		let maxX = -Infinity;
 		let maxY = -Infinity;
 
+		if(feature.id === '4499864'){
+			console.log(feature)
+		}
+		// console.log(feature.id, feature.coords[0][0], coords)
+
 		let points = [];
-		for(let line of feature.coords){
+		for(let line of coords){
 			points.push('M');
 			for(let i = 0, l=line.length; i < l; ++i) {
 				const p = this.utils.xy([line[i][0]/1000000,line[i][1]/1000000]);
@@ -56,7 +62,7 @@ class Draw {
 			}
 		}
 
-		const pathID = 'road'+feature.id;
+		const pathID = 'r'+feature.id;
 
 		const path = document.createElementNS(svgNS, 'path');
 		path.setAttribute('d', points.join(' '));
@@ -75,6 +81,7 @@ class Draw {
 		} else {
 			feature.container.appendChild(path);
 		}
+
 		elmts.push(path);
 
 		/*
@@ -112,8 +119,6 @@ class Draw {
 		let maxY = -Infinity;
 
 		let coords = feature.type === 'Polygon' ? [feature.coords] : feature.coords;
-
-		console.log(coords)
 		
 		for(let polygons of coords){
 			let points = [];
@@ -123,7 +128,7 @@ class Draw {
 				for(let i = 0, l=poly.length; i < l; ++i) {
 					const p = this.utils.xy([poly[i][0]/1000000,poly[i][1]/1000000]);
 					
-					this.circle([poly[i][0]/1000000,poly[i][1]/1000000], 'black', 2, feature.container);
+					// this.circle([poly[i][0]/1000000,poly[i][1]/1000000], 'black', 2, feature.container);
 
 					if(i == 1){
 						points.push('L')
@@ -184,6 +189,11 @@ class Draw {
 			}
 
 			switch(feature.type){
+
+				case 'MultiLineString':
+					this.line(feature);
+
+					break;
 
 				case 'LineString':
 					this.line(feature);
