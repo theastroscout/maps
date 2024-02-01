@@ -128,7 +128,9 @@ def compress(data):
 		geom_type = feature['geometry']['type']
 		group_name = feature['properties']['group']
 
-		if group_name == 'roads' and 'name' in feature['properties']:
+		if group_name == 'bridges':
+			fID = feature['properties']['id']
+		elif group_name == 'roads' and 'name' in feature['properties']:
 			
 			'''
 

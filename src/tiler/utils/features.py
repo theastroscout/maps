@@ -8,8 +8,6 @@ Add Features
 
 def addFeature(self, o, spec, coords):
 
-	
-
 	# Create a File Object
 	if 'file_path' not in spec['config']:
 		if 'batch_num' not in spec['config']:

@@ -33,10 +33,10 @@ class Maps {
 		let options = {
 			selector: '#map',
 			style: 'chrome',
-			coords: [-0.026704,51.505599], // [longitude, latitude]
+			coords: [-0.020853,51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 14.5
+			zoom: 16.5
 		};
 
 		

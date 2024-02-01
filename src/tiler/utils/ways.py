@@ -13,8 +13,8 @@ def wayParse(self, o):
 	spec = self.getConfig(o, 'way')
 	
 	if not spec:
-		if o.is_closed():
-			return self.area(o)
+	#	if o.is_closed():
+	#		return self.area(o)
 		return True
 
 	#print(spec)
