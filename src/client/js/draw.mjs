@@ -34,9 +34,7 @@ class Draw {
 		let maxX = -Infinity;
 		let maxY = -Infinity;
 
-		if(feature.id === '4499864'){
-			console.log(feature)
-		}
+		
 		// console.log(feature.id, feature.coords[0][0], coords)
 
 		let points = [];

@@ -21,9 +21,13 @@ zoom
 			tile
 			
 		streetBorder
+			tile
 		highwayBorder
+			tile
 		streetFill
+			tile
 		highwayFill
+			tile
 
 	railway
 		tile

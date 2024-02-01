@@ -360,9 +360,10 @@ class Tiles {
 
 					if(feature.group === 'roads'){
 						// Definitions
-						const defs = document.createElementNS(this.map.svgNS, 'defs');
-						zoomObj.groups[feature.group].container.appendChild(defs);
+						// const defs = document.createElementNS(this.map.svgNS, 'defs');
+						// zoomObj.groups[feature.group].container.appendChild(defs);
 
+						/*
 						// Create Borders Container
 						const border = document.createElementNS(this.map.svgNS, 'g');
 						border.classList.add('border');
@@ -372,6 +373,7 @@ class Tiles {
 						const fill = document.createElementNS(this.map.svgNS, 'g');
 						fill.classList.add('fill');
 						zoomObj.groups[feature.group].container.appendChild(fill);
+						*/
 					}
 				}
 
@@ -383,13 +385,28 @@ class Tiles {
 
 				if(feature.layer && !zoomObj.groups[feature.group].layers[feature.layer]){
 
-					
+					if(feature.group === 'roads'){
 
-					zoomObj.groups[feature.group].layers[feature.layer] = {
-						defs: defs,
-						border: layerBorder,
-						fill: layerFill
-					};
+						const isNew = Object.keys(zoomObj.groups[feature.group].layers).length > 0;
+						const placement = isNew ? 'prepend' : 'appendChild';
+
+						// Create Borders Container
+						const border = document.createElementNS(this.map.svgNS, 'g');
+						border.classList.add(feature.layer+'Border');
+						zoomObj.groups[feature.group].container[placement](border);
+
+						// Create Fill Container
+						const fill = document.createElementNS(this.map.svgNS, 'g');
+						fill.classList.add(feature.layer);
+						zoomObj.groups[feature.group].container.appendChild(fill);
+
+						zoomObj.groups[feature.group].layers[feature.layer] = {
+							tiles: {},
+							// defs: defs,
+							border: border,
+							fill: fill
+						};
+					}
 				}
 
 				/*
@@ -399,13 +416,21 @@ class Tiles {
 				*/
 
 				if(!zoomObj.groups[feature.group].tiles[url]){
-					const tileContainer = document.createElementNS(this.map.svgNS, 'g');
-					tileContainer.setAttribute('tile', url);
-					zoomObj.groups[feature.group].container.appendChild(tileContainer);
 
-					zoomObj.groups[feature.group].tiles[url] = tileContainer;
+					if(feature.group === 'roads'){
+						
+						const defs = document.createElementNS(this.map.svgNS, 'defs');
+						zoomObj.groups[feature.group].container.appendChild(defs);
 
-					tile.containers.push(tileContainer);
+					} else {
+						const tileContainer = document.createElementNS(this.map.svgNS, 'g');
+						tileContainer.setAttribute('tile', url);
+						zoomObj.groups[feature.group].container.appendChild(tileContainer);
+
+						zoomObj.groups[feature.group].tiles[url] = tileContainer;
+
+						tile.containers.push(tileContainer);
+					}
 				}
 
 				// Attach Tile Container to the Feature
