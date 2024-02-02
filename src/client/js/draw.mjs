@@ -65,7 +65,7 @@ class Draw {
 		const path = document.createElementNS(svgNS, 'path');
 		path.setAttribute('d', points.join(' '));
 		path.setAttribute('id', pathID);
-		if(feature.roads){
+		if(feature.group === 'roads'){
 			feature.roads.defs.appendChild(path);
 
 			const border = document.createElementNS(svgNS, 'use');
