@@ -66,6 +66,7 @@ class Draw {
 		path.setAttribute('d', points.join(' '));
 		path.setAttribute('id', pathID);
 		if(feature.group === 'roads'){
+			/*
 			feature.roads.defs.appendChild(path);
 
 			const border = document.createElementNS(svgNS, 'use');
@@ -75,6 +76,7 @@ class Draw {
 			const fill = document.createElementNS(svgNS, 'use');
 			fill.setAttribute('href', '#'+pathID);
 			feature.roads.layers[feature.layer].fill.appendChild(fill);
+			*/
 
 		} else {
 			feature.container.appendChild(path);

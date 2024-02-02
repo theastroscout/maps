@@ -360,20 +360,23 @@ class Tiles {
 
 					if(feature.group === 'roads'){
 						// Definitions
-						// const defs = document.createElementNS(this.map.svgNS, 'defs');
-						// zoomObj.groups[feature.group].container.appendChild(defs);
+						const defs = document.createElementNS(this.map.svgNS, 'defs');
+						zoomObj.groups[feature.group].container.appendChild(defs);
+						zoomObj.groups[feature.group].defs = defs;
 
-						/*
+						
 						// Create Borders Container
 						const border = document.createElementNS(this.map.svgNS, 'g');
 						border.classList.add('border');
 						zoomObj.groups[feature.group].container.appendChild(border);
+						zoomObj.groups[feature.group].border = border;
 
 						// Create Fill Container
 						const fill = document.createElementNS(this.map.svgNS, 'g');
 						fill.classList.add('fill');
 						zoomObj.groups[feature.group].container.appendChild(fill);
-						*/
+						zoomObj.groups[feature.group].fill = fill;
+						
 					}
 				}
 
