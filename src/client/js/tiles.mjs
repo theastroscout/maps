@@ -408,7 +408,8 @@ class Tiles {
 						zoomObj.groups[feature.group].layers[feature.layer] = {
 							defs: defs,
 							border: border,
-							fill: fill
+							fill: fill,
+							tiles: {}
 						};
 					}
 				}
@@ -419,32 +420,40 @@ class Tiles {
 
 				*/
 
-				if(!zoomObj.groups[feature.group].tiles[url]){
+				if(feature.group === 'roads'){
 
-					if(feature.group === 'roads'){
-						
-						// const defs = document.createElementNS(this.map.svgNS, 'defs');
-						// zoomObj.groups[feature.group].container.appendChild(defs);
+					if(!zoomObj.groups[feature.group].layers[feature.layer].tiles[url]){
 
 						const defsTile = document.createElementNS(this.map.svgNS, 'g');
 						defsTile.setAttribute('tile', url);
-						zoomObj.groups[feature.group].layers[feature.layer].defs.appendChild(defsTile)
+						zoomObj.groups[feature.group].layers[feature.layer].defs.appendChild(defsTile);
 
 						const borderTile = document.createElementNS(this.map.svgNS, 'g');
 						borderTile.setAttribute('tile', url);
-						zoomObj.groups[feature.group].layers[feature.layer].border.appendChild(borderTile)
+						zoomObj.groups[feature.group].layers[feature.layer].border.appendChild(borderTile);
 
 						const fillTile = document.createElementNS(this.map.svgNS, 'g');
 						fillTile.setAttribute('tile', url);
-						zoomObj.groups[feature.group].layers[feature.layer].fill.appendChild(fillTile)
+						zoomObj.groups[feature.group].layers[feature.layer].fill.appendChild(fillTile);
 
-						zoomObj.groups[feature.group].tiles[url] = {
+						zoomObj.groups[feature.group].layers[feature.layer].tiles[url] = {
 							defs: defsTile,
 							border: borderTile,
 							fill: fillTile
 						};
 
-					} else {
+						tile.containers.push(defsTile);
+						tile.containers.push(borderTile);
+						tile.containers.push(fillTile);
+					}
+
+					// Attach Tile Container to the Feature
+					feature.container = zoomObj.groups[feature.group].layers[feature.layer].tiles[url];
+
+				} else {
+
+					if(!zoomObj.groups[feature.group].tiles[url]){
+
 						const tileContainer = document.createElementNS(this.map.svgNS, 'g');
 						tileContainer.setAttribute('tile', url);
 						zoomObj.groups[feature.group].container.appendChild(tileContainer);
@@ -453,10 +462,12 @@ class Tiles {
 
 						tile.containers.push(tileContainer);
 					}
+
+					// Attach Tile Container to the Feature
+					feature.container = zoomObj.groups[feature.group].tiles[url];
 				}
 
-				// Attach Tile Container to the Feature
-				feature.container = zoomObj.groups[feature.group].tiles[url];
+				
 
 
 
@@ -522,6 +533,9 @@ class Tiles {
 
 				this.storage.features[zoomID][feature.id] = feature;
 				featureItem = this.storage.features[zoomID][feature.id];
+				if(feature.id === '150397522'){
+						console.log(feature, item)
+					}
 
 			} else {
 
@@ -540,9 +554,20 @@ class Tiles {
 				*/
 
 				if(feature.type === 'MultiLineString'){
+					if(feature.id === '150397522'){
+						console.log(1, featureItem.coords)
+						console.log(1, feature.coords)
+					}
 					featureItem.coords = [...featureItem.coords, ...feature.coords];
+					if(feature.id === '150397522'){
+						console.log(1, featureItem.coords)
+					}
+					
 				} else if(feature.type === 'LineString'){
 					featureItem.coords.push(feature.coords);
+					if(feature.id === '150397522'){
+						console.log(2, feature)
+					}
 
 				} else if(/Polygon/.test(feature.type)){
 

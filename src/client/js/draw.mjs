@@ -42,7 +42,10 @@ class Draw {
 			points.push('M');
 			for(let i = 0, l=line.length; i < l; ++i) {
 				const p = this.utils.xy([line[i][0]/1000000,line[i][1]/1000000]);
-				if(i == 1){
+				
+				if(i === 0){
+					
+				} else if(i === 1){
 					points.push('L')
 				}
 				points.push(p.join(','))
@@ -58,12 +61,15 @@ class Draw {
 				maxX = Math.max(maxX, p[0]);
 				maxY = Math.max(maxY, p[1]);
 			}
+			// points.push('Z');
 		}
 
 		
 
 		const path = document.createElementNS(svgNS, 'path');
+		// console.log(feature)
 		path.setAttribute('d', points.join(' '));
+		// path.setAttribute('id', feature.id);
 		if(feature.group === 'roads'){
 			const pathID = 'r'+feature.id;
 			path.setAttribute('id', pathID);
@@ -79,7 +85,7 @@ class Draw {
 			fill.setAttribute('href', '#'+pathID);
 			feature.roads.layers[feature.layer].fill.appendChild(fill);
 			*/
-			console.log(feature.container)
+			// console.log(feature.container)
 
 			feature.container.defs.appendChild(path);
 
@@ -91,11 +97,15 @@ class Draw {
 			fill.setAttribute('href', '#'+pathID);
 			feature.container.fill.appendChild(fill);
 
-		} else {
-			feature.container.appendChild(path);
-		}
+			elmts.push(path);
+			elmts.push(border);
+			elmts.push(fill);
 
-		elmts.push(path);
+		} else {
+			// console.log(feature, path)
+			feature.container.appendChild(path);
+			elmts.push(path);
+		}
 
 		/*
 		if(name){

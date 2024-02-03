@@ -259,6 +259,7 @@ def compress(data):
 						coords = new_coords;
 					
 				elif coords.geom_type == 'LineString':
+					feature['type'] = coords.geom_type
 					coords = fit_coords(list(coords.coords))
 				else:
 					new_coords = []
@@ -267,7 +268,6 @@ def compress(data):
 						new_coords.append(c)
 
 					coords = new_coords;
-
 
 			elif feature['type'] == 'MultiPolygon':
 				new_coords = []
