@@ -390,22 +390,23 @@ class Tiles {
 
 					if(feature.group === 'roads'){
 
-						const isNew = Object.keys(zoomObj.groups[feature.group].layers).length > 0;
-						const placement = isNew ? 'prepend' : 'appendChild';
+						// Create Definitions
+						const defs = document.createElementNS(this.map.svgNS, 'g');
+						defs.classList.add(feature.layer);
+						zoomObj.groups[feature.group].defs.appendChild(defs);
 
 						// Create Borders Container
 						const border = document.createElementNS(this.map.svgNS, 'g');
-						border.classList.add(feature.layer+'Border');
-						zoomObj.groups[feature.group].container[placement](border);
+						border.classList.add(feature.layer);
+						zoomObj.groups[feature.group].border.appendChild(border);
 
 						// Create Fill Container
 						const fill = document.createElementNS(this.map.svgNS, 'g');
 						fill.classList.add(feature.layer);
-						zoomObj.groups[feature.group].container.appendChild(fill);
+						zoomObj.groups[feature.group].fill.appendChild(fill);
 
 						zoomObj.groups[feature.group].layers[feature.layer] = {
-							tiles: {},
-							// defs: defs,
+							defs: defs,
 							border: border,
 							fill: fill
 						};
@@ -422,8 +423,26 @@ class Tiles {
 
 					if(feature.group === 'roads'){
 						
-						const defs = document.createElementNS(this.map.svgNS, 'defs');
-						zoomObj.groups[feature.group].container.appendChild(defs);
+						// const defs = document.createElementNS(this.map.svgNS, 'defs');
+						// zoomObj.groups[feature.group].container.appendChild(defs);
+
+						const defsTile = document.createElementNS(this.map.svgNS, 'g');
+						defsTile.setAttribute('tile', url);
+						zoomObj.groups[feature.group].layers[feature.layer].defs.appendChild(defsTile)
+
+						const borderTile = document.createElementNS(this.map.svgNS, 'g');
+						borderTile.setAttribute('tile', url);
+						zoomObj.groups[feature.group].layers[feature.layer].border.appendChild(borderTile)
+
+						const fillTile = document.createElementNS(this.map.svgNS, 'g');
+						fillTile.setAttribute('tile', url);
+						zoomObj.groups[feature.group].layers[feature.layer].fill.appendChild(fillTile)
+
+						zoomObj.groups[feature.group].tiles[url] = {
+							defs: defsTile,
+							border: borderTile,
+							fill: fillTile
+						};
 
 					} else {
 						const tileContainer = document.createElementNS(this.map.svgNS, 'g');

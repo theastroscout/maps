@@ -60,12 +60,14 @@ class Draw {
 			}
 		}
 
-		const pathID = 'r'+feature.id;
+		
 
 		const path = document.createElementNS(svgNS, 'path');
 		path.setAttribute('d', points.join(' '));
-		path.setAttribute('id', pathID);
 		if(feature.group === 'roads'){
+			const pathID = 'r'+feature.id;
+			path.setAttribute('id', pathID);
+
 			/*
 			feature.roads.defs.appendChild(path);
 
@@ -77,6 +79,17 @@ class Draw {
 			fill.setAttribute('href', '#'+pathID);
 			feature.roads.layers[feature.layer].fill.appendChild(fill);
 			*/
+			console.log(feature.container)
+
+			feature.container.defs.appendChild(path);
+
+			const border = document.createElementNS(svgNS, 'use');
+			border.setAttribute('href', '#'+pathID);
+			feature.container.border.appendChild(border);
+
+			const fill = document.createElementNS(svgNS, 'use');
+			fill.setAttribute('href', '#'+pathID);
+			feature.container.fill.appendChild(fill);
 
 		} else {
 			feature.container.appendChild(path);

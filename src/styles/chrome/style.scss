@@ -83,42 +83,38 @@ Surfy°Maps › Chrome
 			> g.roads {
 				// pointer-events: none;
 
-				> g {
-					// Tile
+				> g.border {
+					
 
-					> g.border {
-						
-
-						> g.streets {
-							fill: none;
-							stroke-linecap: round;
-							stroke: #d8d8d8;
-							stroke-width: 34px;
-						}
-
-						> g.highways {
-							fill: none;
-							stroke-linecap: round;
-							stroke: #d8d8d8;
-							stroke-width: 54px;
-						}
+					> g.streets {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #d8d8d8;
+						stroke-width: 34px;
 					}
 
-					> g.fill {
+					> g.highways {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #d8d8d8;
+						stroke-width: 54px;
+					}
+				}
 
-						> g.streets {
-							fill: none;
-							stroke-linecap: round;
-							stroke: #ffffff;
-							stroke-width: 30px;
-						}
+				> g.fill {
 
-						> g.highways {
-							fill: none;
-							stroke-linecap: round;
-							stroke: #ffffff;
-							stroke-width: 50px;
-						}
+					> g.streets {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #ffffff;
+						stroke-width: 30px;
+					}
+
+					> g.highways {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #ff0000;
+						stroke-width: 50px;
 					}
 				}
 
