@@ -30,6 +30,12 @@ class Style {
 		document.head.appendChild(this.obj);
 	}
 
+	/*
+
+	Parse Style
+
+	*/
+
 	parse(e){
 		
 		const rules = this.sheet.rules;
@@ -46,7 +52,6 @@ class Style {
 		*/
 
 		let groups = {};
-		// console.log(this.sheet.rules.getPropertyValue('--opacity-values'))
 		let position = 0;
 		for(let rule of rules){
 			let path = rule.selectorText.split('>').map(v => v.trim());
