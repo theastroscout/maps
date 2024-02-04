@@ -7,6 +7,7 @@ The write mode, ‘w’ to overwrite the existing file and ‘a’ to append.
 
 import os
 os.environ['USE_PYGEOS'] = '0'
+import json
 import time
 import shutil
 import mercantile
@@ -113,4 +114,13 @@ def create_tiles(CONFIG):
 	end_time = time.time()
 	print('Tiles created in {}s'.format(round(end_time - start_time,3)))
 
-	
+
+if __name__ == '__main__':
+
+	# CONFIG_NAME = 'canary'
+	# CONFIG_NAME = 'isle-of-dogs'
+	CONFIG_NAME = 'london'
+	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
+	print('Config: {}'.format(CONFIG_NAME))
+
+	create_tiles(CONFIG)

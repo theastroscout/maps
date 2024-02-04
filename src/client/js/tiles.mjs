@@ -315,6 +315,10 @@ class Tiles {
 				bounds: [Infinity,Infinity,-Infinity,-Infinity]
 			};
 
+			if(url === '12/2047/1361'){
+				// console.log(feature) // No landuse
+			}
+
 			if(Number.isInteger(Number(chunks[0]))){
 				feature.layer = layers[groupName][chunks.shift()];
 			}
@@ -533,9 +537,6 @@ class Tiles {
 
 				this.storage.features[zoomID][feature.id] = feature;
 				featureItem = this.storage.features[zoomID][feature.id];
-				if(feature.id === '150397522'){
-						console.log(feature, item)
-					}
 
 			} else {
 
@@ -554,21 +555,9 @@ class Tiles {
 				*/
 
 				if(feature.type === 'MultiLineString'){
-					if(feature.id === '150397522'){
-						console.log(1, featureItem.coords)
-						console.log(1, feature.coords)
-					}
 					featureItem.coords = [...featureItem.coords, ...feature.coords];
-					if(feature.id === '150397522'){
-						console.log(1, featureItem.coords)
-					}
-					
 				} else if(feature.type === 'LineString'){
 					featureItem.coords.push(feature.coords);
-					if(feature.id === '150397522'){
-						console.log(2, feature)
-					}
-
 				} else if(/Polygon/.test(feature.type)){
 
 					const union = polygonClipping.union(featureItem.coords, feature.coords);
