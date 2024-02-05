@@ -130,7 +130,7 @@ def compress(data):
 
 		if group_name in ['landuse', 'green']:
 			fID = group_name # Flatten all geometries
-		elif group_name == 'roads' and 'name' in feature['properties']:
+		elif group_name == 'disabled_roads' and 'name' in feature['properties']:
 			
 			'''
 

@@ -303,7 +303,7 @@ class Tiles {
 
 		const groupsMap = ['water','landuse','green','bridges','roads','railways','buildings'];
 		const layers = {
-			roads: ['streets','highways']
+			roads: ['tunnels','streets','highways']
 		}
 
 		let zoomObj = this.storage.tiles[zoomID];
@@ -394,7 +394,6 @@ class Tiles {
 						const defs = document.createElementNS(this.map.svgNS, 'defs');
 						zoomObj.groups[feature.group].container.appendChild(defs);
 						zoomObj.groups[feature.group].defs = defs;
-
 						
 						// Create Borders Container
 						const border = document.createElementNS(this.map.svgNS, 'g');
@@ -427,21 +426,29 @@ class Tiles {
 						zoomObj.groups[feature.group].defs.appendChild(defs);
 
 						// Create Borders Container
-						const border = document.createElementNS(this.map.svgNS, 'g');
-						border.classList.add(feature.layer);
-						zoomObj.groups[feature.group].border.appendChild(border);
+						let border;
+						if(feature.layer !== 'tunnels'){
+							border = document.createElementNS(this.map.svgNS, 'g');
+							border.classList.add(feature.layer);
+							zoomObj.groups[feature.group].border.appendChild(border);
+						}
 
 						// Create Fill Container
 						const fill = document.createElementNS(this.map.svgNS, 'g');
 						fill.classList.add(feature.layer);
 						zoomObj.groups[feature.group].fill.appendChild(fill);
 
-						zoomObj.groups[feature.group].layers[feature.layer] = {
+						let layerObj = {
 							defs: defs,
-							border: border,
 							fill: fill,
 							tiles: {}
 						};
+
+						if(border){
+							layerObj.border = border;
+						}
+
+						zoomObj.groups[feature.group].layers[feature.layer] = layerObj
 					}
 				}
 
@@ -459,22 +466,32 @@ class Tiles {
 						defsTile.setAttribute('tile', url);
 						zoomObj.groups[feature.group].layers[feature.layer].defs.appendChild(defsTile);
 
-						const borderTile = document.createElementNS(this.map.svgNS, 'g');
-						borderTile.setAttribute('tile', url);
-						zoomObj.groups[feature.group].layers[feature.layer].border.appendChild(borderTile);
+						let borderTile;
+						if(zoomObj.groups[feature.group].layers[feature.layer].border){
+							borderTile = document.createElementNS(this.map.svgNS, 'g');
+							borderTile.setAttribute('tile', url);
+							zoomObj.groups[feature.group].layers[feature.layer].border.appendChild(borderTile);
+						}
 
 						const fillTile = document.createElementNS(this.map.svgNS, 'g');
 						fillTile.setAttribute('tile', url);
 						zoomObj.groups[feature.group].layers[feature.layer].fill.appendChild(fillTile);
 
-						zoomObj.groups[feature.group].layers[feature.layer].tiles[url] = {
+						let tilesObj = {
 							defs: defsTile,
-							border: borderTile,
 							fill: fillTile
 						};
 
+						if(borderTile){
+							tilesObj.border = borderTile;
+						}
+
+						zoomObj.groups[feature.group].layers[feature.layer].tiles[url] = tilesObj;
+
 						tile.containers.push(defsTile);
-						tile.containers.push(borderTile);
+						if(borderTile){
+							tile.containers.push(borderTile);
+						}
 						tile.containers.push(fillTile);
 					}
 

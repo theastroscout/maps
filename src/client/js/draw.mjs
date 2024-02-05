@@ -88,17 +88,18 @@ class Draw {
 			// console.log(feature.container)
 
 			feature.container.defs.appendChild(path);
+			elmts.push(path);
 
-			const border = document.createElementNS(svgNS, 'use');
-			border.setAttribute('href', '#'+pathID);
-			feature.container.border.appendChild(border);
+			if(feature.container.border){
+				const border = document.createElementNS(svgNS, 'use');
+				border.setAttribute('href', '#'+pathID);
+				feature.container.border.appendChild(border);
+				elmts.push(border);
+			}
 
 			const fill = document.createElementNS(svgNS, 'use');
 			fill.setAttribute('href', '#'+pathID);
-			feature.container.fill.appendChild(fill);
-
-			elmts.push(path);
-			elmts.push(border);
+			feature.container.fill.appendChild(fill);			
 			elmts.push(fill);
 
 		} else {

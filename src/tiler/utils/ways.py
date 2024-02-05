@@ -39,6 +39,11 @@ def wayParse(self, o):
 	if not geom:
 		return True
 
+
+
+	if 'tunnel' in spec['properties'] and spec['properties']['tunnel'] == 'yes':
+		spec['properties']['layer'] = 'tunnels'
+
 	self.addFeature(o, spec, geom)
 	
 	return True

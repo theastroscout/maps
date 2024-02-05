@@ -49,6 +49,7 @@
 		},
 		"roads": {
 			"layers": [
+				"tunnels",
 				"streets",
 				"highways"
 			],

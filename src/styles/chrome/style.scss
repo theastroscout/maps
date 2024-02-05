@@ -6,7 +6,7 @@ Surfy°Maps › Chrome
 
 .SurfyMaps {
 	--surfy-maps-style-name: 'Surfy°Maps.Chrome';
-	--surfy-maps-tiles: 'https://sandbox.maps.surfy.one/data/tiles/isle-of-dogs';
+	--surfy-maps-tiles: 'https://sandbox.maps.surfy.one/data/tiles/canary';
 }
 
 .SurfyMaps > svg.container {
@@ -119,6 +119,14 @@ Surfy°Maps › Chrome
 				}
 
 				> g.fill {
+
+					> g.tunnels {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #ffffff;
+						stroke-width: 70px;
+						opacity: .5;
+					}
 
 					> g.streets {
 						fill: none;
