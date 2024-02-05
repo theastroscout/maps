@@ -133,17 +133,34 @@ class Tiles {
 			container.setAttribute('zoom', zoomID);
 			this.container.appendChild(container);
 
-			const boundaries = document.createElementNS(this.map.svgNS, 'g');
-			boundaries.classList.add('bounds');
-			container.appendChild(boundaries);
+			let groups = {};
+			let groupsSrc = Object.keys(this.map.style.groups);
+			for(let group of groupsSrc){
+				groups[group] = {
+
+				};
+			}
 			
 			this.storage.tiles[zoomID] = {
 				container: container,
-				boundaries: boundaries,
-				groups: {}, // Store Groups
+				// boundaries: boundaries,
+				groups: groups, // Store Groups
 				items: {}, // Store Tiles inside Groups
 				visible: {}, // To store currently visible tiles
 			};
+
+			/*
+
+			Add Boundaries
+
+			*/
+
+			if(this.storage.tiles[zoomID].groups.bounds){
+				const boundaries = document.createElementNS(this.map.svgNS, 'g');
+				boundaries.classList.add('bounds');
+				container.appendChild(boundaries);
+				this.storage.tiles[zoomID].groups.bounds.container = boundaries;
+			}
 
 			this.storage.features[zoomID] = {};
 		}
@@ -190,7 +207,7 @@ class Tiles {
 					*/
 
 					const bounds = this.getBounds([zoomID,x,y]);
-					const border = this.draw.bounds(bounds, url, this.storage.tiles[zoomID].boundaries);
+					const border = this.draw.bounds(bounds, url, this.storage.tiles[zoomID].groups.bounds.container);
 
 				} else {
 
@@ -348,12 +365,22 @@ class Tiles {
 
 				*/
 
-				if(!zoomObj.groups[feature.group]){
+				if(!zoomObj.groups[feature.group].container){
 					
 					// Create Container
 					const container = document.createElementNS(this.map.svgNS, 'g');
 					container.classList.add(feature.group);
-					zoomObj.container.appendChild(container);
+					
+					let before = null;
+					for(let groupName of Object.keys(zoomObj.groups).reverse()){
+						if(groupName === feature.group){
+							break;
+						}
+						if(zoomObj.groups[groupName].container){
+							before = zoomObj.groups[groupName].container;
+						}
+					}
+					zoomObj.container.insertBefore(container, before);
 
 					// Create Group Object
 					zoomObj.groups[feature.group] = {

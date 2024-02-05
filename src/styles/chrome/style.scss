@@ -80,6 +80,19 @@ Surfy°Maps › Chrome
 
 			/*
 
+			Railways
+
+			*/
+
+			> g.railways {
+				pointer-events: none;
+				fill: none;
+				stroke: #bebebe;
+				stroke-width: 2px;
+			}
+
+			/*
+
 			Roads
 
 			*/
@@ -122,19 +135,6 @@ Surfy°Maps › Chrome
 					}
 				}
 
-			}
-
-			/*
-
-			Railways
-
-			*/
-
-			> g.railways {
-				pointer-events: none;
-				fill: none;
-				stroke: #bebebe;
-				stroke-width: 2px;
 			}
 
 			/*
@@ -183,7 +183,7 @@ Surfy°Maps › Chrome
 			*/
 
 			> g.bounds {
-				// display: none;
+				display: none;
 				pointer-events: none;
 			}
 		}

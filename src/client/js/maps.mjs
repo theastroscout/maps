@@ -36,7 +36,7 @@ class Maps {
 			coords: [-0.020853,51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 16.5
+			zoom: 14.5
 		};
 
 		

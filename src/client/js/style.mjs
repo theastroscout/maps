@@ -68,11 +68,13 @@ class Style {
 				
 				// Create Group if not exists
 				if(!groups[group]){
+
 					groups[group] = {
 						position: position,
 						name: group,
 						layers: []
-					}
+					};
+
 					position++;
 				}
 
