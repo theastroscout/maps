@@ -226,7 +226,7 @@ class Draw {
 			switch(feature.type){
 
 				case 'Point':
-					// this.text(feature);
+					this.text(feature);
 					break;
 
 				case 'MultiLineString':
