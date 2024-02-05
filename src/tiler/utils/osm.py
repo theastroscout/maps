@@ -20,7 +20,7 @@ class OSM_handler(osmium.SimpleHandler):
 		self.config = config
 		self.groups = groups
 
-	# node = nodeParse
+	
 	getConfig = getConfig
 	addFeature = addFeature
 	
@@ -31,5 +31,6 @@ class OSM_handler(osmium.SimpleHandler):
 	
 	mapping = mapping
 
+	node = nodeParse
 	area = areaParse
 	way = wayParse

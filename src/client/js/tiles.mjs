@@ -301,7 +301,7 @@ class Tiles {
 
 	parse = (zoomID, url) => {
 
-		const groupsMap = ['water','landuse','green','bridges','roads','railways','buildings'];
+		const groupsMap = ['water','landuse','green','bridges','roads','railways','buildings','labels'];
 		const layers = {
 			roads: ['tunnels','streets','highways']
 		}
@@ -320,7 +320,6 @@ class Tiles {
 			const fID = chunks.shift();
 			const geomType = chunks.shift();
 			const groupName = groupsMap[chunks.shift()];
-
 			const group = this.map.style.groups[groupName];
 
 			let feature = {

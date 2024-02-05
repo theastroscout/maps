@@ -13,6 +13,17 @@ class Draw {
 		this.utils = new Utils(map);
 	}
 
+	text = feature => {
+		const p = this.utils.xy([feature.coords[0]/1000000,feature.coords[1]/1000000]);
+		const text = document.createElementNS(this.map.svgNS,'text');
+		text.setAttribute('x', p[0]);
+		text.setAttribute('y', p[1]);
+		text.textContent = feature.name;
+		feature.container.appendChild(text);
+		feature.elmts = text;
+		console.log(feature)
+	}
+
 	/*
 
 	Line
@@ -213,6 +224,10 @@ class Draw {
 			}
 
 			switch(feature.type){
+
+				case 'Point':
+					// this.text(feature);
+					break;
 
 				case 'MultiLineString':
 					this.line(feature);

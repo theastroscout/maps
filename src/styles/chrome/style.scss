@@ -167,6 +167,26 @@ Surfy°Maps › Chrome
 
 			/*
 
+			Labels
+
+			*/
+
+			> g.labels {
+				user-select: none;
+				font-size: 19vw;
+				fill: #9f9f9f;
+				text-anchor: middle;
+				dominant-baseline: central;
+
+				> g {
+					> text {
+						text-rendering: optimizeSpeed;
+					}
+				}
+			}
+
+			/*
+
 			Texts
 
 			*/

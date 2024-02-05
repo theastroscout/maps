@@ -197,6 +197,9 @@ def compress(data):
 		elif geom_type == 'MultiPolygon':
 			featureItem['coords'] = featureItem['coords'] + feature['geometry']['coordinates']
 
+		elif geom_type == 'Point':
+			featureItem['coords'] = feature['geometry']['coordinates']
+
 
 
 
@@ -308,6 +311,9 @@ def compress(data):
 						new_coords.append(coordinates_list)
 
 				coords = new_coords
+
+			elif feature['type'] == 'Point':
+				coords = fit_coords([coords])[0]
 
 
 

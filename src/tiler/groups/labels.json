@@ -1,0 +1,23 @@
+{
+	"name": "labels",
+	"obj": {
+		"name": "labels",
+		"type": "FeatureCollection",
+		"description": "",
+		"features": []
+	},
+
+	"filters": {
+		"node": {
+			"place": [
+				{
+					"group": "labels",
+					"class": "quaters",
+					"values": [ "quarter" ],
+					"properties": [ "name" ],
+					"minzoom": 10
+				}
+			]
+		}
+	}
+}
