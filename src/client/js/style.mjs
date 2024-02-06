@@ -93,9 +93,18 @@ class Style {
 				} else {
 
 					// Group Style
-					// console.log(group);
+					for(let r of rule.style){
+						// console.log(r)
+						if(r.match(/\-rule/)){
+							console.log(r)
+						}
+					}
+
+					
 					let opacityRule = rule.style.getPropertyValue('--opacity-rule');
 					if(opacityRule){
+						
+						// console.log(rule.style);
 						opacityRule = opacityRule.split(',').map(v => v.trim().split(' ').map(Number))
 						// console.log(opacityRule);
 						
