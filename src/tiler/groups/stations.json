@@ -1,0 +1,22 @@
+{
+	"name": "stations",
+	"obj": {
+		"name": "stations",
+		"type": "FeatureCollection",
+		"description": "Stations",
+		"features": []
+	},
+
+	"filters": {
+		"node": {
+			"railway": [
+				{
+					"group": "stations",
+					"values": [ "station" ],
+					"properties": [ "name", "network" ],
+					"minzoom": 12
+				}
+			]
+		}
+	}
+}

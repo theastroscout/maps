@@ -167,6 +167,25 @@ Surfy°Maps › Chrome
 
 			/*
 
+			Stations
+
+			*/
+
+			> g.stations {
+				user-select: none;
+
+				--font-rule: 12 20, 16 6;
+				--font-dim: vw;
+				--font: 19vw;
+				font-size: var(--font);
+
+				fill: #9f9f9f;
+				text-anchor: middle;
+				dominant-baseline: central;
+			}
+
+			/*
+
 			Labels
 
 			*/
@@ -179,7 +198,9 @@ Surfy°Maps › Chrome
 				--font: 19vw;
 				font-size: var(--font);
 
-				// font-size: 19vw;
+				--opacity-rule: 12 0, 13 1, 15 1, 17 0;
+				--opacity: 1;
+				opacity: var(--opacity);
 				
 				fill: #9f9f9f;
 				text-anchor: middle;
@@ -201,7 +222,6 @@ Surfy°Maps › Chrome
 			> g.texts {
 				pointer-events: none;
 				user-select: none;
-
 
 				font-size: 42px;
 				text-align: center;

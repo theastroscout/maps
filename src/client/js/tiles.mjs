@@ -301,7 +301,7 @@ class Tiles {
 
 	parse = (zoomID, url) => {
 
-		const groupsMap = ['water','landuse','green','bridges','roads','railways','buildings','labels'];
+		const groupsMap = ['water','landuse','green','bridges','roads','railways','buildings','stations','labels'];
 		const layers = {
 			roads: ['tunnels','streets','highways']
 		}
@@ -316,10 +316,12 @@ class Tiles {
 		for(let item of features){
 			let chunks = item.split('\t');
 			let coords = JSON.parse(chunks.pop());
+
+			const id_geom_group_layer = chunks.shift().split(',').map(Number);
 			
-			const fID = chunks.shift();
-			const geomType = chunks.shift();
-			const groupName = groupsMap[chunks.shift()];
+			const fID = id_geom_group_layer[0];
+			const geomType = id_geom_group_layer[1];
+			const groupName = groupsMap[id_geom_group_layer[2]];
 			const group = this.map.style.groups[groupName];
 
 			let feature = {
@@ -335,8 +337,8 @@ class Tiles {
 				// console.log(feature) // No landuse
 			}
 
-			if(Number.isInteger(Number(chunks[0]))){
-				feature.layer = layers[groupName][chunks.shift()];
+			if(typeof id_geom_group_layer[3] !== 'undefined'){
+				feature.layer = layers[groupName][id_geom_group_layer[3]];
 			}
 
 			if(chunks[0]){

@@ -31,7 +31,6 @@ class Draw {
 	*/
 
 	line = feature => {
-		const svgNS = 'http://www.w3.org/2000/svg';
 
 		let coords = [...feature.coords];
 		if(typeof coords[0][0] === 'number'){
@@ -76,7 +75,7 @@ class Draw {
 
 		
 
-		const path = document.createElementNS(svgNS, 'path');
+		const path = document.createElementNS(this.map.svgNS, 'path');
 		// console.log(feature)
 		path.setAttribute('d', points.join(' '));
 		// path.setAttribute('id', feature.id);
@@ -101,13 +100,13 @@ class Draw {
 			elmts.push(path);
 
 			if(feature.container.border){
-				const border = document.createElementNS(svgNS, 'use');
+				const border = document.createElementNS(this.map.svgNS, 'use');
 				border.setAttribute('href', '#'+pathID);
 				feature.container.border.appendChild(border);
 				elmts.push(border);
 			}
 
-			const fill = document.createElementNS(svgNS, 'use');
+			const fill = document.createElementNS(this.map.svgNS, 'use');
 			fill.setAttribute('href', '#'+pathID);
 			feature.container.fill.appendChild(fill);			
 			elmts.push(fill);

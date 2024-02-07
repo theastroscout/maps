@@ -123,4 +123,6 @@ if __name__ == '__main__':
 	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 	print('Config: {}'.format(CONFIG_NAME))
 
+	CONFIG['groups'] = json.load(open('./configs/groups.json', 'r'))
+
 	create_tiles(CONFIG)

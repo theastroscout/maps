@@ -325,18 +325,27 @@ def compress(data):
 
 			if not len(coords):
 				continue
-				
-			properties = [
+
+			id_geom_group_layer = [
 				str(feature['id']),
 				str(geometries.index(feature['type'])),
 				str(group_key)
 			]
 
 			if 'layer' in feature:
-				properties.append(feature['layer'])
+				id_geom_group_layer.append(feature['layer'])
+
+				
+			properties = [
+				','.join(id_geom_group_layer)
+			]
 
 			if 'name' in feature:
-				properties.append(feature['name'])
+				name = re.sub(r'\([^)]*\)', '', feature['name']).strip()
+				properties.append(name)
+
+			if 'data' in feature:
+				properties.append(','.join(feature['data']))
 
 			# if 'center' in feature:
 			#	properties.append(feature['center'])
@@ -467,5 +476,6 @@ if __name__ == '__main__':
 	# CONFIG_NAME = 'isle-of-dogs'
 	# CONFIG_NAME = 'london'
 	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
+	CONFIG['groups'] = json.load(open('./configs/groups.json', 'r'))
 
 	compress_tiles(CONFIG)

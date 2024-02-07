@@ -1,3 +1,10 @@
+## Tile Feature
+```
+id,geom_type,group,{layer}	name	data	coords
+```
+
+
+
 ## Structure
 ```
 zoom
@@ -38,10 +45,3 @@ zoom
 	text
 		tile
 ```
-
-Tasks
-- Roads
-- Layers Order
-- Railways
-- Make text layer
-- Full London
