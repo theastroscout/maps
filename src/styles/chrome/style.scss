@@ -199,7 +199,10 @@ $data: 'https://sandbox.maps.surfy.one/data';
 						}
 
 						> text {
-							x: 300px;
+							--opacity-rule: 14 0, 15 1;
+							--opacity: 1;
+							opacity: var(--opacity);
+
 						}
 					}
 				}

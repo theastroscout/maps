@@ -117,30 +117,31 @@ class Style {
 
 				} else {
 
-					// Group Style
-					for(let r of rule.style){
-						const match = r.match(/--(.+)-rule/);
-						if(match){
-							const name = match[1];
-							const v = rule.style.getPropertyValue(r);
-							const options = v.split(',').map(v => v.trim().split(' ').map(Number))
-
-							const dim = rule.style.getPropertyValue(`--${name}-dim`);
-
-							const ruleItem = {
-								name: '--' + name,
-								dim: dim || '',
-								rule: options,
-								set: rule.style.setProperty,
-								obj: rule
-							};
-
-							self.rules.push(ruleItem);
-						}
-					}
+					
 				}
 				
 				
+			}
+
+			for(let r of rule.style){
+				const match = r.match(/--(.+)-rule/);
+				if(match){
+					const name = match[1];
+					const v = rule.style.getPropertyValue(r);
+					const options = v.split(',').map(v => v.trim().split(' ').map(Number))
+
+					const dim = rule.style.getPropertyValue(`--${name}-dim`);
+
+					const ruleItem = {
+						name: '--' + name,
+						dim: dim || '',
+						rule: options,
+						set: rule.style.setProperty,
+						obj: rule
+					};
+
+					self.rules.push(ruleItem);
+				}
 			}
 		}
 
