@@ -99,7 +99,7 @@ class Parser:
 if __name__ == '__main__':
 
 	CONFIG_NAME = 'canary'
-	# CONFIG_NAME = 'isle-of-dogs'
+	CONFIG_NAME = 'isle-of-dogs'
 	# CONFIG_NAME = 'london'
 	CONFIG = json.load(open('./configs/{}.json'.format(CONFIG_NAME), 'r'))
 	print('Config: {}'.format(CONFIG_NAME))

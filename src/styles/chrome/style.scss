@@ -6,7 +6,7 @@ Surfy°Maps › Chrome
 
 .SurfyMaps {
 	--surfy-maps-style-name: 'Surfy°Maps.Chrome';
-	--surfy-maps-tiles: 'https://sandbox.maps.surfy.one/data/tiles/canary';
+	--surfy-maps-tiles: 'https://sandbox.maps.surfy.one/data/tiles/isle-of-dogs';
 }
 
 .SurfyMaps > svg.container {
@@ -174,7 +174,7 @@ Surfy°Maps › Chrome
 			> g.stations {
 				user-select: none;
 
-				--font-rule: 12 20, 16 6;
+				--font-rule: 12 20, 16 4;
 				--font-dim: vw;
 				--font: 19vw;
 				font-size: var(--font);
@@ -182,6 +182,21 @@ Surfy°Maps › Chrome
 				fill: #9f9f9f;
 				text-anchor: middle;
 				dominant-baseline: central;
+
+				// Tile
+				> g {
+
+					// Label
+					> g {
+						> image {
+							
+						}
+
+						> text {
+
+						}
+					}
+				}
 			}
 
 			/*

@@ -1,8 +1,0 @@
-{
-	"pbf_input": "/storage/maps/extracts/canary.pbf",
-	"tmp_file": "/storage/maps/tmp/tmp.nodecache",
-	"geojson_folder": "/storage/maps/tmp/geojson",
-	"minzoom": 1,
-	"maxzoom": 14,
-	"layers_list": ["roads", "buildings", "greens", "water", "railways", "landuse"]
-}

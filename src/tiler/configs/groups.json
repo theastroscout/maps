@@ -92,7 +92,14 @@
 	},
 
 	"stations": {
-
+		"data": [
+			"icon"
+		],
+		"networks": [
+			["London Underground"],
+			["Docklands Light Railway"],
+			["Elizabeth Line"]
+		]
 	},
 
 	"labels": {
