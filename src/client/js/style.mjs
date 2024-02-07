@@ -42,8 +42,33 @@ class Style {
 		const self = this.self;
 
 		const rootStyles = getComputedStyle(self.map.container);
-		self.name = rootStyles.getPropertyValue('--surfy-maps-style-name').replace(/['"]+/g, '');
-		self.tiles = rootStyles.getPropertyValue('--surfy-maps-tiles').replace(/['"]+/g, '');
+		self.name = rootStyles.getPropertyValue('--name').replace(/['"]+/g, '');
+		self.tiles = rootStyles.getPropertyValue('--tiles').replace(/['"]+/g, '');
+		self.sprites = rootStyles.getPropertyValue('--sprites').replace(/['"]+/g, '');
+
+		self.loadSprites();
+
+		/*
+			
+		let sprites = document.createElement('object');
+		sprites.setAttribute('id', 'sprites');
+		sprites.setAttribute('type', 'image/svg+xml');
+		sprites.setAttribute('data', self.sprites);
+		self.map.container.appendChild(sprites);
+
+		sprites = document.createElementNS(self.map.svgNS, 'use');
+		sprites.setAttribute('href', self.sprites + '#tfl-lo');
+		sprites.style.x = 0;
+		self.map.svg.appendChild(sprites);
+
+		setTimeout(() => {
+			sprites = document.createElementNS(self.map.svgNS, 'use');
+			sprites.setAttribute('href', '#tfl-lu');
+			sprites.style.x = 300;
+			sprites.style.width = 3;
+			self.map.svg.appendChild(sprites);
+		}, 1000);
+		*/
 
 		/*
 
@@ -140,6 +165,29 @@ class Style {
 			self.map.resize();
 			self.render();
 		}
+	}
+
+	/*
+
+	Load Sprites
+
+	*/
+
+	loadSprites = async () => {
+		const svgContent = await (await fetch(this.sprites)).text();
+		const parser = new DOMParser();
+		const sourceDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+		const symbols = sourceDoc.querySelectorAll('symbol');
+		symbols.forEach(symbol => {
+			const clonedSymbol = symbol.cloneNode(true);
+			this.map.defs.appendChild(clonedSymbol);
+		});
+
+		const sprites = document.createElementNS(this.map.svgNS, 'use');
+		sprites.setAttribute('href', '#tfl-lu');
+		sprites.style.x = 300;
+		sprites.style.width = 3000;
+		this.map.svg.appendChild(sprites);
 	}
 
 	/*

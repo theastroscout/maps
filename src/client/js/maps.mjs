@@ -77,6 +77,18 @@ class Maps {
 		this.svg.classList.add('container');
 		this.container.append(this.svg);
 
+		this.defs = document.createElementNS(this.svgNS, 'defs');
+		this.svg.appendChild(this.defs);
+
+		/*
+
+		<object type="image/svg+xml" data="vector-icons.svg"></object>   
+		<svg viewBox="0 0 23 23">
+			<use href="vector-icons.svg#phone" ></use> 
+		</svg>
+
+		*/
+
 		// this.groups = {};
 
 		/*

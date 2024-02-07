@@ -4,9 +4,12 @@ Surfy°Maps › Chrome
 
 */
 
+$data: 'https://sandbox.maps.surfy.one/data';
+
 .SurfyMaps {
-	--surfy-maps-style-name: 'Surfy°Maps.Chrome';
-	--surfy-maps-tiles: 'https://sandbox.maps.surfy.one/data/tiles/isle-of-dogs';
+	--name: 'Surfy°Maps.Chrome';
+	--tiles: #{$data}/tiles/canary;
+	--sprites: '/styles/chrome/sprites.svg';
 }
 
 .SurfyMaps > svg.container {
@@ -189,7 +192,7 @@ Surfy°Maps › Chrome
 					// Label
 					> g {
 						> image {
-							
+
 						}
 
 						> text {
