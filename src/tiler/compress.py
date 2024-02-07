@@ -29,6 +29,15 @@ simple = {
 	'14': 0.00001
 }
 
+networks = [
+	'Default',
+	'London Underground',
+	'London Overground',
+	'Elizabeth Line',
+	'Docklands Light Railway',
+	'National Rail'
+]
+
 # Vertices Counter
 def count_vertices(df):
 	return len(df.get_coordinates())
@@ -173,6 +182,10 @@ def compress(data):
 			# Set Center Coordinates
 			if 'center' in feature['properties'] and feature['properties']['center']:
 				features[group_name][fID]['center'] = feature['properties']['center']
+
+			# Set Name
+			if 'network' in feature['properties'] and feature['properties']['network']:
+				features[group_name][fID]['network'] = feature['properties']['network']
 
 		featureItem = features[group_name][fID]
 
@@ -344,6 +357,10 @@ def compress(data):
 				name = re.sub(r'\([^)]*\)', '', feature['name']).strip()
 				properties.append(name)
 
+			if 'network' in feature:
+				network = feature['network'].split(';')[0]
+				properties.append(str(networks.index(network)))
+
 			if 'data' in feature:
 				properties.append(','.join(feature['data']))
 
@@ -462,7 +479,6 @@ def compress(data):
 				coords = json.dumps(coords, separators=(',', ':'))
 				target.write('\t' + coords + '\n')
 	'''
-
 	return True
 
 '''
@@ -479,3 +495,4 @@ if __name__ == '__main__':
 	CONFIG['groups'] = json.load(open('./configs/groups.json', 'r'))
 
 	compress_tiles(CONFIG)
+	print(networks)

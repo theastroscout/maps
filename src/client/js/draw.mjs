@@ -19,6 +19,34 @@ class Draw {
 		text.textContent = feature.name;
 
 		if(feature.group === 'stations'){
+			const networks = [
+				{
+					name: 'Default',
+					icon: 'default'
+				},
+				{
+					name: 'London Underground',
+					icon: 'tfl-lu'
+				},
+				{
+					name: 'London Overground',
+					icon: 'tfl-lo'
+				},
+				{
+					name: 'Elizabeth Line',
+					icon: 'tfl-el'
+				},
+				{
+					name: 'Docklands Light Railway',
+					icon: 'tfl-dlr'
+				},
+				{
+					name: 'National Rail',
+					icon: 'uk-nr'
+				}
+			];
+
+			// console.log(feature.data)
 			const svg = document.createElementNS(this.map.svgNS, 'svg');
 			svg.setAttribute('x', p[0]);
 			svg.setAttribute('y', p[1]);
@@ -29,7 +57,7 @@ class Draw {
 			svg.appendChild(text);
 
 			const icon = document.createElementNS(this.map.svgNS, 'image');
-			icon.setAttribute('href', this.map.style.sprites+'#tfl-lu');
+			icon.setAttribute('href', this.map.style.sprites+'#'+networks[feature.data].icon);
 			svg.appendChild(icon);
 
 			feature.container.appendChild(svg);

@@ -345,6 +345,10 @@ class Tiles {
 				feature.name = chunks.shift();
 			}
 
+			if(chunks[0]){
+				feature.data = chunks.shift();
+			}
+
 			/*
 
 			Append Feature

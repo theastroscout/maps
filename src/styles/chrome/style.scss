@@ -186,6 +186,10 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				// text-anchor: middle;
 				dominant-baseline: central;
 
+				--opacity-rule: 13 0, 14 1;
+				--opacity: 1;
+				opacity: var(--opacity);
+
 				// Tile
 				> g {
 
@@ -222,7 +226,7 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				--font: 19vw;
 				font-size: var(--font);
 
-				--opacity-rule: 12 0, 13 1, 15 1, 17 0;
+				--opacity-rule: 11 0, 13 1, 15 1, 17 0;
 				--opacity: 1;
 				opacity: var(--opacity);
 				
