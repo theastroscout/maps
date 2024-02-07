@@ -94,41 +94,32 @@ class Style {
 
 					// Group Style
 					for(let r of rule.style){
-						// console.log(r)
-						if(r.match(/\-rule/)){
-							console.log(r)
+						const match = r.match(/--(.+)-rule/);
+						if(match){
+							const name = match[1];
+							const v = rule.style.getPropertyValue(r);
+							const options = v.split(',').map(v => v.trim().split(' ').map(Number))
+
+							const dim = rule.style.getPropertyValue(`--${name}-dim`);
+
+							const ruleItem = {
+								name: '--' + name,
+								dim: dim || '',
+								rule: options,
+								set: rule.style.setProperty,
+								obj: rule
+							};
+
+							self.rules.push(ruleItem);
 						}
 					}
-
-					
-					let opacityRule = rule.style.getPropertyValue('--opacity-rule');
-					if(opacityRule){
-						
-						// console.log(rule.style);
-						opacityRule = opacityRule.split(',').map(v => v.trim().split(' ').map(Number))
-						// console.log(opacityRule);
-						
-						let ruleItem = {
-							name: '--opacity',
-							rule: opacityRule,
-							set: rule.style.setProperty,
-							obj: rule
-						};
-
-						self.rules.push(ruleItem);
-					}
-					// console.log('');
-					// console.log(rule.style.getPropertyValue('--fill'));
-					// rule.style.setProperty('--fill', 'red');
-					// console.log(rule.getPropertyValue('--opacity-values'))
 				}
 				
 				
 			}
-			// console.log(path, path.slice(0, 5).join('>'))
 		}
 
-		self.groups = groups; // Object.values(groups);
+		self.groups = groups;
 
 		/*
 
@@ -147,6 +138,7 @@ class Style {
 
 			window.addEventListener('resize', self.map.resize, { passive: true });
 			self.map.resize();
+			self.render();
 		}
 	}
 
@@ -159,7 +151,7 @@ class Style {
 	render = () => {
 		for(let rule of this.rules){
 			const v = this.map.utils.getValue(rule.rule);
-			rule.obj.style.setProperty('--opacity', v);
+			rule.obj.style.setProperty(rule.name, v + rule.dim);
 		}
 	}
 };

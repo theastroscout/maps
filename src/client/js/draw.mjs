@@ -21,7 +21,6 @@ class Draw {
 		text.textContent = feature.name;
 		feature.container.appendChild(text);
 		feature.elmts = text;
-		console.log(feature)
 	}
 
 	/*
