@@ -183,20 +183,23 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				font-size: var(--font);
 
 				fill: #9f9f9f;
-				text-anchor: middle;
+				// text-anchor: middle;
 				dominant-baseline: central;
 
 				// Tile
 				> g {
 
 					// Label
-					> g {
+					> svg {
 						> image {
-
+							x: -3.5em;
+							y: -1.5em;
+							width: 3em;
+							height: 3em;
 						}
 
 						> text {
-
+							x: 300px;
 						}
 					}
 				}

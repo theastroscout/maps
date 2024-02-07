@@ -16,11 +16,30 @@ class Draw {
 	text = feature => {
 		const p = this.utils.xy([feature.coords[0]/1000000,feature.coords[1]/1000000]);
 		const text = document.createElementNS(this.map.svgNS,'text');
-		text.setAttribute('x', p[0]);
-		text.setAttribute('y', p[1]);
 		text.textContent = feature.name;
-		feature.container.appendChild(text);
-		feature.elmts = text;
+
+		if(feature.group === 'stations'){
+			const svg = document.createElementNS(this.map.svgNS, 'svg');
+			svg.setAttribute('x', p[0]);
+			svg.setAttribute('y', p[1]);
+			svg.style.overflow = 'visible';
+
+			// text.setAttribute('x', 10);
+			// text.setAttribute('y', 0);
+			svg.appendChild(text);
+
+			const icon = document.createElementNS(this.map.svgNS, 'image');
+			icon.setAttribute('href', this.map.style.sprites+'#tfl-lu');
+			svg.appendChild(icon);
+
+			feature.container.appendChild(svg);
+		} else {
+			text.setAttribute('x', p[0]);
+			text.setAttribute('y', p[1]);
+			
+			feature.container.appendChild(text);
+			feature.elmts = text;
+		}
 	}
 
 	/*
