@@ -263,8 +263,13 @@ class Draw {
 			*/
 
 			if(feature.elmts){
-				for(let e of feature.elmts){
-					e.remove();
+				try {
+					for(let e of feature.elmts){
+						e.remove();
+					}
+				} catch(e){
+					console.log(e)
+					console.log(feature)
 				}
 			}
 

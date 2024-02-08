@@ -607,15 +607,26 @@ class Tiles {
 					featureItem.coords = [...featureItem.coords, ...feature.coords];
 				} else if(feature.type === 'LineString'){
 					featureItem.coords.push(feature.coords);
-				} else if(/Polygon/.test(feature.type)){
+				} else if(/Polygon/.test(featureItem.type) && /Polygon/.test(feature.type)){
 
-					const union = polygonClipping.union(featureItem.coords, feature.coords);
+					let union;
+					try {
+						union = polygonClipping.union(featureItem.coords, feature.coords);
+					} catch(e){
+						console.log(e)
+						console.log(featureItem)
+						console.log(feature)
+						union = false;
+					};
+
 					// console.log(featureItem.coords)
 					// console.log(union)
 					// console.log('')
 					
-					featureItem.type = 'MultiPolygon';
-					featureItem.coords = union;
+					if(union){
+						featureItem.type = 'MultiPolygon';
+						featureItem.coords = union;
+					}
 					
 				}
 			}
