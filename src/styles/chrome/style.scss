@@ -196,10 +196,10 @@ $data: 'https://sandbox.maps.surfy.one/data';
 					// Label
 					> svg {
 						> image {
-							x: -3.5em;
-							y: -1.5em;
-							width: 3em;
-							height: 3em;
+							x: -12vw;
+							y: -5vw;
+							width: 10vw;
+							height: 10vw;
 						}
 
 						> text {
@@ -233,6 +233,12 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				fill: #9f9f9f;
 				text-anchor: middle;
 				dominant-baseline: central;
+
+				stroke: #ffffff;
+				stroke-width: 3vw;
+				stroke-linecap: butt;
+				stroke-linejoin: miter;
+				paint-order: stroke;
 
 				> g {
 					> text {
