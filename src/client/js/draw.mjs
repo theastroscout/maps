@@ -234,7 +234,9 @@ class Draw {
 			const path = document.createElementNS(svgNS, 'path');
 			path.setAttribute('feature', feature.id)
 			// path.setAttribute('stroke-width', 20)
-			// path.setAttribute('fill', 'black')
+			if(feature.id === 104004922){
+				path.setAttribute('fill', 'red')
+			}
 			path.setAttribute('d', points.join(' '));
 			feature.container.appendChild(path);
 			elmts.push(path);
@@ -263,6 +265,11 @@ class Draw {
 			*/
 
 			if(feature.elmts){
+				if(feature.group === 'landuse'){
+					// console.log('Remove',feature.group)
+					// console.log(feature)
+				}
+
 				try {
 					for(let e of feature.elmts){
 						e.remove();
@@ -271,6 +278,8 @@ class Draw {
 					console.log(e)
 					console.log(feature)
 				}
+
+				delete feature.elmts;
 			}
 
 			switch(feature.type){

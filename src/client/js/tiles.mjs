@@ -619,6 +619,11 @@ class Tiles {
 						union = false;
 					};
 
+					if(featureItem.id === 104004922){
+						console.log('feature',JSON.parse(JSON.stringify(feature.coords)))
+						console.log('featureItem',JSON.parse(JSON.stringify(featureItem.coords)))
+					}
+
 					// console.log(featureItem.coords)
 					// console.log(union)
 					// console.log('')
@@ -627,9 +632,15 @@ class Tiles {
 						featureItem.type = 'MultiPolygon';
 						featureItem.coords = union;
 					}
+
+					if(featureItem.id === 104004922){
+						console.log('Union',union)
+					}
 					
 				}
 			}
+
+			
 
 			processed[feature.id] = featureItem;
 
