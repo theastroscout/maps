@@ -8,7 +8,7 @@ $data: 'https://sandbox.maps.surfy.one/data';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$data}/tiles/canary;
+	--tiles: #{$data}/tiles/isle-of-dogs;
 	--sprites: '/styles/chrome/sprites.svg';
 }
 
@@ -177,7 +177,7 @@ $data: 'https://sandbox.maps.surfy.one/data';
 			> g.stations {
 				user-select: none;
 
-				--font-rule: 12 20, 16 4;
+				--font-rule: 13.5 20, 16 4;
 				--font-dim: vw;
 				--font: 19vw;
 				font-size: var(--font);
@@ -186,7 +186,7 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				// text-anchor: middle;
 				dominant-baseline: central;
 
-				--opacity-rule: 13 0, 14 1;
+				--opacity-rule: 13.5 0, 14 1;
 				--opacity: 1;
 				opacity: var(--opacity);
 
