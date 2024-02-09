@@ -69,7 +69,7 @@ def make_tile(data):
 	
 	# Intersects Filter
 	# df_temp = df_temp[df_temp.geometry.intersects(tile_bbox)]
-	df_temp = gpd.clip(df_temp, tile_bbox)
+	df_temp = gpd.clip(df_temp, tile_bbox, keep_geom_type=True)
 	if df_temp.empty:
 		return False # Skip if tile is empty
 

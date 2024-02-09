@@ -235,7 +235,7 @@ class Draw {
 			path.setAttribute('feature', feature.id)
 			// path.setAttribute('stroke-width', 20)
 			if(feature.id === 104004922){
-				path.setAttribute('fill', 'red')
+				// path.setAttribute('fill', 'red')
 			}
 			path.setAttribute('d', points.join(' '));
 			feature.container.appendChild(path);

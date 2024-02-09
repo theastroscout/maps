@@ -364,6 +364,11 @@ class Tiles {
 					feature.coords = [feature.coords]
 				}
 
+				if(feature.type === 'Polygon'){
+					feature.type = 'MultiPolygon';
+					feature.coords = [feature.coords]
+				}
+
 				/*
 
 				Create Group if none exists
@@ -607,11 +612,18 @@ class Tiles {
 					featureItem.coords = [...featureItem.coords, ...feature.coords];
 				} else if(feature.type === 'LineString'){
 					featureItem.coords.push(feature.coords);
-				} else if(/Polygon/.test(featureItem.type) && /Polygon/.test(feature.type)){
-
+				} else if(feature.type === 'Polygon'){
+					featureItem.coords = [...featureItem.coords, feature.coords];
+				} else if(feature.type === 'MultiPolygon'){
+					featureItem.coords = [...featureItem.coords, ...feature.coords];
+				} else if(2==3 && /Polygon/.test(featureItem.type) && /Polygon/.test(feature.type)){
+					featureItem.coords = [...featureItem.coords, ...feature.coords];
+					/*
 					let union;
 					try {
-						union = polygonClipping.union(featureItem.coords, feature.coords);
+						let polys = [...featureItem.coords, ...feature.coords];
+						let first = polys.shift();
+						union = polygonClipping.union(first, ...[polys]);
 					} catch(e){
 						console.log(e)
 						console.log(featureItem)
@@ -620,8 +632,8 @@ class Tiles {
 					};
 
 					if(featureItem.id === 104004922){
-						console.log('feature',JSON.parse(JSON.stringify(feature.coords)))
-						console.log('featureItem',JSON.parse(JSON.stringify(featureItem.coords)))
+						// console.log('feature',JSON.parse(JSON.stringify(feature.coords)))
+						// console.log('featureItem',JSON.parse(JSON.stringify(featureItem.coords)))
 					}
 
 					// console.log(featureItem.coords)
@@ -634,9 +646,14 @@ class Tiles {
 					}
 
 					if(featureItem.id === 104004922){
-						console.log('Union',union)
-					}
+						// console.log('Union',union)
+					}*/
 					
+				}
+
+				if(featureItem.group === 'buildings'){
+					let first = featureItem.coords.shift();
+					featureItem.coords = polygonClipping.union(first, ...[featureItem.coords]);
 				}
 			}
 
