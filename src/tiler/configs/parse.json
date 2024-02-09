@@ -1,0 +1,23 @@
+{
+	"node": {
+		"place": [
+			{
+				"values": [ "quarter", "suburb", "borough", "city", "country", "sea", "ocean" ],
+				"groups": [ "labels" ]
+			}
+		]
+	},
+
+	"way": {
+		"highway": [
+			{
+				"values": [ "motorways" ],
+				"groups": [ "roads" ]
+			}
+		]
+	},
+
+	"area": {
+
+	}
+}

@@ -229,12 +229,24 @@ class Maps {
 
 		*/
 
+		let point;
+
 		switch(e.type){
 			case 'mousedown': case 'touchstart':
-				this.startPoint = {
-					x: e.x || e.touches[0].clientX,
-					y: e.y || e.touches[0].clientY
-				};
+
+				if(typeof e.x !== 'undefined'){
+					point = {
+						x: e.x,
+						y: e.y
+					};
+				} else {
+					point = {
+						x: e.touches[0].clientX,
+						y: e.touches[0].clientY
+					};
+				}
+
+				this.startPoint = point;
 
 				this.container.classList.add('move');
 
@@ -256,9 +268,21 @@ class Maps {
 				Pan
 
 				*/
+
+				if(typeof e.x !== 'undefined'){
+					point = {
+						x: e.x,
+						y: e.y
+					};
+				} else {
+					point = {
+						x: e.touches[0].clientX,
+						y: e.touches[0].clientY
+					};
+				}
 				
-				var dx = (this.startPoint.x - (e.x || e.touches[0].clientX)) / this.viewBox.scale;
-				var dy = (this.startPoint.y - (e.y || e.touches[0].clientY)) / this.viewBox.scale;
+				var dx = (this.startPoint.x - point.x) / this.viewBox.scale;
+				var dy = (this.startPoint.y - point.y) / this.viewBox.scale;
 
 				
 				this.viewBox.x = Math.round(this.viewBox.x + dx);
@@ -278,10 +302,7 @@ class Maps {
 
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`; 
 
-				this.startPoint = {
-					x: e.x || e.touches[0].clientX,
-					y: e.y || e.touches[0].clientY
-				};
+				this.startPoint = point;
 
 				/*
 

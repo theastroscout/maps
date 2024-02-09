@@ -9,6 +9,8 @@ w/aeroway=taxiway,runway
 
 ```
 osmium extract --bbox LEFT,BOTTOM,RIGHT,TOP \
+--fsync \
+--overwrite \
 -o output.pbg \
 input.pbf
 ```

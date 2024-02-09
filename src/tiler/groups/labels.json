@@ -12,8 +12,7 @@
 			"place": [
 				{
 					"group": "labels",
-					"class": "quaters",
-					"values": [ "quarter" ],
+					"values": [ "quarter", "suburb", "borough", "city", "country", "sea", "ocean" ],
 					"properties": [ "name" ],
 					"minzoom": 10
 				}
