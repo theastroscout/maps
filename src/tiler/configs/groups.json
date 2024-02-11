@@ -9,6 +9,7 @@
 	},
 
 	"landuse": {
+		"disabled": true,
 		"compress":  {
 			"10": {
 				"tolerance": 0.0001,

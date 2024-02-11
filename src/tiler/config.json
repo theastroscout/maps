@@ -1,0 +1,45 @@
+{
+	"groups": {
+		"nature": {
+			"water": {
+				"compress": {
+					"14": {
+						"tolerance": 0.00005,
+						"avoidArea": 0.00000001
+					}
+				}
+			}
+		},
+		"labels": {
+			"stations": {
+				"minzoom": 12
+			}
+		}
+	},
+	"filters": {
+		"node": [
+			{
+				"filter": {
+					"railway": [ "station" ]
+				},
+				"container": [ "labels:stations" ]
+			}
+		],
+		"way": [
+			{
+				"filter": {
+					"highway": [ "motorway", "trunk", "primary" ]
+				},
+				"container": [ "roads:highways" ]
+			}
+		],
+		"area": [
+			{
+				"filter": {
+					"natural": "water"
+				},
+				"container": [ "nature:water" ]
+			}
+		]
+	}
+}

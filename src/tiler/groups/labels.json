@@ -13,7 +13,7 @@
 				{
 					"group": "labels",
 					"values": [ "quarter", "suburb", "borough", "city", "country", "sea", "ocean" ],
-					"properties": [ "name" ],
+					"properties": [ "name", "place" ],
 					"minzoom": 10
 				}
 			]
