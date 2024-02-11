@@ -1,36 +1,34 @@
-import osmium
-from utils.nodes import nodeParse
-from utils.ways import wayParse
-from utils.areas import areaParse
-from utils.configs import getConfig
-from utils.features import addFeature
-from utils.geometries import getPolygon, getPolygonFromWay, getLine, mapping
-
 '''
 
 	OSM Handler
 
 '''
 
+import osmium
+from utils.configs import getConfig
+from utils.features import addFeature
+
 class OSM_handler(osmium.SimpleHandler):
 
-	def __init__(self, config, groups):
-		# super(OSM_handler, self).__init__()	
+	def __init__(self, config):
 		osmium.SimpleHandler.__init__(self)
 		self.config = config
-		self.groups = groups
 
-	
 	getConfig = getConfig
 	addFeature = addFeature
-	
-	# Geometry
-	getPolygon = getPolygon
-	getPolygonFromWay = getPolygonFromWay
-	getLine = getLine
-	
-	mapping = mapping
 
-	node = nodeParse
-	area = areaParse
-	way = wayParse
+	def node(self, o):
+		if not o.visible:
+			return True
+
+		# Get Specification
+		spec = self.getConfig(o, 'node')
+		
+		if not spec:
+			return True
+
+		spec['coords'] = [o.location.lon,o.location.lat]
+
+		self.addFeature(o, spec)
+		
+		return True

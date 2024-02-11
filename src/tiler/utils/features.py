@@ -1,77 +1,48 @@
-import json
-
 '''
 
 Add Features
 
 '''
 
-def addFeature(self, o, spec, coords):
+import sqlite3 as sql
+import geopandas as gpd
+from shapely.geometry import Polygon, LineString, Point
 
-	# Create a File Object
-	if 'file_path' not in spec['config']:
-		if 'batch_num' not in spec['config']:
-			spec['config']['batch_num'] = 0
+def addFeature(self, o, spec):
 
-		spec['config']['batch_num'] = spec['config']['batch_num'] + 1
+	# print('Add Feature')
+	# print(o)
+	# print(spec)
 
-		file_path = '{}/{}.{}.geojson'.format(self.config['geojson'], spec['config']['name'], spec['config']['batch_num'])
-		
-		spec['config']['file_path'] = file_path
-		spec['config']['features_amount'] = 0
-
-		'''
-
-			Create File Stream
-
-		'''
-
-		file = open(file_path, 'w', encoding='utf8')
-		header = json.dumps(spec['config']['obj'], ensure_ascii=False)
-		header = header.replace(']}', '')
-		file.write(header)
-		spec['config']['file'] = file
-		spec['config']['delimiter'] = '\n'
-
-	# Count Features
-	spec['config']['features_amount'] = spec['config']['features_amount'] + 1
-
-	'''
-
-		Fix Coords
-
-	'''
-
+	coords = spec['coords']
 	if isinstance(coords, list):
-		coords = {
-			'type': 'Point',
-			'coordinates': coords
-		}
-	else:
-		coords = self.mapping(coords)
-	
-	'''
+		coords = Point(coords)
 
-		Create Feature Object
+	container = spec['containers'][0].split(':')
+	data = {}
 
-	'''
+	if 'name' in o.tags:
+		data['name'] = o.tags.get('name')
 
-	feature = {
-		'type': 'Feature',
-		'geometry': coords,
-		'properties': spec['properties']
+	item = {
+		'id': [o.id],
+		'group': [container[0]],
+		'layer': [container[1]],
+		'geometry': [coords],
+		'data': [data]
 	}
+	# print(item)
 
-	# if 'name' in spec['properties'] and spec['properties']['name'] == 'Credit Suisse':
-	#	print(feature)
 
-	# print(feature)
+	gdf = gpd.GeoDataFrame(item, geometry='geometry')
+	print(gdf)
 
-	feature = spec['config']['delimiter'] + json.dumps(feature, ensure_ascii=False)
-	spec['config']['file'].write(feature)
-
-	if spec['config']['delimiter'] == '\n':
-		spec['config']['delimiter'] = ',\n'
-
-	return True
+	mode = 'a'
+	if 'db' not in self.config:
+		# print('Create db', self.config['db_file'])
+		self.config['db'] = self.config['db_file']
+		mode = 'w'
 	
+	gdf.to_file(self.config['db'], driver='SQLite', index=False, spatialite=True, layer='features', mode=mode)
+
+	return False

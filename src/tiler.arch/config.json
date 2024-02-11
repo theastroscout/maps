@@ -188,7 +188,7 @@
 					"containers": [ "nature:green" ]
 				},
 				{
-					"values": [ "stadium" ]
+					"values": [ "stadium" ],
 				}
 			],
 			"building": [
