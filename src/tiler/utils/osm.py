@@ -7,48 +7,98 @@
 import osmium
 wkbfab = osmium.geom.WKBFactory()
 import shapely.wkb as wkblib
+from shapely.geometry import Point
 
-from utils.configs import getConfig
-from utils.features import addFeature
+from utils.features import getFeature, addFeature
 
 class OSM_handler(osmium.SimpleHandler):
 
-	def __init__(self, config):
+	def __init__(self, config, db):
+
+		'''
+
+		Initialisation
+
+		'''
+
 		osmium.SimpleHandler.__init__(self)
 		self.config = config
+		self.db = db
 
-	getConfig = getConfig
+	getFeature = getFeature
 	addFeature = addFeature
 
 	def node(self, o):
+
+		'''
+
+		Parse Nodes
+
+		'''
+
 		if not o.visible:
 			return True
 
 		# Get Specification
-		spec = self.getConfig(o, 'node')
+		feature = self.getFeature(o, 'node')
 		
-		if not spec:
+		if not feature:
 			return True
 
-		spec['coords'] = [o.location.lon,o.location.lat]
+		# Get Geometry
+		feature.coords = Point([o.location.lon,o.location.lat])
 
-		self.addFeature(o, spec)
+		# Add Feature to DB
+		self.addFeature(feature)
 		
 		return True
 
 	def area(self, o):
+
+		'''
+
+		Parse Areas
+
+		'''
+
 		if not o.visible:
 			return True
 
-		spec = self.getConfig(o, 'area')
+		feature = self.getFeature(o, 'area')
 
-		if not spec:
+		if not feature:
 			return True
 
-		
+		# Get Geometry
 		wkbshape = wkbfab.create_multipolygon(o)
-		spec['coords'] = wkblib.loads(wkbshape, hex=True)
+		feature.coords = wkblib.loads(wkbshape, hex=True)
 
-		self.addFeature(o, spec)
+		# Add Feature to DB
+		self.addFeature(feature)
+
+		return True
+
+	def way(self, o):
+
+		'''
+
+		Parse Ways
+
+		'''
+
+		if not o.visible:
+			return True
+
+		feature = self.getFeature(o, 'way')
+
+		if not feature:
+			return True
+
+		# Get Geometry
+		wkbshape = wkbfab.create_linestring(o)
+		feature.coords = wkblib.loads(wkbshape, hex=True)
+
+		# Add Feature to DB
+		self.addFeature(feature)
 
 		return True

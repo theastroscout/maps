@@ -12,13 +12,17 @@ from tiles import test
 from shapely.wkb import loads
 from shapely.geometry import box
 
+from collections import namedtuple
+DB = namedtuple('DB', ['conn', 'cursor'])
+
 class Parse:
 
 	def __init__(self, config):
 		self.config = config
 
+
 	def go(self,):
-		self.h = OSM_handler(self.config)
+		
 
 		# Remove Temp File
 		if os.path.exists(self.config['tmp_file']):
@@ -26,7 +30,6 @@ class Parse:
 
 		# Remove DB
 		if os.path.exists(self.config['db_file']):
-			print('Remove DB')
 			os.remove(self.config['db_file'])
 
 		# Create DB
@@ -42,21 +45,26 @@ class Parse:
 				`group` TEXT,
 				`layer` TEXT,
 				`data` TEXT,
-				`geom` GEOMETRY
+				`coords` GEOMETRY
 			)
 		''')
 		conn.commit()
 
-		self.config['db'] = {
-			'conn': conn,
-			'cursor': cursor
-		}
+		# DB Object
+		self.db = DB(conn, cursor)
 
+		# Create Handler
+		handler = OSM_handler(self.config, self.db)
 
-		# Start parsing
+		'''
+
+		Parsing OSM
+
+		'''
+
 		# idx = 'dense_file_array,' + self.config['tmp_file']
 		idx = 'sparse_file_array,' + self.config['tmp_file']
-		self.h.apply_file(self.config['pbf_input'], locations=True, idx=idx)
+		handler.apply_file(self.config['pbf_input'], locations=True, idx=idx)
 
 		# Remove Temp File
 		if os.path.exists(self.config['tmp_file']):
@@ -65,11 +73,9 @@ class Parse:
 		self.test()
 
 	def test(self,):
-		conn = self.config['db']['conn']
-		cursor = self.config['db']['cursor']
-		cursor.execute("PRAGMA table_info(features);")
-		columns = [column[1] for column in cursor.fetchall()]
-		print('Columns',columns)
+		self.db.cursor.execute("PRAGMA table_info(features);")
+		columns = [column[1] for column in self.db.cursor.fetchall()]
+		print('Columns', columns)
 
 		min_x, min_y, max_x, max_y = -1, 50, 1, 51.5
 		min_x, min_y, max_x, max_y = -0.0224971329,51.5041493371,-0.0200334285,51.5056863218
@@ -78,15 +84,15 @@ class Parse:
 		bbox_str = bbox.wkt
 
 
-		query = f"SELECT id, oid, `group`, layer, data, AsText(`geom`) FROM features WHERE MBRContains(BuildMBR({min_x}, {min_y}, {max_x}, {max_y}), geom)"
-		query = f"SELECT id, oid, `group`, layer, data, AsText(`geom`) FROM features WHERE Intersects(geom, ST_GeomFromText(?))"
-		result = conn.execute(query, (bbox_str,)).fetchall()
+		query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE MBRContains(BuildMBR({min_x}, {min_y}, {max_x}, {max_y}), coords)"
+		query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE Intersects(coords, ST_GeomFromText(?))"
+		result = self.db.conn.execute(query, (bbox_str,)).fetchall()
 		print('Result', len(result))
 		# for r in result:
 		#	print(r)
 
-		cursor.close()
-		conn.close()
+		self.db.cursor.close()
+		self.db.conn.close()
 
 
 if __name__ == '__main__':
