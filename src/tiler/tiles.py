@@ -1,9 +1,9 @@
 import sqlite3
 import json
+import geopandas as gpd
 
 
-
-if __name__ == '__main__':
+def test():
 	config_name = 'canary'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))
@@ -17,18 +17,24 @@ if __name__ == '__main__':
 	conn = sqlite3.connect(CONFIG['db_file'])
 	conn.enable_load_extension(True)
 	conn.execute("SELECT load_extension('mod_spatialite')")
+	conn.execute("SELECT InitSpatialMetadata(1)")
 
 	cursor = conn.cursor()
 
-	min_x, min_y, max_x, max_y = -10, -10, -5, -5
+	cursor.execute("PRAGMA table_info(features);")
+	columns = [column[1] for column in cursor.fetchall()]
+	print(columns)
+	# exit()
 
-	# Execute a query to select features within the bounding box
-	query = f"SELECT * FROM features"
-	cursor.execute(query)
+	min_x, min_y, max_x, max_y = -100, -100, -50, -50
 
-	# Fetch all rows
-	rows = cursor.fetchall()
-	for r in rows:
+	query = f"SELECT oid, `group`, `GEOMETRY` FROM features WHERE MBRContains(BuildMBR({min_x}, {min_y}, {max_x}, {max_y}), GEOMETRY)"
+	result = conn.execute(query).fetchall()
+	for r in result:
 		print(r)
+
 	cursor.close()
 	conn.close()
+
+if __name__ == '__main__':
+	test()

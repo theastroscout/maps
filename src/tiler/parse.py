@@ -7,6 +7,7 @@ Convert PBF file into tiles
 import os
 import json
 from utils.osm import OSM_handler
+from tiles import test
 
 class Parse:
 
@@ -22,6 +23,7 @@ class Parse:
 
 		# Remove DB
 		if os.path.exists(self.config['db_file']):
+			print('Remove DB')
 			os.remove(self.config['db_file'])
 
 		# Start parsing
@@ -48,3 +50,5 @@ if __name__ == '__main__':
 	parse = Parse(CONFIG)
 	parse.go()
 	print('Complete')
+
+	test()
