@@ -5,6 +5,9 @@
 '''
 
 import osmium
+wkbfab = osmium.geom.WKBFactory()
+import shapely.wkb as wkblib
+
 from utils.configs import getConfig
 from utils.features import addFeature
 
@@ -31,4 +34,21 @@ class OSM_handler(osmium.SimpleHandler):
 
 		self.addFeature(o, spec)
 		
+		return True
+
+	def area(self, o):
+		if not o.visible:
+			return True
+
+		spec = self.getConfig(o, 'area')
+
+		if not spec:
+			return True
+
+		
+		wkbshape = wkbfab.create_multipolygon(o)
+		spec['coords'] = wkblib.loads(wkbshape, hex=True)
+
+		self.addFeature(o, spec)
+
 		return True

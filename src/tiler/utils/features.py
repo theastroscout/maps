@@ -33,7 +33,7 @@ def addFeature(self, o, spec):
 		'coords': [coords]
 	}
 	# print(item)
-	print(('', o.id, container[0], container[1], json.dumps(data), coords.wkt))
+	# print(('', o.id, container[0], container[1], json.dumps(data), coords.wkt))
 	self.config['db']['cursor'].execute('INSERT INTO features (`oid`,`group`,`layer`,`data`,`geom`) VALUES (?, ?, ?, ?, ST_GeomFromText(?))', (o.id, container[0], container[1], json.dumps(data), coords.wkt))
 	self.config['db']['conn'].commit()
 

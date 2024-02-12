@@ -9,6 +9,8 @@ import sqlite3
 import json
 from utils.osm import OSM_handler
 from tiles import test
+from shapely.wkb import loads
+from shapely.geometry import box
 
 class Parse:
 
@@ -69,13 +71,19 @@ class Parse:
 		columns = [column[1] for column in cursor.fetchall()]
 		print('Columns',columns)
 
-		min_x, min_y, max_x, max_y = -1, 50, 1, 51.51
+		min_x, min_y, max_x, max_y = -1, 50, 1, 51.5
+		min_x, min_y, max_x, max_y = -0.0224971329,51.5041493371,-0.0200334285,51.5056863218
+		# bbox = (min_x, min_y, max_x, max_y)
+		bbox = box(min_x, min_y, max_x, max_y)
+		bbox_str = bbox.wkt
 
-		query = f"SELECT oid, `group`, `geom` FROM features WHERE MBRContains(BuildMBR({min_x}, {min_y}, {max_x}, {max_y}), geom)"
-		result = conn.execute(query).fetchall()
-		print('Result', result)
-		for r in result:
-			print(r)
+
+		query = f"SELECT id, oid, `group`, layer, data, AsText(`geom`) FROM features WHERE MBRContains(BuildMBR({min_x}, {min_y}, {max_x}, {max_y}), geom)"
+		query = f"SELECT id, oid, `group`, layer, data, AsText(`geom`) FROM features WHERE Intersects(geom, ST_GeomFromText(?))"
+		result = conn.execute(query, (bbox_str,)).fetchall()
+		print('Result', len(result))
+		# for r in result:
+		#	print(r)
 
 		cursor.close()
 		conn.close()
