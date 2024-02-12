@@ -15,6 +15,8 @@ from shapely.geometry import box
 from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
 
+from tiles import create_tiles
+
 class Parse:
 
 	def __init__(self, config):
@@ -70,7 +72,7 @@ class Parse:
 		if os.path.exists(self.config['tmp_file']):
 			os.remove(self.config['tmp_file'])
 
-		self.test()
+		# self.test()
 
 	def test(self,):
 		self.db.cursor.execute("PRAGMA table_info(features);")
@@ -106,6 +108,9 @@ if __name__ == '__main__':
 
 	# print(CONFIG)
 
+	print('Parsing...')
 	parse = Parse(CONFIG)
 	parse.go()
-	print('Complete')
+	
+	print('Creating tiles...')
+	create_tiles(CONFIG)

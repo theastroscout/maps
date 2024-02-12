@@ -8,13 +8,10 @@ import sqlite3 as sql
 import json
 import geopandas as gpd
 
-# from collections import namedtuple
-# Feature = namedtuple('Feature', ['id', 'group', 'layer', 'data', 'coords'])
-
 class Feature:
 
-	def __init__(self, id, group, layer, data, coords):
-		self.id = id
+	def __init__(self, oid, group, layer, data, coords):
+		self.oid = oid
 		self.group = group
 		self.layer = layer
 		self.data = data
@@ -34,9 +31,18 @@ def getFeature(self, o, type_name):
 			if match['values'] != '*' and value not in match['values']:
 				continue
 
-			container = match['containers'][0].split(':')
-			data = {}
-			return Feature(o.id, container[0], container[1], data, None)
+
+			group, layer = match['containers'][0].split(':')
+			spec = self.config['groups'][group][layer]
+
+			data = {} 
+			if 'data' in spec:
+				for n in spec['data']:
+					v = o.tags.get(n)
+					if v:
+						data[n] = v
+			
+			return Feature(o.id, group, layer, data, None)
 		
 
 	return False
@@ -46,15 +52,16 @@ def addFeature(self, feature):
 	# if 'name' in o.tags:
 	#	feature.data['name'] = o.tags.get('name')
 
-	item = {
-		'oid': feature.id,
+	data = {
+		'oid': feature.oid,
 		'group': feature.group,
 		'layer': feature.layer,
 		'data': json.dumps(feature.data),
 		'coords': feature.coords.wkt
 	}
 	
-	self.db.cursor.execute('INSERT INTO features (`oid`,`group`,`layer`,`data`,`coords`) VALUES (?, ?, ?, ?, ST_GeomFromText(?))', tuple(item.values()) )
+	self.db.cursor.execute('INSERT INTO features (`oid`,`group`,`layer`,`data`,`coords`) VALUES (?, ?, ?, ?, ST_GeomFromText(?))', tuple(data.values()) )
+	
 	self.db.conn.commit()
 
 	return False

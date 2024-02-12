@@ -4,6 +4,7 @@
 		"nature": {
 
 			"water": {
+				"data": [ "name" ],
 				"compress": {
 					"14": {
 						"tolerance": 0.00005,
@@ -13,6 +14,7 @@
 			},
 
 			"green": {
+				"data": [ "name" ],
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -26,6 +28,7 @@
 		"service": {
 
 			"bridges": {
+				"data": [ "name" ],
 				"compress": {
 					"14": {
 						"tolerance": 0.00001
@@ -54,7 +57,7 @@
 		"roads": {
 
 			"highways": {
-				"extract": [ "name" ],
+				"data": [ "name" ],
 				"compress": {
 					"8": {
 						"tolerance": 0.001
@@ -72,7 +75,7 @@
 			},
 
 			"streets": {
-				"extract": [ "name" ],
+				"data": [ "name" ],
 				"compress": {
 					"8": {
 						"tolerance": 0.001
@@ -93,7 +96,7 @@
 		"buildings": {
 			
 			"facilities": {
-				"extract": [ "name" ],
+				"data": [ "name" ],
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -103,7 +106,7 @@
 			},
 
 			"houses": {
-				"extract": [ "name" ],
+				"data": [ "name" ],
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -120,11 +123,12 @@
 		"labels": {
 
 			"stations": {
+				"data": [ "name", "network" ],
 				"minzoom": 12
 			},
 
 			"places": {
-
+				"data": [ "name" ]
 			}
 		}
 	},
@@ -194,7 +198,7 @@
 			"building": [
 				{
 					"values": "*",
-					"containers": [ "facilities:houses" ]
+					"containers": [ "buildings:houses" ]
 				}
 			],
 			"man_made": [
