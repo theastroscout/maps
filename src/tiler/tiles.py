@@ -17,7 +17,7 @@ def test():
 	conn = sqlite3.connect(CONFIG['db_file'])
 	conn.enable_load_extension(True)
 	conn.execute("SELECT load_extension('mod_spatialite')")
-	conn.execute("SELECT InitSpatialMetadata(1)")
+	# conn.execute("SELECT InitSpatialMetadata(1)")
 
 	cursor = conn.cursor()
 
@@ -28,7 +28,7 @@ def test():
 
 	min_x, min_y, max_x, max_y = -100, -100, -50, -50
 
-	query = f"SELECT oid, `group`, `GEOMETRY` FROM features WHERE MBRContains(BuildMBR({min_x}, {min_y}, {max_x}, {max_y}), GEOMETRY)"
+	query = f"SELECT oid, `group`, `geom` FROM features WHERE MBRContains(BuildMBR({min_x}, {min_y}, {max_x}, {max_y}), geom)"
 	result = conn.execute(query).fetchall()
 	for r in result:
 		print(r)

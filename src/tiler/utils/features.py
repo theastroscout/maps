@@ -5,6 +5,7 @@ Add Features
 '''
 
 import sqlite3 as sql
+import json
 import geopandas as gpd
 from shapely.geometry import Polygon, LineString, Point
 
@@ -31,8 +32,14 @@ def addFeature(self, o, spec):
 		'data': [data],
 		'coords': [coords]
 	}
-	# print(item)	
+	# print(item)
+	print(('', o.id, container[0], container[1], json.dumps(data), coords.wkt))
+	self.config['db']['cursor'].execute('INSERT INTO features (`oid`,`group`,`layer`,`data`,`geom`) VALUES (?, ?, ?, ?, ST_GeomFromText(?))', (o.id, container[0], container[1], json.dumps(data), coords.wkt))
+	self.config['db']['conn'].commit()
 
+
+
+	'''
 	gdf = gpd.GeoDataFrame(item, columns=['oid','group','layer','data','coords'], geometry='coords')
 	print(gdf)
 
@@ -44,5 +51,6 @@ def addFeature(self, o, spec):
 
 	
 	gdf.to_file(self.config['db'], driver='SQLite', index=False, spatialite=True, layer='features', mode=mode)
+	'''
 
 	return False
