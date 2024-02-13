@@ -4,6 +4,7 @@
 		"nature": {
 
 			"water": {
+				"minzoom": 8,
 				"data": [ "name" ],
 				"compress": {
 					"14": {
@@ -14,6 +15,7 @@
 			},
 
 			"green": {
+				"minzoom": 14,
 				"data": [ "name" ],
 				"compress": {
 					"14": {
@@ -28,6 +30,7 @@
 		"service": {
 
 			"bridges": {
+				"minzoom": 14,
 				"data": [ "name" ],
 				"compress": {
 					"14": {
@@ -37,6 +40,7 @@
 			},
 
 			"railways": {
+				"minzoom": 14,
 				"compress": {
 					"8": {
 						"tolerance": 0.001
@@ -57,6 +61,7 @@
 		"roads": {
 
 			"highways": {
+				"minzoom": 8,
 				"data": [ "name" ],
 				"compress": {
 					"8": {
@@ -75,6 +80,7 @@
 			},
 
 			"streets": {
+				"minzoom": 14,
 				"data": [ "name" ],
 				"compress": {
 					"8": {
@@ -96,6 +102,7 @@
 		"buildings": {
 			
 			"facilities": {
+				"minzoom": 14,
 				"data": [ "name" ],
 				"compress": {
 					"14": {
@@ -106,6 +113,7 @@
 			},
 
 			"houses": {
+				"minzoom": 14,
 				"data": [ "name" ],
 				"compress": {
 					"14": {
@@ -116,18 +124,34 @@
 			},
 
 			"aero": {
-
+				"minzoom": 14
 			}
 		},
 
 		"labels": {
 
 			"stations": {
-				"data": [ "name", "network" ],
-				"minzoom": 12
+				"minzoom": 12,
+				"data": [ "name", "network" ]
 			},
 
-			"places": {
+			"districts": {
+				"minzoom": 12,
+				"data": [ "name" ]
+			},
+
+			"cities": {
+				"minzoom": 8,
+				"data": [ "name", "capital" ]
+			},
+
+			"countries": {
+				"minzoom": 2,
+				"data": [ "name" ]
+			},
+
+			"marine": {
+				"minzoom": 2,
 				"data": [ "name" ]
 			}
 		}
@@ -143,8 +167,20 @@
 			],
 			"place": [
 				{
-					"values": [ "quarter", "suburb", "borough", "city", "country", "sea", "ocean" ],
-					"containers": [ "labels:places" ]
+					"values": [ "quarter", "suburb", "borough" ],
+					"containers": [ "labels:districts" ]
+				},
+				{
+					"values": [ "city", "town" ],
+					"containers": [ "labels:cities" ]
+				},
+				{
+					"values": [ "country" ],
+					"containers": [ "labels:countries" ]
+				},
+				{
+					"values": [ "sea", "ocean" ],
+					"containers": [ "labels:marine" ]
 				}
 			]
 		},

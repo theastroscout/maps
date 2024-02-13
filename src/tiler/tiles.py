@@ -3,6 +3,7 @@ import os
 import sqlite3
 import json
 from shapely.geometry import box
+import mercantile
 
 from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
@@ -20,6 +21,22 @@ class Tiles:
 
 		# DB Object
 		self.db = DB(conn, cursor)
+
+	def go(self,):
+		for zoom in (2, 4, 6, 8, 10, 12, 14):
+			layers = []
+			for group_name, group in self.config['groups'].items():
+				for layer_name, layer in group.items():
+					# print(group_name, layer_name)
+
+					if layer['minzoom'] <= zoom:
+						layers.append(layer_name)
+
+			# print(zoom, layers)
+
+			query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE layer IN (?)"
+			result = self.db.conn.execute(query, (','.join(layers),)).fetchall()
+			print('Result', zoom, len(result))
 
 	def test(self,):
 
@@ -61,4 +78,4 @@ if __name__ == '__main__':
 	shutil.rmtree(CONFIG['data'], ignore_errors=True)
 	os.makedirs(CONFIG['data'], exist_ok=True)
 
-	tiles.test()
+	tiles.go()
