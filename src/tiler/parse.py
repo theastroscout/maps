@@ -73,6 +73,7 @@ class Parse:
 			os.remove(self.config['tmp_file'])
 
 		# self.test()
+		self.close()
 
 	def test(self,):
 		self.db.cursor.execute("PRAGMA table_info(features);")
@@ -93,6 +94,10 @@ class Parse:
 		# for r in result:
 		#	print(r)
 
+		self.db.cursor.close()
+		self.db.conn.close()
+
+	def close():
 		self.db.cursor.close()
 		self.db.conn.close()
 
