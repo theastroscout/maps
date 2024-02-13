@@ -32,11 +32,16 @@ class Tiles:
 					if layer['minzoom'] <= zoom:
 						layers.append(layer_name)
 
-			# print(zoom, layers)
-
-			query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE layer IN (?)"
-			result = self.db.conn.execute(query, (','.join(layers),)).fetchall()
-			print('Result', zoom, len(result))
+			params = ", ".join('?' for _ in layers)
+			query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE layer IN ({params})"
+			result = self.db.conn.execute(query, tuple(layers)).fetchall()
+			# print('Result', zoom, len(result))
+			if not result:
+				continue
+			
+			bbox = [float('inf'), float('inf'), float('-inf'), float('-inf')]
+			for feature in result:
+				
 
 	def test(self,):
 
