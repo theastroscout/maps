@@ -3,6 +3,7 @@ import os
 import sqlite3
 import json
 from shapely.geometry import box
+from shapely.wkt import loads as shape_load
 import mercantile
 
 from collections import namedtuple
@@ -23,25 +24,40 @@ class Tiles:
 		self.db = DB(conn, cursor)
 
 	def go(self,):
+
 		for zoom in (2, 4, 6, 8, 10, 12, 14):
+
+			# Collect Layers
 			layers = []
 			for group_name, group in self.config['groups'].items():
 				for layer_name, layer in group.items():
-					# print(group_name, layer_name)
-
 					if layer['minzoom'] <= zoom:
 						layers.append(layer_name)
 
+			# Select Features
 			params = ", ".join('?' for _ in layers)
 			query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE layer IN ({params})"
 			result = self.db.conn.execute(query, tuple(layers)).fetchall()
-			# print('Result', zoom, len(result))
+			
 			if not result:
+				# Empty level
 				continue
 			
 			bbox = [float('inf'), float('inf'), float('-inf'), float('-inf')]
 			for feature in result:
+				# shape_load
+
+				shape = shape_load(feature[5])
 				
+				bbox[0] = min(bbox[0], shape.bounds[0])
+				bbox[1] = min(bbox[1], shape.bounds[1])
+				bbox[2] = max(bbox[2], shape.bounds[2])
+				bbox[3] = max(bbox[3], shape.bounds[3])
+
+			print(zoom, bbox)
+
+			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
+				print(tile)
 
 	def test(self,):
 
