@@ -25,6 +25,12 @@ class Tiles:
 
 	def go(self,):
 
+		self.db.cursor.execute("SELECT data FROM config_data WHERE name='bbox'")
+		result = self.db.cursor.fetchone()
+		bbox = json.loads(result[0])
+		print('BBOX',bbox)
+		exit()
+
 		for zoom in (2, 4, 6, 8, 10, 12, 14):
 
 			# Collect Layers
@@ -85,6 +91,14 @@ class Tiles:
 
 		return True
 
+def create_tiles(CONFIG):
+	tiles = Tiles(CONFIG)
+
+	shutil.rmtree(CONFIG['data'], ignore_errors=True)
+	os.makedirs(CONFIG['data'], exist_ok=True)
+
+	tiles.go()
+
 if __name__ == '__main__':
 	config_name = 'canary'
 	
@@ -94,9 +108,4 @@ if __name__ == '__main__':
 
 	CONFIG = {**settings, **filters}
 
-	tiles = Tiles(CONFIG)
-
-	shutil.rmtree(CONFIG['data'], ignore_errors=True)
-	os.makedirs(CONFIG['data'], exist_ok=True)
-
-	tiles.go()
+	create_tiles(CONFIG)

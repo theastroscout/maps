@@ -8,20 +8,20 @@ import os
 import sqlite3
 import json
 from utils.osm import OSM_handler
-from tiles import test
+from tiles import create_tiles
 from shapely.wkb import loads
 from shapely.geometry import box
 
 from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
 
-from tiles import create_tiles
+# from tiles import create_tiles
 
 class Parse:
 
 	def __init__(self, config):
 		self.config = config
-
+		self.config['bbox'] = [float('inf'), float('inf'), float('-inf'), float('-inf')]
 
 	def go(self,):
 		
@@ -50,6 +50,13 @@ class Parse:
 				`coords` GEOMETRY
 			)
 		''')
+		cursor.execute('''
+			CREATE TABLE config_data (
+				`id` INTEGER PRIMARY KEY,
+				`name` TEXT,
+				`data` TEXT
+			)
+		''')
 		conn.commit()
 
 		# DB Object
@@ -72,8 +79,16 @@ class Parse:
 		if os.path.exists(self.config['tmp_file']):
 			os.remove(self.config['tmp_file'])
 
+
+		print('Bbox',self.config['bbox'])
+		print(json.dumps(self.config['bbox']))
+		self.db.cursor.execute('INSERT INTO config_data (`name`,`data`) VALUES (?, ?)', ('bbox', json.dumps(self.config['bbox'])) )
+		self.db.conn.commit()
+
 		# self.test()
 		self.close()
+
+		
 
 	def test(self,):
 		self.db.cursor.execute("PRAGMA table_info(features);")
@@ -97,7 +112,7 @@ class Parse:
 		self.db.cursor.close()
 		self.db.conn.close()
 
-	def close():
+	def close(self,):
 		self.db.cursor.close()
 		self.db.conn.close()
 

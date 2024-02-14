@@ -59,6 +59,11 @@ def addFeature(self, feature):
 		'data': json.dumps(feature.data),
 		'coords': feature.coords.wkt
 	}
+
+	self.config['bbox'][0] = min(self.config['bbox'][0], feature.coords.bounds[0])
+	self.config['bbox'][1] = min(self.config['bbox'][1], feature.coords.bounds[1])
+	self.config['bbox'][2] = max(self.config['bbox'][2], feature.coords.bounds[2])
+	self.config['bbox'][3] = max(self.config['bbox'][3], feature.coords.bounds[3])
 	
 	self.db.cursor.execute('INSERT INTO features (`oid`,`group`,`layer`,`data`,`coords`) VALUES (?, ?, ?, ?, ST_GeomFromText(?))', tuple(data.values()) )
 	
