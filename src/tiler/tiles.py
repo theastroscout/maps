@@ -29,6 +29,28 @@ class Tiles:
 		result = self.db.cursor.fetchone()
 		bbox = json.loads(result[0])
 		print('BBOX',bbox)
+
+		for zoom in (2, 4, 6, 8, 10, 12, 14):
+			layers = []
+			for group_name, group in self.config['groups'].items():
+				for layer_name, layer in group.items():
+					if layer['minzoom'] <= zoom:
+						layers.append(layer_name)
+
+			if not len(layers):
+				continue
+
+			layers_param = ", ".join('?' for _ in layers)
+
+			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
+				tile_bounds = mercantile.bounds(tile)
+				print(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
+				
+
+				
+				query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE layer IN ({layers_param})"
+				
+
 		exit()
 
 		for zoom in (2, 4, 6, 8, 10, 12, 14):
