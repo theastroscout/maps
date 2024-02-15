@@ -5,6 +5,7 @@ import json
 from shapely.geometry import box
 from shapely.wkt import loads as shape_load
 import mercantile
+import geopandas as gpd
 
 from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
@@ -44,11 +45,29 @@ class Tiles:
 
 			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
 				tile_bounds = mercantile.bounds(tile)
-				print(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
+				# print(tile_bounds)
 				
+				tile_bounds = box(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
+				# print(tile_bounds.wkt)
+				
+				# AsText(`coords`) as 
+				query = f'''SELECT id, oid, `group`, layer, data,
+				Hex(ST_AsBinary(coords)) as coords
+				FROM features WHERE layer IN ({layers_param})
+				and Intersects(coords, ST_GeomFromText(?))'''
+				# print(query)
+				params = layers + [tile_bounds.wkt]
+				gdf = gpd.GeoDataFrame.from_postgis(query, self.db.conn, geom_col='coords', params=tuple(params))
 
-				
-				query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE layer IN ({layers_param})"
+				if gdf.empty:
+					continue
+
+				for index, row in gdf.iterrows():
+					print(row)
+				exit()
+
+
+
 				
 
 		exit()
