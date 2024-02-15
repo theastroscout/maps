@@ -148,7 +148,17 @@
 
 			"stations": {
 				"minzoom": 12,
-				"data": [ "name", "network" ]
+				"data": [ "name", "network" ],
+				"dataMap": {
+					"network": [
+						"Default",
+						"London Underground",
+						"London Overground",
+						"Elizabeth Line",
+						"Docklands Light Railway",
+						"National Rail"
+					]
+				}
 			},
 
 			"districts": {

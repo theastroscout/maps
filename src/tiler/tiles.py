@@ -11,6 +11,11 @@ import geopandas as gpd
 from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
 
+# Geometry Types for Index
+geometries = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
+
+
+
 def fix_coords(items):
 	result = []
 	for item in items:
@@ -25,6 +30,10 @@ class Tiles:
 	def __init__(self, config):
 		self.config = config
 
+		# Clear Tiles Directory
+		shutil.rmtree(CONFIG['data'], ignore_errors=True)
+		os.makedirs(CONFIG['data'], exist_ok=True)
+
 		# Create DB
 		conn = sqlite3.connect(self.config['db_file'])
 		conn.enable_load_extension(True)
@@ -34,6 +43,22 @@ class Tiles:
 		# DB Object
 		self.db = DB(conn, cursor)
 
+
+		self.groups = {}
+		g_id = 1
+		for group_name, group in self.config['groups'].items():
+			self.groups[group_name] = {
+				'id': g_id,
+				'layers': {}
+			}
+
+			l_id = 1
+			for layer_name, layer in group.items():
+				self.groups[group_name]['layers'][layer_name] = l_id
+				l_id += 1
+
+			g_id += 1
+
 	def go(self,):
 
 		self.db.cursor.execute("SELECT data FROM config_data WHERE name='bbox'")
@@ -42,6 +67,13 @@ class Tiles:
 		print('BBOX',bbox)
 
 		for zoom in (2, 4, 6, 8, 10, 12, 14):
+
+			'''
+
+			Collect Layers visible at Zoom
+
+			'''
+
 			layers = []
 			for group_name, group in self.config['groups'].items():
 				for layer_name, layer in group.items():
@@ -54,6 +86,17 @@ class Tiles:
 			layers_param = ", ".join('?' for _ in layers)
 
 			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
+
+				x,y,z = tile
+
+				print('Create', tile)
+				
+				'''
+				
+				Each Tile at Zoom level
+
+				'''
+
 				tile_bounds = mercantile.bounds(tile)
 				# print(tile_bounds)
 				
@@ -70,9 +113,22 @@ class Tiles:
 				tile_gdf = gpd.GeoDataFrame.from_postgis(query, self.db.conn, geom_col='coords', params=tuple(params))
 
 				if tile_gdf.empty:
+					# Skip if tile is empty
 					continue
 
+				# Create File
+				tile_dir = self.config['data'] + '/{}/{}'.format(z,x)
+				tile_file_path = f'{tile_dir}/{y}'
+				os.makedirs(tile_dir, exist_ok=True)
+				tile_file = open(tile_file_path, 'w')
+
 				for index, feature in tile_gdf.iterrows():
+
+					'''
+
+					Parse Feature
+
+					'''
 					
 					layer = self.config['groups'][feature.group][feature.layer]
 					if 'compress' in layer and str(zoom) in layer['compress']:
@@ -123,22 +179,39 @@ class Tiles:
 
 					coords = json.dumps(coords, separators=(',', ':'))
 
+					feature.data = json.loads(feature.data)
+
+					if 'dataMap' in self.config['groups'][feature.group][feature.layer]:
+						for tag in self.config['groups'][feature.group][feature.layer]['dataMap']:
+							if tag in feature.data:
+								data_map = self.config['groups'][feature.group][feature.layer]['dataMap'][tag]
+								# print(tag, feature.data)
+								feature.data[tag] = str(data_map.index(feature.data[tag]))
+								print(feature.data)
+						# if feature.data
+
+					# Feature object to store
 					item = [
 						str(feature.oid),
-						str(feature.coords.geom_type),
-						str(feature.group),
-						str(feature.layer),
-						str('//'.join(list(json.loads(feature.data).values()))),
+						str(geometries.index(feature.coords.geom_type)),
+						str(self.groups[feature.group]['id']),
+						str(self.groups[feature.group]['layers'][feature.layer]),
+						str('//'.join(list((feature.data).values()))),
 						str(coords)
 					]
 
-					print(item)
+					item = '\t'.join(item)
+
+					
+					tile_file.write(item + '\n')
+
+					# print(item)
 					# shapely.to_ragged_array
 					# elif coords.geom_type == 'LineString':
 
 
-
-				exit()
+				tile_file.close()
+				# exit()
 
 
 
