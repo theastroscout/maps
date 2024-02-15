@@ -10,6 +10,8 @@ $data: 'https://sandbox.maps.surfy.one/data';
 	--name: 'Surfy°Maps.Chrome';
 	--tiles: #{$data}/tiles/isle-of-dogs;
 	--sprites: '/styles/chrome/sprites.svg';
+
+	--dict: '';
 }
 
 .SurfyMaps > svg.container {

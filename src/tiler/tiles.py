@@ -181,14 +181,16 @@ class Tiles:
 
 					feature.data = json.loads(feature.data)
 
-					if 'dataMap' in self.config['groups'][feature.group][feature.layer]:
-						for tag in self.config['groups'][feature.group][feature.layer]['dataMap']:
+					if 'dict' in layer:
+						for tag in layer['dict']:
 							if tag in feature.data:
-								data_map = self.config['groups'][feature.group][feature.layer]['dataMap'][tag]
+								data_dict = layer['dict'][tag]
 								# print(tag, feature.data)
-								feature.data[tag] = str(data_map.index(feature.data[tag]))
-								print(feature.data)
-						# if feature.data
+								v = feature.data[tag]
+								if v in data_dict:
+									feature.data[tag] = str(data_dict.index(v))
+									# print(feature.data)
+					
 
 					# Feature object to store
 					item = [

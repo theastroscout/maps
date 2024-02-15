@@ -149,7 +149,7 @@
 			"stations": {
 				"minzoom": 12,
 				"data": [ "name", "network" ],
-				"dataMap": {
+				"dict": {
 					"network": [
 						"Default",
 						"London Underground",
