@@ -45,6 +45,8 @@ class Tiles:
 
 
 		self.groups = {}
+		self.dict = []
+
 		g_id = 1
 		for group_name, group in self.config['groups'].items():
 			self.groups[group_name] = {
@@ -52,12 +54,31 @@ class Tiles:
 				'layers': {}
 			}
 
+
+
 			l_id = 1
+			layers = []
 			for layer_name, layer in group.items():
 				self.groups[group_name]['layers'][layer_name] = l_id
 				l_id += 1
 
+				layer_item = {
+					'name': layer_name
+				}
+				if 'dict' in layer:
+					layer_item['dict'] = layer['dict']
+				
+				layers.append(layer_item)
+
+			self.dict.append({
+				'name': group_name,
+				'layers': layers
+				})
+
 			g_id += 1
+
+		print(self.dict)
+		exit()
 
 	def go(self,):
 

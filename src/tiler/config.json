@@ -148,22 +148,24 @@
 
 			"stations": {
 				"minzoom": 12,
-				"data": [ "name", "network" ],
-				"dict": {
-					"network": [
-						"Default",
-						"London Underground",
-						"London Overground",
-						"Elizabeth Line",
-						"Docklands Light Railway",
-						"National Rail"
-					]
+				"data": {
+					"name": "*",
+					"network": {
+						"Default": "default",
+						"London Underground": "uk-tfl-lu",
+						"London Overground": "uk-tfl-lo",
+						"Elizabeth Line": "uk-tfl-el",
+						"Docklands Light Railway": "uk-tfl-dlr",
+						"National Rail": "uk-nr"
+					}
 				}
 			},
 
 			"districts": {
 				"minzoom": 12,
-				"data": [ "name" ]
+				"data": {
+					"name": "*"
+				}
 			},
 
 			"cities": {
