@@ -2,6 +2,7 @@ import shutil
 import os
 import sqlite3
 import json
+from shapely import set_precision, to_geojson
 from shapely.geometry import box
 from shapely.wkt import loads as shape_load
 import mercantile
@@ -9,6 +10,15 @@ import geopandas as gpd
 
 from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
+
+def fix_coords(items):
+	result = []
+	for item in items:
+		if isinstance(item, list):
+			result.append(fix_coords(item))
+		else:
+			result.append(round(item * 1_000_000))
+	return result
 
 class Tiles:
 
@@ -57,13 +67,77 @@ class Tiles:
 				and Intersects(coords, ST_GeomFromText(?))'''
 				# print(query)
 				params = layers + [tile_bounds.wkt]
-				gdf = gpd.GeoDataFrame.from_postgis(query, self.db.conn, geom_col='coords', params=tuple(params))
+				tile_gdf = gpd.GeoDataFrame.from_postgis(query, self.db.conn, geom_col='coords', params=tuple(params))
 
-				if gdf.empty:
+				if tile_gdf.empty:
 					continue
 
-				for index, row in gdf.iterrows():
-					print(row)
+				for index, feature in tile_gdf.iterrows():
+					
+					layer = self.config['groups'][feature.group][feature.layer]
+					if 'compress' in layer and str(zoom) in layer['compress']:
+						compress = layer['compress'][str(zoom)]
+
+						gdf = gpd.GeoDataFrame(geometry=[feature.coords])
+
+						if 'tolerance' in compress:
+							# print('compress It', zoom, tile.x, tile.y, feature.group, feature.layer, layer['compress'][str(zoom)])
+							# print(gdf.geometry[0].length)
+							# print(len(gdf.geometry[0].coords), gdf.geometry[0].length, gdf.geometry[0])
+							gdf['geometry'] = gdf.simplify(tolerance=compress['tolerance'], preserve_topology=True)
+							# print(len(gdf.geometry[0].coords), gdf.geometry[0].length, gdf.geometry[0])
+							# print('')
+
+						if gdf.empty:
+							# Empty Drop
+							continue
+
+						if 'drop' in compress:
+							
+							if gdf.geometry[0].geom_type in ['Polygon', 'MultiPolygon']:
+								# Polygon Drop
+
+								if gdf.geometry[0].area < compress['drop']:
+									continue
+
+							elif gdf.geometry[0].length < compress['drop']:
+								# Line Drop
+								continue
+
+
+						# Set Precision for coords, not necessary because we use fix_coords
+						# gdf['geometry'] = set_precision(gdf.geometry.array, grid_size=0.000001)
+						feature.coords = gdf.geometry[0]
+						# print(gdf.geometry[0].geom_type)
+
+					# coords = []
+
+					# geometry_type, coords, offsets = to_ragged_array([feature.coords])
+					
+					# print(json.loads(to_geojson(feature.coords))['type'])
+					coords = json.loads(to_geojson(feature.coords))['coordinates']
+					coords = fix_coords(coords)
+					if feature.coords.geom_type == 'Polygon' and len(coords) == 1:
+						coords = coords[0]
+					# print(feature.group, feature.layer, len(coords), coords)
+
+					coords = json.dumps(coords, separators=(',', ':'))
+
+					item = [
+						str(feature.oid),
+						str(feature.coords.geom_type),
+						str(feature.group),
+						str(feature.layer),
+						str('//'.join(list(json.loads(feature.data).values()))),
+						str(coords)
+					]
+
+					print(item)
+					# shapely.to_ragged_array
+					# elif coords.geom_type == 'LineString':
+
+
+
 				exit()
 
 
