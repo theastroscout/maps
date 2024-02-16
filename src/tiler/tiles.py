@@ -48,7 +48,7 @@ class Tiles:
 		self.groups = {}
 		self.dict = []
 
-		g_id = 1
+		g_id = 0
 		for group_name, group in self.config['groups'].items():
 			self.groups[group_name] = {
 				'id': g_id,
@@ -57,7 +57,7 @@ class Tiles:
 
 
 
-			l_id = 1
+			l_id = 0
 			layers = []
 			for layer_name, layer in group.items():
 				self.groups[group_name]['layers'][layer_name] = l_id

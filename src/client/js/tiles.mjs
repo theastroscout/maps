@@ -330,14 +330,17 @@ class Tiles {
 			let chunks = item.split('\t');
 			let coords = JSON.parse(chunks.pop());
 
+
 			const fID = chunks.shift();
+			const geomID = parseInt(chunks.shift(), 10);
+			const geomType = geometryTypes[geomID];
 			const groupID = parseInt(chunks.shift(), 10);
 			const group = this.map.style.config[groupID];
 			const groupName = group.name;
 
-			const layerID = parseInt(chunks.shift(), 10) - 1;
+			const layerID = parseInt(chunks.shift(), 10);
 			const layer = group.layers[layerID];
-			console.log(groupName, layerID, layer)
+			console.log(groupName, layer.name, geomType)
 		}
 
 		this.map.draw.render(processed);
