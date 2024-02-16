@@ -6,21 +6,13 @@ Maps
 
 import Utils from './utils.mjs';
 import Style from './style.mjs';
+import Tiles from './tiles.mjs';
 
 class Maps {
 	
 	constructor(customOptions){
 
 		this.svgNS = 'http://www.w3.org/2000/svg';
-
-		/*
-
-		Initialise libs
-
-		*/
-
-		this.style = new Style(this);
-		this.utils = new Utils(this);
 
 		/*
 
@@ -95,19 +87,17 @@ class Maps {
 
 		*/
 
-		this.helpers = {};
-
-		this.getZoomID();
+		this.helpers = {};		
 
 		/*
 
-		View Box
+		Initialise libs
 
 		*/
 
-		this.viewBox = {
-			center: this.utils.xy(this.options.coords, false)
-		};
+		this.style = new Style(this);
+		this.utils = new Utils(this);
+		this.tiles = new Tiles(this);
 
 		/*
 
@@ -115,6 +105,11 @@ class Maps {
 
 		*/
 
+		this.viewBox = {
+			center: this.utils.xy(this.options.coords, false)
+		};
+
+		this.getZoomID();
 		this.style.get();
 		this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 	}
@@ -359,8 +354,8 @@ class Maps {
 			*/
 
 			window.addEventListener('resize', self.map.resize, { passive: true });
-			this.resize();
 			this.style.render();
+			this.resize();
 		}
 	}
 }

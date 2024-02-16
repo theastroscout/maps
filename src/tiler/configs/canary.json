@@ -3,7 +3,7 @@
 	"pbf_input": "/storage/maps/tiles/canary/src.pbf",
 	"tmp_file": "/storage/maps/tmp/tmp.nodecache",
 	"geojson": "/storage/maps/tiles/canary/geojson",
-	"data": "/storage/maps/tiles/canary/data2",
+	"data": "/storage/maps/tiles/canary/data",
 	"minzoom": 2,
 	"maxzoom": 14
 }

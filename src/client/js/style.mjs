@@ -18,12 +18,12 @@ class Style {
 	*/
 
 	get = style => {
+		style = style || this.map.options.style
 		this.obj = document.createElement('link');
 		this.obj.rel = 'stylesheet';
 		this.obj.type = 'text/css';
-		this.obj.href = `/styles/${style || this.map.options.style}/style.scss`;
+		this.obj.href = `/styles/${style}/style.scss`;
 
-		this.obj.styleURL = style;
 		this.obj.self = this;
 
 		this.obj.onload = this.parse;
@@ -108,7 +108,7 @@ class Style {
 
 		self.groups = groups;
 
-		self.loadConfig(this.styleURL)
+		self.loadConfig();
 	}
 
 	/*
@@ -117,9 +117,11 @@ class Style {
 
 	*/
 
-	loadConfig = async style => {
-		console.log('Load Config', style)
-		// this.map.launch();
+	loadConfig = async () => {
+		const url = `${this.tiles}/config.json`;
+		this.config = await(await fetch(url)).json();
+
+		this.map.launch();
 	}
 
 	/*
