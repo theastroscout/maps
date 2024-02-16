@@ -79,7 +79,9 @@ class Tiles:
 			g_id += 1
 
 		print(self.dict)
-		# exit()
+		with open(CONFIG['data'] + '/config.json', "w") as dict_file:
+			json.dump(self.dict, dict_file, indent='\t')
+		exit()
 
 	def go(self,):
 
@@ -199,7 +201,20 @@ class Tiles:
 						coords = coords[0]
 					# print(feature.group, feature.layer, len(coords), coords)
 
-					coords = json.dumps(coords, separators=(',', ':'))
+					# Feature object to store
+					
+					item = [
+						str(feature.oid),
+						str(geometries.index(feature.coords.geom_type)),
+						str(self.groups[feature.group]['id']),
+						str(self.groups[feature.group]['layers'][feature.layer])
+					]
+
+					'''
+
+					Additional Data
+
+					'''
 
 					feature.data = json.loads(feature.data) or {}
 
@@ -225,18 +240,14 @@ class Tiles:
 										feature.data[tag] = str(list(tag_spec.keys()).index(v))
 									else:
 										feature.data[tag] = '0'
-					
 
-					# Feature object to store
-					
-					item = [
-						str(feature.oid),
-						str(geometries.index(feature.coords.geom_type)),
-						str(self.groups[feature.group]['id']),
-						str(self.groups[feature.group]['layers'][feature.layer]),
-						str('//'.join(list((feature.data).values()))),
-						coords
-					]
+					data = '\t'.join(list((feature.data).values()))
+					if len(data):
+						item.append(data)
+
+					# Coords
+					coords = json.dumps(coords, separators=(',', ':'))
+					item.append(coords)
 
 					item = '\t'.join(item)
 
