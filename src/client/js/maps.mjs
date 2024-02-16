@@ -7,6 +7,7 @@ Maps
 import Utils from './utils.mjs';
 import Style from './style.mjs';
 import Tiles from './tiles.mjs';
+import Draw from './draw.mjs';
 
 class Maps {
 	
@@ -98,6 +99,7 @@ class Maps {
 		this.style = new Style(this);
 		this.utils = new Utils(this);
 		this.tiles = new Tiles(this);
+		this.draw = new Draw(this);
 
 		/*
 
@@ -346,6 +348,16 @@ class Maps {
 
 		if(!this.states.ready){
 			this.states.ready = true;
+
+			/*
+
+			Handlers
+
+			*/
+
+			this.container.addEventListener('mousedown', this.mouseHandler);
+			this.container.addEventListener('touchstart', this.mouseHandler);
+			this.container.addEventListener('wheel', this.mouseHandler);
 
 			/*
 
