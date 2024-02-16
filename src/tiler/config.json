@@ -5,7 +5,9 @@
 
 			"water": {
 				"minzoom": 8,
-				"data": [ "name" ],
+				"data": {
+					"name": "*"
+				},
 				"compress": {
 					"8": {
 						"tolerance": 0.00005,
@@ -32,7 +34,9 @@
 
 			"green": {
 				"minzoom": 14,
-				"data": [ "name" ],
+				"data": {
+					"name": "*"
+				},
 				"compress": {
 					"8": {
 						"tolerance": 0.00001,
@@ -59,7 +63,9 @@
 
 			"bridges": {
 				"minzoom": 14,
-				"data": [ "name" ],
+				"data": {
+					"name": "*"
+				},
 				"compress": {
 					"14": {
 						"tolerance": 0.00001
@@ -82,7 +88,9 @@
 
 			"highways": {
 				"minzoom": 8,
-				"data": [ "name" ],
+				"data": {
+					"name": "*"
+				},
 				"compress": {
 					"8": {
 						"tolerance": 0.001,
@@ -105,7 +113,9 @@
 
 			"streets": {
 				"minzoom": 14,
-				"data": [ "name" ],
+				"data": {
+					"name": "*"
+				},
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -119,7 +129,9 @@
 			
 			"facilities": {
 				"minzoom": 14,
-				"data": [ "name" ],
+				"data": {
+					"name": "*"
+				},
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -130,7 +142,9 @@
 
 			"houses": {
 				"minzoom": 14,
-				"data": [ "name" ],
+				"data": {
+					"name": "*",
+				},
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -170,17 +184,24 @@
 
 			"cities": {
 				"minzoom": 8,
-				"data": [ "name", "capital" ]
+				"data": {
+					"name": "*",
+					"capital": "bool"
+				}
 			},
 
 			"countries": {
 				"minzoom": 2,
-				"data": [ "name" ]
+				"data": {
+					"name": "*"
+				}
 			},
 
 			"marine": {
 				"minzoom": 2,
-				"data": [ "name" ]
+				"data": {
+					"name": "*"
+				}
 			}
 		}
 	},

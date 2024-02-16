@@ -37,10 +37,16 @@ def getFeature(self, o, type_name):
 
 			data = {} 
 			if 'data' in spec:
-				for n in spec['data']:
-					v = o.tags.get(n)
+				for name in spec['data']:
+					name_spec = spec['data'][name]
+					v = o.tags.get(name)
 					if v:
-						data[n] = v
+						if name_spec == '*':
+							data[n] = v
+						elif name_spec == 'bool':
+							data[n] = True
+						elif isinstance(name_spec, list):
+							
 			
 			return Feature(o.id, group, layer, data, None)
 		
