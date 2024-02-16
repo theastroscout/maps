@@ -1,0 +1,108 @@
+/*
+
+Surfy Maps
+
+*/
+html {
+	--your-variable: 1px;
+	--your-color: red;
+	--building-opacity: 1;
+}
+// document.documentElement.style.setProperty('--your-variable', '30px', 'important');
+// document.documentElement.style.setProperty('--your-color', 'black', 'important');
+// document.documentElement.style.setProperty('--building-opacity', .4);
+
+.SurfyMaps {
+	position: relative;
+	overflow: hidden;
+	background-color: #fdfdfd;
+
+	/*
+
+	Pan & Zoom Performance
+
+	*/
+
+	&.move {
+		> svg.container {
+			pointer-events: none;
+		}
+	}
+
+	/*
+
+	Container
+
+	*/
+
+	> svg.container {
+		background-color: #fdfdfd;
+		backface-visibility: hidden;
+		transform: translate3d(0,0,0);
+		// shape-rendering: optimizeSpeed;
+		shape-rendering: geometricprecision;
+
+		user-select: none;
+
+		/*
+
+		Tiles Container
+
+		*/
+
+		> g.tiles {
+
+			/*
+
+			Zoom Collection
+
+			*/
+
+			> g.zoom {
+				// transition: opacity .6s;
+
+				&.hide {
+					display: none;
+					// opacity: 0;
+				}
+
+				/*
+
+				Groups
+
+				*/
+
+				> g {
+					
+					/*
+
+					Tiles
+
+					*/
+
+					> g.hide {
+						display: none;
+					}
+				}
+			}
+		}
+	}
+
+	/*
+
+	Copy
+
+	*/
+	
+	> .c {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+
+		padding: 10px;
+		background-color: rgba(0 0 0 / .6);
+		
+		font-size: 12px;
+		color: #ffffff;
+	}
+}
