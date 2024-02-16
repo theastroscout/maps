@@ -143,7 +143,7 @@
 			"houses": {
 				"minzoom": 14,
 				"data": {
-					"name": "*",
+					"name": "*"
 				},
 				"compress": {
 					"14": {

@@ -2,6 +2,7 @@ import shutil
 import os
 import sqlite3
 import json
+import re
 from shapely import set_precision, to_geojson
 from shapely.geometry import box
 from shapely.wkt import loads as shape_load
@@ -65,8 +66,8 @@ class Tiles:
 				layer_item = {
 					'name': layer_name
 				}
-				if 'dict' in layer:
-					layer_item['dict'] = layer['dict']
+				if 'data' in layer:
+					layer_item['data'] = layer['data']
 				
 				layers.append(layer_item)
 
@@ -78,7 +79,7 @@ class Tiles:
 			g_id += 1
 
 		print(self.dict)
-		exit()
+		# exit()
 
 	def go(self,):
 
@@ -200,27 +201,41 @@ class Tiles:
 
 					coords = json.dumps(coords, separators=(',', ':'))
 
-					feature.data = json.loads(feature.data)
+					feature.data = json.loads(feature.data) or {}
 
-					if 'dict' in layer:
-						for tag in layer['dict']:
+					if 'data' in layer:
+						for tag in layer['data']:
 							if tag in feature.data:
-								data_dict = layer['dict'][tag]
-								# print(tag, feature.data)
+								tag_spec = layer['data'][tag]
+								
 								v = feature.data[tag]
-								if v in data_dict:
-									feature.data[tag] = str(data_dict.index(v))
-									# print(feature.data)
+								
+								if tag_spec == '*':
+									if not v:
+										feature.data[tag] = ''
+								elif tag_spec == 'bool':
+									feature.data[tag] = '1' if v else '0'
+								elif isinstance(tag_spec, dict):
+
+									if 'name' in feature.data:
+										# Remove Everything in brackets
+										feature.data['name'] = re.sub(r'\([^)]*\)', '', feature.data['name']).strip()
+
+									if v in tag_spec:
+										feature.data[tag] = str(list(tag_spec.keys()).index(v))
+									else:
+										feature.data[tag] = '0'
 					
 
 					# Feature object to store
+					
 					item = [
 						str(feature.oid),
 						str(geometries.index(feature.coords.geom_type)),
 						str(self.groups[feature.group]['id']),
 						str(self.groups[feature.group]['layers'][feature.layer]),
 						str('//'.join(list((feature.data).values()))),
-						str(coords)
+						coords
 					]
 
 					item = '\t'.join(item)

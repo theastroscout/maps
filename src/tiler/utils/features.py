@@ -35,17 +35,12 @@ def getFeature(self, o, type_name):
 			group, layer = match['containers'][0].split(':')
 			spec = self.config['groups'][group][layer]
 
+			# Collect additional data
 			data = {} 
 			if 'data' in spec:
 				for name in spec['data']:
-					name_spec = spec['data'][name]
-					v = o.tags.get(name)
-					if v:
-						if name_spec == '*':
-							data[n] = v
-						elif name_spec == 'bool':
-							data[n] = True
-						elif isinstance(name_spec, list):
+					# name_spec = spec['data'][name]
+					data[name] = o.tags.get(name)
 							
 			
 			return Feature(o.id, group, layer, data, None)
