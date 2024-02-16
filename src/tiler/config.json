@@ -5,9 +5,12 @@
 
 			"water": {
 				"minzoom": 8,
-				"data": {
-					"name": "*"
-				},
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
 				"compress": {
 					"8": {
 						"tolerance": 0.00005,
@@ -34,9 +37,12 @@
 
 			"green": {
 				"minzoom": 14,
-				"data": {
-					"name": "*"
-				},
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
 				"compress": {
 					"8": {
 						"tolerance": 0.00001,
@@ -63,9 +69,12 @@
 
 			"bridges": {
 				"minzoom": 14,
-				"data": {
-					"name": "*"
-				},
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
 				"compress": {
 					"14": {
 						"tolerance": 0.00001
@@ -88,9 +97,12 @@
 
 			"highways": {
 				"minzoom": 8,
-				"data": {
-					"name": "*"
-				},
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
 				"compress": {
 					"8": {
 						"tolerance": 0.001,
@@ -113,9 +125,12 @@
 
 			"streets": {
 				"minzoom": 14,
-				"data": {
-					"name": "*"
-				},
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -129,9 +144,12 @@
 			
 			"facilities": {
 				"minzoom": 14,
-				"data": {
-					"name": "*"
-				},
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -142,9 +160,12 @@
 
 			"houses": {
 				"minzoom": 14,
-				"data": {
-					"name": "*"
-				},
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -162,32 +183,65 @@
 
 			"stations": {
 				"minzoom": 12,
-				"data": {
-					"name": "*",
-					"network": {
-						"Default": "default",
-						"London Underground": "uk-tfl-lu",
-						"London Overground": "uk-tfl-lo",
-						"Elizabeth Line": "uk-tfl-el",
-						"Docklands Light Railway": "uk-tfl-dlr",
-						"National Rail": "uk-nr"
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					},
+					{
+						"field": "network",
+						"type": [
+							{
+								"name": "Default",
+								"icon": "station"
+							},
+							{
+								"name": "London Underground",
+								"icon": "uk-tfl-lu"
+							},
+							{
+								"name": "London Overground",
+								"icon": "uk-tfl-lo"
+							},
+							{
+								"name": "Elizabeth Line",
+								"icon": "uk-tfl-el"
+							},
+							{
+								"name": "Docklands Light Railway",
+								"icon": "uk-tfl-dlr"
+							},
+							{
+								"name": "National Rail",
+								"icon": "uk-nr"
+							}
+						]
 					}
-				}
+				]
 			},
 
 			"districts": {
 				"minzoom": 12,
-				"data": {
-					"name": "*"
-				}
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				]
 			},
 
 			"cities": {
 				"minzoom": 8,
-				"data": {
-					"name": "*",
-					"capital": "bool"
-				}
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					},
+					{
+						"field": "capital",
+						"type": "bool"
+					}
+				]
 			},
 
 			"countries": {
@@ -199,9 +253,12 @@
 
 			"marine": {
 				"minzoom": 2,
-				"data": {
-					"name": "*"
-				}
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				]
 			}
 		}
 	},

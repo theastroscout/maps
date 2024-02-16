@@ -38,9 +38,10 @@ def getFeature(self, o, type_name):
 			# Collect additional data
 			data = {} 
 			if 'data' in spec:
-				for name in spec['data']:
+				for tag in spec['data']:
 					# name_spec = spec['data'][name]
-					data[name] = o.tags.get(name)
+					field_name = tag['field']
+					data[field_name] = o.tags.get(field_name)
 							
 			
 			return Feature(o.id, group, layer, data, None)

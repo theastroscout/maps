@@ -79,9 +79,9 @@ class Tiles:
 			g_id += 1
 
 		print(self.dict)
-		with open(CONFIG['data'] + '/config.json', "w") as dict_file:
+		with open(CONFIG['data'] + '/config.json', 'w') as dict_file:
 			json.dump(self.dict, dict_file, indent='\t')
-		exit()
+		
 
 	def go(self,):
 
@@ -219,27 +219,61 @@ class Tiles:
 					feature.data = json.loads(feature.data) or {}
 
 					if 'data' in layer:
+
 						for tag in layer['data']:
-							if tag in feature.data:
-								tag_spec = layer['data'][tag]
+
+							'''
+
+								tag: {
+									"field": "name",
+									"type": "*"
+								}
+
+							'''
+
+							tag_name = tag['field']
+							tag_type = tag['type']
+
+							if tag_name in feature.data:
 								
-								v = feature.data[tag]
+								v = feature.data[tag_name]
 								
-								if tag_spec == '*':
+								if tag_type == '*':
 									if not v:
-										feature.data[tag] = ''
-								elif tag_spec == 'bool':
-									feature.data[tag] = '1' if v else '0'
-								elif isinstance(tag_spec, dict):
+										feature.data[tag_name] = ''
+								elif tag_type == 'bool':
+									feature.data[tag_name] = '1' if v else '0'
+								elif isinstance(tag_type, list):
 
 									if 'name' in feature.data:
 										# Remove Everything in brackets
 										feature.data['name'] = re.sub(r'\([^)]*\)', '', feature.data['name']).strip()
 
-									if v in tag_spec:
+									dict_value = '0'
+									for index, t in enumerate(tag_type):
+										
+										'''
+										
+										t: {
+											"name": "London Underground",
+											"icon": "uk-tfl-lu"
+										}
+
+										'''
+
+										if t['name'] == v:
+											dict_value = str(index)
+											break;
+
+									feature.data[tag_name] = dict_value
+
+
+									'''
+									if v in tag_type:
 										feature.data[tag] = str(list(tag_spec.keys()).index(v))
 									else:
 										feature.data[tag] = '0'
+									'''
 
 					data = '\t'.join(list((feature.data).values()))
 					if len(data):
@@ -330,9 +364,6 @@ class Tiles:
 
 def create_tiles(CONFIG):
 	tiles = Tiles(CONFIG)
-
-	shutil.rmtree(CONFIG['data'], ignore_errors=True)
-	os.makedirs(CONFIG['data'], exist_ok=True)
 
 	tiles.go()
 

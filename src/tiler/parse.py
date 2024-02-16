@@ -80,8 +80,7 @@ class Parse:
 			os.remove(self.config['tmp_file'])
 
 
-		print('Bbox',self.config['bbox'])
-		print(json.dumps(self.config['bbox']))
+		print('Bounding Box:', self.config['bbox'])
 		self.db.cursor.execute('INSERT INTO config_data (`name`,`data`) VALUES (?, ?)', ('bbox', json.dumps(self.config['bbox'])) )
 		self.db.conn.commit()
 
