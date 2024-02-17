@@ -29,76 +29,84 @@ $data: 'https://sandbox.maps.surfy.one/data';
 
 			/*
 
-			Water
+			Nature Group
 
 			*/
 
-			> g.water {				
-				pointer-events: none;
-				fill: #e9eaeb;
+			> g.nature {
+
+				/*
+
+				Water
+
+				*/
+
+				> g.water {				
+					pointer-events: none;
+					fill: #e9eaeb;
+				}
+
+				/*
+
+				Green
+
+				*/
+
+				> g.green {
+					pointer-events: none;
+					fill: #ededed;
+
+					--opacity-rule: 14 0, 15.5 1;
+					--opacity: 1;
+					opacity: var(--opacity);
+				}
+
 			}
 
 			/*
 
-			Landuse
+			Service Group
 
 			*/
 
-			> g.landuse {
-				pointer-events: none;
-				fill: #f2f2f2;
+			> g.service {
+				/*
 
-				--opacity-rule: 14 1, 15.5 0;
-				--opacity: 1;
-				opacity: var(--opacity);
+				Bridges
+
+				*/
+
+				> g.bridges {
+					pointer-events: none;
+					fill-rule: evenodd;
+					fill: #ebebeb;
+					stroke: #bfbfbf;
+					stroke-width: 1px;
+					vector-effect: non-scaling-stroke;
+				}
+
+				/*
+
+				Railways
+
+				*/
+
+				> g.railways {
+					pointer-events: none;
+					fill: none;
+					stroke: #bebebe;
+					stroke-width: 2px;
+				}
 			}
+
+
+			
+
+			
 
 			/*
 
-			Green
-
-			*/
-
-			> g.green {
-				pointer-events: none;
-				fill: #ededed;
-
-				--opacity-rule: 14 0, 15.5 1;
-				--opacity: 1;
-				opacity: var(--opacity);
-			}
-
-			/*
-
-			Bridges
-
-			*/
-
-			> g.bridges {
-				pointer-events: none;
-				fill-rule: evenodd;
-				fill: #ebebeb;
-				stroke: #bfbfbf;
-				stroke-width: 1px;
-				vector-effect: non-scaling-stroke;
-			}
-
-			/*
-
-			Railways
-
-			*/
-
-			> g.railways {
-				pointer-events: none;
-				fill: none;
-				stroke: #bebebe;
-				stroke-width: 2px;
-			}
-
-			/*
-
-			Roads
+			Roads Group
 
 			*/
 
@@ -107,6 +115,13 @@ $data: 'https://sandbox.maps.surfy.one/data';
 
 				> g.border {
 					
+					> g.tunnels {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #ffffff;
+						stroke-width: 70px;
+						opacity: .5;
+					}
 
 					> g.streets {
 						fill: none;
@@ -124,14 +139,6 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				}
 
 				> g.fill {
-
-					> g.tunnels {
-						fill: none;
-						stroke-linecap: round;
-						stroke: #ffffff;
-						stroke-width: 70px;
-						opacity: .5;
-					}
 
 					> g.streets {
 						fill: none;
@@ -157,115 +164,143 @@ $data: 'https://sandbox.maps.surfy.one/data';
 			*/
 
 			> g.buildings {
-				pointer-events: auto;
-				--opacity-rule: 14 0, 15.5 1;
-				--opacity: 1;
-				opacity: var(--opacity);
 
-				
-				fill-rule: evenodd;
-				fill: #f7f7f7;
-				stroke: #bfbfbf;
-				stroke-width: 1px;
-				vector-effect: non-scaling-stroke;
-			}
+				> g.aero {
+					pointer-events: auto;
+				}
 
-			/*
+				> g.facilities {
+					pointer-events: auto;
+				}
 
-			Stations
+				> g.houses {
+					pointer-events: auto;
+					--opacity-rule: 14 0, 15.5 1;
+					--opacity: 1;
+					opacity: var(--opacity);
 
-			*/
-
-			> g.stations {
-				user-select: none;
-
-				--font-rule: 13.5 16, 16 4;
-				--font-dim: vw;
-				--font: 19vw;
-				font-size: var(--font);
-
-				fill: #9f9f9f;
-				// text-anchor: middle;
-				dominant-baseline: central;
-
-				--opacity-rule: 13.5 0, 14 1;
-				--opacity: 1;
-				opacity: var(--opacity);
-
-				// Tile
-				> g {
-
-					// Label
-					> svg {
-						> image {
-							x: -12vw;
-							y: -5vw;
-							width: 10vw;
-							height: 10vw;
-						}
-
-						> text {
-							--opacity-rule: 14 0, 15 1;
-							--opacity: 1;
-							opacity: var(--opacity);
-
-						}
-					}
+					
+					fill-rule: evenodd;
+					fill: #f7f7f7;
+					stroke: #bfbfbf;
+					stroke-width: 1px;
+					vector-effect: non-scaling-stroke;
 				}
 			}
 
 			/*
 
-			Labels
+			Labels Groupo
 
 			*/
 
 			> g.labels {
-				user-select: none;
-				
-				--font-rule: 12 60, 16 12;
-				--font-dim: vw;
-				--font: 19vw;
-				font-size: var(--font);
 
-				--opacity-rule: 11 0, 13 1, 15 1, 17 0;
-				--opacity: 1;
-				opacity: var(--opacity);
-				
-				fill: #9f9f9f;
-				text-anchor: middle;
-				dominant-baseline: central;
+				/*
 
-				stroke: #ffffff;
-				stroke-width: 3vw;
-				stroke-linecap: butt;
-				stroke-linejoin: miter;
-				paint-order: stroke;
+				Stations
 
-				> g {
-					> text {
-						text-rendering: optimizeSpeed;
+				*/
+
+				> g.stations {
+					user-select: none;
+
+					--font-rule: 13.5 16, 16 4;
+					--font-dim: vw;
+					--font: 19vw;
+					font-size: var(--font);
+
+					fill: #9f9f9f;
+					// text-anchor: middle;
+					dominant-baseline: central;
+
+					--opacity-rule: 13.5 0, 14 1;
+					--opacity: 1;
+					opacity: var(--opacity);
+
+					// Tile
+					> g {
+
+						// Label
+						> svg {
+							> image {
+								x: -12vw;
+								y: -5vw;
+								width: 10vw;
+								height: 10vw;
+							}
+
+							> text {
+								--opacity-rule: 14 0, 15 1;
+								--opacity: 1;
+								opacity: var(--opacity);
+
+							}
+						}
 					}
 				}
-			}
 
-			/*
+				/*
 
-			Texts
+				Districts
 
-			*/
+				*/
 
-			> g.texts {
-				pointer-events: none;
-				user-select: none;
+				> g.districts {
+					user-select: none;
+				
+					--font-rule: 12 60, 16 12;
+					--font-dim: vw;
+					--font: 19vw;
+					font-size: var(--font);
 
-				font-size: 42px;
-				text-align: center;
-				dominant-baseline: central;
+					--opacity-rule: 11 0, 13 1, 15 1, 17 0;
+					--opacity: 1;
+					opacity: var(--opacity);
+					
+					fill: #9f9f9f;
+					text-anchor: middle;
+					dominant-baseline: central;
 
-				> text {
+					stroke: #ffffff;
+					stroke-width: 3vw;
+					stroke-linecap: butt;
+					stroke-linejoin: miter;
+					paint-order: stroke;
+
 					text-rendering: optimizeSpeed;
 				}
+
+				/*
+
+				Cities
+
+				*/
+
+				> g.cities {
+					pointer-events: none;
+				}
+
+				/*
+
+				Countries
+
+				*/
+				
+				> g.countries {
+					pointer-events: none;
+				}
+
+				/*
+
+				Marine
+
+				*/
+				
+				> g.marine {
+					pointer-events: none;
+				}
+
 			}
 
 			/*

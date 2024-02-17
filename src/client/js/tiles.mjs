@@ -154,15 +154,15 @@ class Tiles {
 			container.setAttribute('zoom', zoomID);
 			this.container.appendChild(container);
 
-			let groups = {};
+			/*let groups = {};
 			let groupsSrc = Object.keys(this.map.style.groups);
 			for(let group of groupsSrc){
 				groups[group] = {};
-			}
+			}*/
 			
 			this.storage.tiles[zoomID] = {
 				container: container,
-				groups: groups, // Store Groups
+				groups: {}, // Store Groups
 				items: {}, // Store Tiles inside Groups
 				visible: {}, // To store currently visible tiles
 			};
@@ -173,11 +173,13 @@ class Tiles {
 
 			*/
 
-			if(this.storage.tiles[zoomID].groups.bounds){
+			if(this.map.style.groups.bounds){
 				const boundaries = document.createElementNS(this.map.svgNS, 'g');
 				boundaries.classList.add('bounds');
 				container.appendChild(boundaries);
-				this.storage.tiles[zoomID].groups.bounds.container = boundaries;
+				this.storage.tiles[zoomID].groups.bounds = {
+					container: boundaries
+				}
 			}
 
 			this.storage.features[zoomID] = {};
@@ -332,15 +334,148 @@ class Tiles {
 
 
 			const fID = chunks.shift();
+			
+			if(this.storage.features[zoomID][fID]){
+				continue;
+			}
+			
 			const geomID = parseInt(chunks.shift(), 10);
 			const geomType = geometryTypes[geomID];
+			
 			const groupID = parseInt(chunks.shift(), 10);
 			const group = this.map.style.config[groupID];
-			const groupName = group.name;
 
 			const layerID = parseInt(chunks.shift(), 10);
 			const layer = group.layers[layerID];
-			console.log(groupName, layer.name, geomType)
+
+			let feature = {
+				id: fID,
+				type: geomType,
+				group: group.name,
+				layer: layer.name,
+				coords: coords
+			};
+
+			
+			/*
+
+			Create Group if none exists
+
+			*/
+
+			console.log(feature.group)
+
+			if(!zoomObj.groups[feature.group]){
+				
+				// Create Container
+				const groupContainer = document.createElementNS(this.map.svgNS, 'g');
+				container.classList.add(feature.group);
+				
+				let before = null;
+				for(let groupName of Object.keys(zoomObj.groups).reverse()){
+					
+					if(groupName === feature.group){
+						break;
+					}
+
+					if(zoomObj.groups[groupName].container){
+						before = zoomObj.groups[groupName].container;
+					}
+				}
+
+				zoomObj.container.insertBefore(container, before);
+
+				/*
+
+				Create Group Object
+
+				*/
+
+				zoomObj.groups[feature.group] = {
+					container: container,
+					tiles: {},
+					layers: {}
+				};
+
+				if(feature.group === 'roads'){
+					// Definitions
+					const defs = document.createElementNS(this.map.svgNS, 'defs');
+					zoomObj.groups[feature.group].container.appendChild(defs);
+					zoomObj.groups[feature.group].defs = defs;
+					
+					// Create Borders Container
+					const border = document.createElementNS(this.map.svgNS, 'g');
+					border.classList.add('border');
+					zoomObj.groups[feature.group].container.appendChild(border);
+					zoomObj.groups[feature.group].border = border;
+
+					// Create Fill Container
+					const fill = document.createElementNS(this.map.svgNS, 'g');
+					fill.classList.add('fill');
+					zoomObj.groups[feature.group].container.appendChild(fill);
+					zoomObj.groups[feature.group].fill = fill;
+					
+				}
+			}
+
+			/*
+
+			Create Layers
+
+			*/
+
+			if(!zoomObj.groups[feature.group].layers[feature.layer]){
+
+				if(feature.group === 'roads'){
+
+					// Create Definitions
+					const defs = document.createElementNS(this.map.svgNS, 'g');
+					defs.classList.add(feature.layer);
+					zoomObj.groups[feature.group].defs.appendChild(defs);
+
+					// Create Borders Container
+					let border;
+					if(feature.layer !== 'tunnels'){
+						border = document.createElementNS(this.map.svgNS, 'g');
+						border.classList.add(feature.layer);
+						zoomObj.groups[feature.group].border.appendChild(border);
+					}
+
+					// Create Fill Container
+					const fill = document.createElementNS(this.map.svgNS, 'g');
+					fill.classList.add(feature.layer);
+					zoomObj.groups[feature.group].fill.appendChild(fill);
+
+					let layerObj = {
+						defs: defs,
+						fill: fill,
+						tiles: {}
+					};
+
+					if(border){
+						layerObj.border = border;
+					}
+
+					zoomObj.groups[feature.group].layers[feature.layer] = layerObj
+				} else {
+
+					/*
+
+					Create Layer
+
+					*/
+
+					const container = document.createElementNS(this.map.svgNS, 'g');
+					
+					container.classList.add(feature.layer);
+					
+					zoomObj.groups[feature.group].container.appendChild(container);
+					
+					zoomObj.groups[feature.group].layers[feature.layer] = {
+						container: container
+					};
+				}
+			}
 		}
 
 		this.map.draw.render(processed);

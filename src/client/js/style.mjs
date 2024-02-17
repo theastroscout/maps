@@ -55,34 +55,61 @@ class Style {
 		*/
 
 		let groups = {};
-		let position = 0;
 		for(let rule of rules){
 			let path = rule.selectorText.split('>').map(v => v.trim());
+			
 			const prefix = path.slice(0, 4).join('/')
-			if(path[4] && prefix === '.SurfyMaps/svg.container/g.tiles/g.zoom'){
-				
+			
+			if(!path[4] || !prefix === '.SurfyMaps/svg.container/g.tiles/g.zoom'){
+				continue;
+			}
+			
+			
+			
+			
+			/*
+
+			Group
+
+			*/
+
+			const group = path[4].replace('g.', '');
+			
+			// Create Group if not exists
+			if(!groups[group]){
+
+				groups[group] = {
+					position: Object.keys(groups).length,
+					name: group,
+					layers: {}
+				};
+			}
+
+
+			const layerChunk = group === 'roads' ? path[6] : path[5]
+ 			if(layerChunk){
+
 				/*
 
-				Group
+				Layer
 
 				*/
 
-				let group = path[4].replace('g.', '');
-				
-				// Create Group if not exists
-				if(!groups[group]){
+				const layer = layerChunk.replace('g.', '');
 
-					groups[group] = {
-						position: position,
-						name: group,
-						layers: []
+				if(!groups[group].layers[layer]){
+					groups[group].layers[layer] = {
+						position: Object.keys(groups[group].layers).length,
+						name: layer
 					};
-
-					position++;
 				}
-				
-				
 			}
+
+			/*
+
+			Collect Rules
+
+			*/
 
 			for(let r of rule.style){
 				const match = r.match(/--(.+)-rule/);
@@ -108,7 +135,16 @@ class Style {
 
 		self.groups = groups;
 
-		self.loadConfig();
+		const sortedGroups = Object.values(groups)
+			.sort((a, b) => a.position - b.position)
+			.map(el => {
+				el.layers = Object.values(el.layers).sort((a, b) => a.position - b.position);
+				return el;
+			});
+
+		console.log(sortedGroups)
+
+		// self.loadConfig();
 	}
 
 	/*
