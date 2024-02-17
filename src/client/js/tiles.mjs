@@ -336,6 +336,7 @@ class Tiles {
 			const fID = chunks.shift();
 			
 			if(this.storage.features[zoomID][fID]){
+				// Skip feature if it exists
 				continue;
 			}
 			
@@ -363,15 +364,27 @@ class Tiles {
 
 			*/
 
-			console.log(feature.group)
+			// console.log(feature.group)
 
 			if(!zoomObj.groups[feature.group]){
 				
 				// Create Container
 				const groupContainer = document.createElementNS(this.map.svgNS, 'g');
-				container.classList.add(feature.group);
+				groupContainer.classList.add(feature.group);
 				
 				let before = null;
+				
+				for(let groupName of Object.keys(this.map.style.groups).reverse()){
+					if(groupName === feature.group){
+						break;
+					}
+
+					if(zoomObj.groups[groupName]){
+						before = zoomObj.groups[groupName].container;
+					}
+				}
+
+				/*
 				for(let groupName of Object.keys(zoomObj.groups).reverse()){
 					
 					if(groupName === feature.group){
@@ -381,9 +394,9 @@ class Tiles {
 					if(zoomObj.groups[groupName].container){
 						before = zoomObj.groups[groupName].container;
 					}
-				}
+				}*/
 
-				zoomObj.container.insertBefore(container, before);
+				zoomObj.container.insertBefore(groupContainer, before);
 
 				/*
 
@@ -392,7 +405,7 @@ class Tiles {
 				*/
 
 				zoomObj.groups[feature.group] = {
-					container: container,
+					container: groupContainer,
 					tiles: {},
 					layers: {}
 				};
@@ -465,17 +478,101 @@ class Tiles {
 
 					*/
 
-					const container = document.createElementNS(this.map.svgNS, 'g');
+					const layerContainer = document.createElementNS(this.map.svgNS, 'g');
 					
-					container.classList.add(feature.layer);
+					layerContainer.classList.add(feature.layer);
+
+					let before = null;
+				
+					for(let layerName of Object.keys(this.map.style.groups[feature.group].layers).reverse()){
+						if(layerName === feature.layer){
+							break;
+						}
+
+						if(zoomObj.groups[feature.group].layers[layerName]){
+							before = zoomObj.groups[feature.group].layers[layerName].container;
+						}
+					}
+
+					zoomObj.groups[feature.group].container.insertBefore(layerContainer, before);
 					
-					zoomObj.groups[feature.group].container.appendChild(container);
+					// zoomObj.groups[feature.group].container.appendChild(container);
 					
 					zoomObj.groups[feature.group].layers[feature.layer] = {
-						container: container
+						container: layerContainer,
+						tiles: {}
 					};
 				}
 			}
+
+			/*
+
+			Create Tile if none exists
+
+			*/
+
+			if(!zoomObj.groups[feature.group].layers[feature.layer].tiles[url]){
+
+				if(feature.group === 'roads'){
+
+					const defsTile = document.createElementNS(this.map.svgNS, 'g');
+					defsTile.setAttribute('tile', url);
+					zoomObj.groups[feature.group].layers[feature.layer].defs.appendChild(defsTile);
+
+					let borderTile;
+					if(zoomObj.groups[feature.group].layers[feature.layer].border){
+						borderTile = document.createElementNS(this.map.svgNS, 'g');
+						borderTile.setAttribute('tile', url);
+						zoomObj.groups[feature.group].layers[feature.layer].border.appendChild(borderTile);
+					}
+
+					const fillTile = document.createElementNS(this.map.svgNS, 'g');
+					fillTile.setAttribute('tile', url);
+					zoomObj.groups[feature.group].layers[feature.layer].fill.appendChild(fillTile);
+
+					let tilesObj = {
+						defs: defsTile,
+						fill: fillTile
+					};
+
+					if(borderTile){
+						tilesObj.border = borderTile;
+					}
+
+					zoomObj.groups[feature.group].layers[feature.layer].tiles[url] = tilesObj;
+
+					tile.containers.push(defsTile);
+					if(borderTile){
+						tile.containers.push(borderTile);
+					}
+					tile.containers.push(fillTile);
+
+					// Attach Tile Container to the Feature
+					
+
+				} else {
+
+					const tileContainer = document.createElementNS(this.map.svgNS, 'g');
+					tileContainer.setAttribute('tile', url);
+					zoomObj.groups[feature.group].layers[feature.layer].container.appendChild(tileContainer);
+
+					zoomObj.groups[feature.group].layers[feature.layer].tiles[url] = tileContainer;
+
+					tile.containers.push(tileContainer);
+				}
+			}
+
+			// Attach Tile Container to the Feature
+			feature.container = zoomObj.groups[feature.group].layers[feature.layer].tiles[url];
+
+			/*
+
+			Add feature to the render queue
+
+			*/
+
+			processed[feature.id] = feature;
+
 		}
 
 		this.map.draw.render(processed);

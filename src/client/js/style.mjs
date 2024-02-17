@@ -135,6 +135,7 @@ class Style {
 
 		self.groups = groups;
 
+		/*
 		const sortedGroups = Object.values(groups)
 			.sort((a, b) => a.position - b.position)
 			.map(el => {
@@ -143,8 +144,10 @@ class Style {
 			});
 
 		console.log(sortedGroups)
+		*/
 
-		// self.loadConfig();
+
+		self.loadConfig();
 	}
 
 	/*

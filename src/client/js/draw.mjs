@@ -54,11 +54,85 @@ class Draw {
 
 	/*
 
+	Multi Polygon
+
+	*/
+
+	polygon = feature => {
+
+		let elmts = [];
+		let minX = Infinity;
+		let minY = Infinity;
+		let maxX = -Infinity;
+		let maxY = -Infinity;
+
+		let coords = feature.type === 'Polygon' ? [feature.coords] : feature.coords;
+
+
+		
+		// for(let polygons of coords){
+			let points = [];
+
+			for(let poly of coords){
+
+				// console.log(feature, poly)
+				
+				points.push('M');
+				for(let i = 0, l=poly.length; i < l; ++i) {
+					const p = this.map.utils.xy([poly[i][0]/1000000,poly[i][1]/1000000]);
+					
+					// this.circle([poly[i][0]/1000000,poly[i][1]/1000000], 'black', 2, feature.container);
+
+					if(i == 1){
+						points.push('L')
+					}
+					points.push(p.join(','));
+
+					/*
+
+					Bounds
+
+					*/
+
+					minX = Math.min(minX, p[0]);
+					minY = Math.min(minY, p[1]);
+					maxX = Math.max(maxX, p[0]);
+					maxY = Math.max(maxY, p[1]);
+				}
+
+				points.push('z');
+				
+			}
+
+			const path = document.createElementNS(this.map.svgNS, 'path');
+			path.setAttribute('feature', feature.id)
+
+			path.setAttribute('d', points.join(' '));
+			feature.container.appendChild(path);
+			elmts.push(path);
+		// }
+
+		feature.elmts = elmts;
+		feature.bounds = [minX, minY, maxX, maxY];
+	}
+
+	/*
+
 	Render
 
 	*/
 
-	render = () => {
+	render = items => {
+		console.log('Render', Object.keys(items).length);
+		for(let fID in items){
+			let feature = items[fID];
+
+			switch(feature.type){
+				case 'Polygon': case 'MultiPolygon':
+					this.polygon(feature);
+					break;
+			}
+		}
 		
 	}
 

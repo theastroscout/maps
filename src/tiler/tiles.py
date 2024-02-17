@@ -4,7 +4,7 @@ import sqlite3
 import json
 import re
 from shapely import set_precision, to_geojson
-from shapely.geometry import box
+from shapely.geometry import box, mapping
 from shapely.wkt import loads as shape_load
 import mercantile
 import geopandas as gpd
@@ -20,7 +20,7 @@ geometries = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
 def fix_coords(items):
 	result = []
 	for item in items:
-		if isinstance(item, list):
+		if isinstance(item, tuple):
 			result.append(fix_coords(item))
 		else:
 			result.append(round(item * 1_000_000))
@@ -32,8 +32,8 @@ class Tiles:
 		self.config = config
 
 		# Clear Tiles Directory
-		shutil.rmtree(CONFIG['data'], ignore_errors=True)
-		os.makedirs(CONFIG['data'], exist_ok=True)
+		shutil.rmtree(self.config['data'], ignore_errors=True)
+		os.makedirs(self.config['data'], exist_ok=True)
 
 		# Create DB
 		conn = sqlite3.connect(self.config['db_file'])
@@ -79,7 +79,7 @@ class Tiles:
 			g_id += 1
 
 		print(self.dict)
-		with open(CONFIG['data'] + '/config.json', 'w') as dict_file:
+		with open(self.config['data'] + '/config.json', 'w') as dict_file:
 			json.dump(self.dict, dict_file, indent='\t')
 		
 
@@ -129,7 +129,8 @@ class Tiles:
 				
 				# AsText(`coords`) as 
 				query = f'''SELECT id, oid, `group`, layer, data,
-				Hex(ST_AsBinary(coords)) as coords
+				Hex(ST_AsBinary(coords)) as coords,
+				AsText(coords) as coords_2
 				FROM features WHERE layer IN ({layers_param})
 				and Intersects(coords, ST_GeomFromText(?))'''
 				# print(query)
@@ -187,7 +188,14 @@ class Tiles:
 
 						# Set Precision for coords, not necessary because we use fix_coords
 						# gdf['geometry'] = set_precision(gdf.geometry.array, grid_size=0.000001)
+						s = feature.coords.geom_type
+						if feature.coords.geom_type == 'Polygon':
+							print('1',feature.coords)
 						feature.coords = gdf.geometry[0]
+						if feature.coords.geom_type == 'Polygon':
+							print('2',s, feature.coords)
+							print(feature.coords_2)
+
 						# print(gdf.geometry[0].geom_type)
 
 					# coords = []
@@ -195,17 +203,43 @@ class Tiles:
 					# geometry_type, coords, offsets = to_ragged_array([feature.coords])
 					
 					# print(json.loads(to_geojson(feature.coords))['type'])
+					# geom_type = feature.coords.geom_type
+
+
+
+					# print(mapping(feature.coords))
+					coords = mapping(feature.coords)
+					geom_type = coords['type']
+					coords = fix_coords(coords['coordinates'])
+
+					if geom_type == 'Polygon':
+						print('3',coords)
+						exit()
+
+					'''
+					print(coords)
+					exit()
+
 					coords = json.loads(to_geojson(feature.coords))['coordinates']
 					coords = fix_coords(coords)
-					if feature.coords.geom_type == 'Polygon' and len(coords) == 1:
-						coords = coords[0]
+					if geom_type == 'Polygon':
+						if len(coords) == 1:
+							coords = coords[0]
+						else:
+							geom_type = 'MultiPolygon'
+							for index in range(len(coords)):
+								if len(coords[index]) == 1:
+									coords[index] = coords[index][0]
+					'''
+
+					
 					# print(feature.group, feature.layer, len(coords), coords)
 
 					# Feature object to store
 					
 					item = [
 						str(feature.oid),
-						str(geometries.index(feature.coords.geom_type)),
+						str(geometries.index(geom_type)),
 						str(self.groups[feature.group]['id']),
 						str(self.groups[feature.group]['layers'][feature.layer])
 					]
@@ -274,6 +308,7 @@ class Tiles:
 									else:
 										feature.data[tag] = '0'
 									'''
+
 
 					data = '\t'.join(list((feature.data).values()))
 					if len(data):

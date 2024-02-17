@@ -73,6 +73,9 @@ class OSM_handler(osmium.SimpleHandler):
 		wkbshape = wkbfab.create_multipolygon(o)
 		feature.coords = wkblib.loads(wkbshape, hex=True)
 
+		print(feature.coords)
+		exit()
+
 		# Add Feature to DB
 		self.addFeature(feature)
 
@@ -97,6 +100,11 @@ class OSM_handler(osmium.SimpleHandler):
 		# Get Geometry
 		wkbshape = wkbfab.create_linestring(o)
 		feature.coords = wkblib.loads(wkbshape, hex=True)
+
+		if feature.group == 'roads':
+			tunnel = o.tags.get('tunnel')
+			if tunnel == 'yes':
+				feature.layer = 'tunnels'
 
 		# Add Feature to DB
 		self.addFeature(feature)

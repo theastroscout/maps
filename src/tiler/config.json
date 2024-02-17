@@ -95,6 +95,22 @@
 
 		"roads": {
 
+			"tunnels": {
+				"minzoom": 14,
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
+				"compress": {
+					"14": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
+					}
+				}
+			},
+
 			"highways": {
 				"minzoom": 8,
 				"data": [
