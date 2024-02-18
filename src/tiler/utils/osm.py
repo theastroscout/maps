@@ -7,7 +7,7 @@
 import osmium
 wkbfab = osmium.geom.WKBFactory()
 import shapely.wkb as wkblib
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon, MultiPolygon, mapping
 
 from utils.features import getFeature, addFeature
 
@@ -73,8 +73,19 @@ class OSM_handler(osmium.SimpleHandler):
 		wkbshape = wkbfab.create_multipolygon(o)
 		feature.coords = wkblib.loads(wkbshape, hex=True)
 
-		print(feature.coords)
-		exit()
+		# print(feature.coords)
+		# print(dir(feature.coords))
+		# print(feature.coords.geom_type)
+		# print(feature.coords.geoms)
+		# if len(feature.coords.geoms) > 1:
+		#	print(feature.coords)
+		#	exit()
+		
+		# exit()
+
+		# for coords in feature.coords:
+		#	print(coords)
+		# exit()
 
 		# Add Feature to DB
 		self.addFeature(feature)

@@ -54,7 +54,30 @@ class Draw {
 
 	/*
 
-	Multi Polygon
+	Point: Text
+
+	*/
+
+	point = feature => {
+		const p = this.map.utils.xy([feature.coords[0]/1000000,feature.coords[1]/1000000]);
+		const text = document.createElementNS(this.map.svgNS,'text');
+		text.textContent = feature.name;
+
+		if(feature.layer === 'stations'){
+
+		} else {
+			console.log(feature)
+			text.setAttribute('x', p[0]);
+			text.setAttribute('y', p[1]);
+			
+			feature.container.appendChild(text);
+			feature.elmts = text;
+		}
+	}
+
+	/*
+
+	Polygon
 
 	*/
 
@@ -128,6 +151,11 @@ class Draw {
 			let feature = items[fID];
 
 			switch(feature.type){
+
+				case 'Point':
+					this.point(feature);
+					break;
+
 				case 'Polygon': case 'MultiPolygon':
 					this.polygon(feature);
 					break;

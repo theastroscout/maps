@@ -369,6 +369,7 @@ class Maps {
 					this.container.classList.remove('move');
 					this.getZoomID();
 					this.update();
+
 				}, 150);
 
 				break;

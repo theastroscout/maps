@@ -349,12 +349,28 @@ class Tiles {
 			const layerID = parseInt(chunks.shift(), 10);
 			const layer = group.layers[layerID];
 
+			/*
+
+			Parse Data
+
+			*/
+
+			let data = {};
+			
+
+			/*
+
+			Create Feature Object
+
+			*/
+
 			let feature = {
 				id: fID,
 				type: geomType,
 				group: group.name,
 				layer: layer.name,
-				coords: coords
+				coords: coords,
+				data: data
 			};
 
 			

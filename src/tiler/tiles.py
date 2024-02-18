@@ -15,6 +15,24 @@ DB = namedtuple('DB', ['conn', 'cursor'])
 # Geometry Types for Index
 geometries = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
 
+def convert_to_3d(arr):
+	if isinstance(arr[0][0], int):
+		return arr
+
+	def flat(arr):
+		result = []
+		for row in arr:
+			if isinstance(row[0][0], int):
+				result.append(row)
+			else:
+				result.extend(flat(row))
+		return result
+
+	result = flat(arr)
+
+	if len(result) == 1:
+		result = result[0]
+	return result
 
 
 def fix_coords(items):
@@ -188,13 +206,9 @@ class Tiles:
 
 						# Set Precision for coords, not necessary because we use fix_coords
 						# gdf['geometry'] = set_precision(gdf.geometry.array, grid_size=0.000001)
-						s = feature.coords.geom_type
-						if feature.coords.geom_type == 'Polygon':
-							print('1',feature.coords)
+						
 						feature.coords = gdf.geometry[0]
-						if feature.coords.geom_type == 'Polygon':
-							print('2',s, feature.coords)
-							print(feature.coords_2)
+						
 
 						# print(gdf.geometry[0].geom_type)
 
@@ -212,9 +226,12 @@ class Tiles:
 					geom_type = coords['type']
 					coords = fix_coords(coords['coordinates'])
 
-					if geom_type == 'Polygon':
-						print('3',coords)
-						exit()
+					if geom_type in ['Polygon','MultiPolygon']:
+						coords = convert_to_3d(coords)
+						if isinstance(coords[0][0], int):
+							geom_type = 'Polygon'
+						else:
+							geom_type = 'MultiPolygon'
 
 					'''
 					print(coords)

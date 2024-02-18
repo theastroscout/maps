@@ -251,7 +251,7 @@ class Utils {
 	zoomFromScale = scale => {
 		const baseScale = 0.2;
 		const zoom = Math.log2(scale / baseScale) + 16;
-		return Number(zoom.toFixed(1));
+		return Number(zoom.toFixed(2));
 	}
 
 	/*

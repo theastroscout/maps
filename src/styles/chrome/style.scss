@@ -164,6 +164,9 @@ $data: 'https://sandbox.maps.surfy.one/data';
 			*/
 
 			> g.buildings {
+				--opacity-rule: 14 0, 16 1;
+				--opacity: 1;
+				opacity: var(--opacity);
 
 				> g.aero {
 					pointer-events: auto;
@@ -175,9 +178,7 @@ $data: 'https://sandbox.maps.surfy.one/data';
 
 				> g.houses {
 					pointer-events: auto;
-					--opacity-rule: 14 0, 15.5 1;
-					--opacity: 1;
-					opacity: var(--opacity);
+					
 
 					
 					fill-rule: evenodd;
