@@ -61,12 +61,22 @@ class Draw {
 	point = feature => {
 		const p = this.map.utils.xy([feature.coords[0]/1000000,feature.coords[1]/1000000]);
 		const text = document.createElementNS(this.map.svgNS,'text');
-		text.textContent = feature.name;
+		text.textContent = feature.data.name;
 
 		if(feature.layer === 'stations'){
+			const svg = document.createElementNS(this.map.svgNS, 'svg');
+			svg.setAttribute('x', p[0]);
+			svg.setAttribute('y', p[1]);
+			svg.style.overflow = 'visible';
 
+			svg.appendChild(text);
+
+			const icon = document.createElementNS(this.map.svgNS, 'image');
+			icon.setAttribute('href', this.map.style.sprites+'#'+feature.data.network.icon);
+			svg.appendChild(icon);
+
+			feature.container.appendChild(svg);
 		} else {
-			console.log(feature)
 			text.setAttribute('x', p[0]);
 			text.setAttribute('y', p[1]);
 			
@@ -146,7 +156,7 @@ class Draw {
 	*/
 
 	render = items => {
-		console.log('Render', Object.keys(items).length);
+		// console.log('Render', Object.keys(items).length);
 		for(let fID in items){
 			let feature = items[fID];
 

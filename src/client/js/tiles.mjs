@@ -356,6 +356,16 @@ class Tiles {
 			*/
 
 			let data = {};
+			if(chunks.length){
+				const layerConfig = this.map.style.config[groupID].layers[layerID];
+				for(let [idx, r] of Object.entries(layerConfig.data)){
+					let v = chunks[idx];
+					if(typeof r.type === 'object'){
+						v = r.type[v];
+					}
+					data[r.field] = v;
+				}
+			}
 			
 
 			/*

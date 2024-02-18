@@ -287,6 +287,8 @@ class Maps {
 				// Debug Update
 				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
 
+				this.style.render()
+
 				clearTimeout(this.container.tmo);
 				this.container.tmo = setTimeout(() => {
 					this.container.classList.remove('move');
