@@ -8,7 +8,7 @@ $data: 'https://sandbox.maps.surfy.one/data';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$data}/tiles/canary;
+	--tiles: #{$data}/tiles/london;
 	--sprites: '/styles/chrome/sprites.svg';
 
 	--dict: '';
@@ -172,18 +172,18 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				--opacity: 1;
 				opacity: var(--opacity);
 
+				pointer-events: none;
+
 				> g.aero {
-					pointer-events: auto;
+					pointer-events: none;
 				}
 
 				> g.facilities {
-					pointer-events: auto;
+					fill-rule: evenodd;
+					fill: #dddddd;
 				}
 
 				> g.houses {
-					pointer-events: auto;
-					
-
 					
 					fill-rule: evenodd;
 					fill: #f7f7f7;

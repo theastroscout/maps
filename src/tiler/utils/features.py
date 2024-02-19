@@ -41,7 +41,6 @@ def getFeature(self, o, type_name):
 			if skip:
 				continue
 
-
 			group, layer = match['containers'][0].split(':')
 			spec = self.config['groups'][group][layer]
 

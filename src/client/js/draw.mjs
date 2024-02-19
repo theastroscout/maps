@@ -246,7 +246,7 @@ class Draw {
 			switch(feature.type){
 
 				case 'Point':
-					this.point(feature);
+					// this.point(feature);
 					break;
 
 				case 'Polygon': case 'MultiPolygon':

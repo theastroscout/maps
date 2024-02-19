@@ -1,0 +1,8 @@
+{
+	"db_file": "/storage/maps/tiles/london/london.db",
+	"pbf_input": "/storage/maps/tiles/london/src.pbf",
+	"tmp_file": "/storage/maps/tmp/tmp.nodecache",
+	"data": "/storage/maps/tiles/london/data",
+	"minzoom": 2,
+	"maxzoom": 14
+}
