@@ -196,7 +196,6 @@ class Style {
 	*/
 
 	render = () => {
-		console.log('Render Style')
 		for(let rule of this.rules){
 			const v = this.map.utils.getValue(rule.rule);
 			rule.obj.style.setProperty(rule.name, v + rule.dim);

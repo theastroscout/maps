@@ -151,6 +151,89 @@ class Draw {
 
 	/*
 
+	Line
+
+	*/
+
+	line = feature => {
+		let elmts = [];
+		let minX = Infinity;
+		let minY = Infinity;
+		let maxX = -Infinity;
+		let maxY = -Infinity;
+
+		let points = ['M'];
+
+		for(let i = 0, l=feature.coords.length; i < l; ++i) {
+			const coords = feature.coords[i];
+			const p = this.map.utils.xy([coords[0]/1000000,coords[1]/1000000]);
+			
+			if(i === 1){
+				points.push('L');
+			}
+
+			points.push(p.join(','));
+
+			/*
+
+			Bounds
+
+			*/
+
+			minX = Math.min(minX, p[0]);
+			minY = Math.min(minY, p[1]);
+			maxX = Math.max(maxX, p[0]);
+			maxY = Math.max(maxY, p[1]);
+
+		}
+
+		const path = document.createElementNS(this.map.svgNS, 'path');
+		path.setAttribute('d', points.join(' '));
+
+		if(feature.group === 'roads'){
+
+			/*
+
+			Roads
+
+			*/
+
+			const pathID = 'r'+feature.id;
+			path.setAttribute('id', pathID);
+
+			feature.container.defs.appendChild(path);
+			elmts.push(path);
+
+			if(feature.container.border){
+				const border = document.createElementNS(this.map.svgNS, 'use');
+				border.setAttribute('href', '#'+pathID);
+				feature.container.border.appendChild(border);
+				elmts.push(border);
+			}
+
+			const fill = document.createElementNS(this.map.svgNS, 'use');
+			fill.setAttribute('href', '#'+pathID);
+			feature.container.fill.appendChild(fill);			
+			elmts.push(fill);
+
+		} else {
+
+			/*
+
+			Railways and Paths
+
+			*/
+
+			feature.container.appendChild(path);
+			elmts.push(path);
+		}
+
+		feature.elmts = elmts;
+		feature.bounds = [minX, minY, maxX, maxY];
+	}
+
+	/*
+
 	Render
 
 	*/
@@ -168,6 +251,10 @@ class Draw {
 
 				case 'Polygon': case 'MultiPolygon':
 					this.polygon(feature);
+					break;
+
+				case 'LineString':
+					this.line(feature);
 					break;
 			}
 		}

@@ -83,6 +83,10 @@ $data: 'https://sandbox.maps.surfy.one/data';
 					stroke: #bfbfbf;
 					stroke-width: 1px;
 					vector-effect: non-scaling-stroke;
+
+					--opacity-rule: 14 0, 15 1;
+					--opacity: 1;
+					opacity: var(--opacity);
 				}
 
 				/*
@@ -114,14 +118,6 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				// pointer-events: none;
 
 				> g.border {
-					
-					> g.tunnels {
-						fill: none;
-						stroke-linecap: round;
-						stroke: #ffffff;
-						stroke-width: 70px;
-						opacity: .5;
-					}
 
 					> g.streets {
 						fill: none;
@@ -139,6 +135,14 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				}
 
 				> g.fill {
+
+					> g.tunnels {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #ffffff;
+						stroke-width: 70px;
+						opacity: .5;
+					}
 
 					> g.streets {
 						fill: none;
@@ -206,7 +210,7 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				> g.stations {
 					user-select: none;
 
-					--font-rule: 13.5 16, 16 4;
+					--font-rule: 13.5 16, 16 6;
 					--font-dim: vw;
 					--font: 19vw;
 					font-size: var(--font);
@@ -235,6 +239,12 @@ $data: 'https://sandbox.maps.surfy.one/data';
 								--opacity-rule: 14.5 0, 16 1;
 								--opacity: 1;
 								opacity: var(--opacity);
+
+								stroke: #ffffff;
+								stroke-width: 1vw;
+								stroke-linecap: butt;
+								stroke-linejoin: miter;
+								paint-order: stroke;
 
 							}
 						}
