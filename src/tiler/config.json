@@ -354,7 +354,7 @@
 		"area": {
 			"water": [
 				{
-					"values": [ "canal" ],
+					"values": [ "canal", "basin", "wastewater", "reservoir" ],
 					"containers": ["nature:service"]
 				}
 			],

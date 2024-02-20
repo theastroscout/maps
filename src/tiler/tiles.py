@@ -121,7 +121,7 @@ class Tiles:
 			layers = []
 			for group_name, group in self.config['groups'].items():
 				for layer_name, layer in group.items():
-					if layer['minzoom'] <= zoom and layer_name in ['water']:
+					if layer['minzoom'] <= zoom and group_name in ['nature']:
 						layers.append(layer_name)
 
 			if not len(layers):
