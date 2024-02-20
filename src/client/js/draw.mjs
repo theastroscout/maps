@@ -8,6 +8,7 @@ class Draw {
 
 	constructor(map){
 		this.map = map;
+		this.total = 0;
 	}
 
 	/*
@@ -239,7 +240,10 @@ class Draw {
 	*/
 
 	render = items => {
-		// console.log('Render', Object.keys(items).length);
+		const amount = Object.keys(items).length;
+		this.total += amount;
+		console.log('Render', this.total, amount);
+
 		for(let fID in items){
 			let feature = items[fID];
 

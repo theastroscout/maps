@@ -346,6 +346,10 @@ class Tiles {
 			const groupID = parseInt(chunks.shift(), 10);
 			const group = this.map.style.config[groupID];
 
+			if(group.name === 'roads'){
+				continue;
+			}
+
 			const layerID = parseInt(chunks.shift(), 10);
 			const layer = group.layers[layerID];
 

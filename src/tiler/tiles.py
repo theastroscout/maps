@@ -109,6 +109,7 @@ class Tiles:
 		print('BBOX',bbox)
 
 		for zoom in (2, 4, 6, 8, 10, 12, 14):
+		# for zoom in (2, 4, 6, 8, 10):
 
 			'''
 
@@ -119,13 +120,13 @@ class Tiles:
 			layers = []
 			for group_name, group in self.config['groups'].items():
 				for layer_name, layer in group.items():
-					if layer['minzoom'] <= zoom:
+					if layer['minzoom'] <= zoom and layer_name in ['water']:
 						layers.append(layer_name)
 
 			if not len(layers):
 				continue
 
-			layers_param = ", ".join('?' for _ in layers)
+			layers_param = ', '.join('?' for _ in layers)
 
 			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
 
@@ -319,14 +320,6 @@ class Tiles:
 									feature.data[tag_name] = dict_value
 
 
-									'''
-									if v in tag_type:
-										feature.data[tag] = str(list(tag_spec.keys()).index(v))
-									else:
-										feature.data[tag] = '0'
-									'''
-
-
 					data = '\t'.join(list((feature.data).values()))
 					if len(data):
 						item.append(data)
@@ -336,57 +329,16 @@ class Tiles:
 					item.append(coords)
 
 					item = '\t'.join(item)
-
 					
 					tile_file.write(item + '\n')
 
-					# print(item)
-					# shapely.to_ragged_array
-					# elif coords.geom_type == 'LineString':
-
 
 				tile_file.close()
-				# exit()
+		
 
+	def create_tile(tile):
 
-
-				
-
-		exit()
-
-		for zoom in (2, 4, 6, 8, 10, 12, 14):
-
-			# Collect Layers
-			layers = []
-			for group_name, group in self.config['groups'].items():
-				for layer_name, layer in group.items():
-					if layer['minzoom'] <= zoom:
-						layers.append(layer_name)
-
-			# Select Features
-			params = ", ".join('?' for _ in layers)
-			query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE layer IN ({params})"
-			result = self.db.conn.execute(query, tuple(layers)).fetchall()
-			
-			if not result:
-				# Empty level
-				continue
-			
-			bbox = [float('inf'), float('inf'), float('-inf'), float('-inf')]
-			for feature in result:
-				# shape_load
-
-				shape = shape_load(feature[5])
-				
-				bbox[0] = min(bbox[0], shape.bounds[0])
-				bbox[1] = min(bbox[1], shape.bounds[1])
-				bbox[2] = max(bbox[2], shape.bounds[2])
-				bbox[3] = max(bbox[3], shape.bounds[3])
-
-			print(zoom, bbox)
-
-			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
-				print(tile)
+		return True
 
 	def test(self,):
 
@@ -421,6 +373,7 @@ def create_tiles(CONFIG):
 
 if __name__ == '__main__':
 	config_name = 'canary'
+	config_name = 'london'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))
 
