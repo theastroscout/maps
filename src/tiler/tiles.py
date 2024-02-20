@@ -15,7 +15,7 @@ from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
 
 # Geometry Types for Index
-geometries = ['Point','LineString','MultiLineString','Polygon','MultiPolygon']
+geometries = ['Point', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon']
 
 def convert_to_3d(arr):
 	if isinstance(arr[0][0], int):
