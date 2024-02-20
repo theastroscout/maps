@@ -9,6 +9,8 @@ from shapely.wkt import loads as shape_load
 import mercantile
 import geopandas as gpd
 
+import multiprocessing
+
 from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
 
@@ -98,8 +100,7 @@ class Tiles:
 
 		print(self.dict)
 		with open(self.config['data'] + '/config.json', 'w') as dict_file:
-			json.dump(self.dict, dict_file, indent='\t')
-		
+			json.dump(self.dict, dict_file, indent='\t')		
 
 	def go(self,):
 
@@ -128,217 +129,21 @@ class Tiles:
 
 			layers_param = ', '.join('?' for _ in layers)
 
+			options = [ self.config, self.groups, layers, layers_param, ]
+			bunch = []
 			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
+				bunch.append([tile] + options)
 
-				x,y,z = tile
 
-				print('Create', tile)
+			
+			num_cores = multiprocessing.cpu_count()
+			# num_cores = 1
+			with multiprocessing.Pool(processes=num_cores) as pool:
+				pool.map(create_tile, bunch)
 				
-				'''
-				
-				Each Tile at Zoom level
-
-				'''
-
-				tile_bounds = mercantile.bounds(tile)
-				# print(tile_bounds)
-				
-				tile_bounds = box(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
-				# print(tile_bounds.wkt)
-				
-				# AsText(`coords`) as 
-				query = f'''SELECT id, oid, `group`, layer, data,
-				Hex(ST_AsBinary(coords)) as coords,
-				AsText(coords) as coords_2
-				FROM features WHERE layer IN ({layers_param})
-				and Intersects(coords, ST_GeomFromText(?))'''
-				# print(query)
-				params = layers + [tile_bounds.wkt]
-				tile_gdf = gpd.GeoDataFrame.from_postgis(query, self.db.conn, geom_col='coords', params=tuple(params))
-
-				if tile_gdf.empty:
-					# Skip if tile is empty
-					continue
-
-				# Create File
-				tile_dir = self.config['data'] + '/{}/{}'.format(z,x)
-				tile_file_path = f'{tile_dir}/{y}'
-				os.makedirs(tile_dir, exist_ok=True)
-				tile_file = open(tile_file_path, 'w')
-
-				for index, feature in tile_gdf.iterrows():
-
-					'''
-
-					Parse Feature
-
-					'''
-					
-					layer = self.config['groups'][feature.group][feature.layer]
-					if 'compress' in layer and str(zoom) in layer['compress']:
-						compress = layer['compress'][str(zoom)]
-
-						gdf = gpd.GeoDataFrame(geometry=[feature.coords])
-
-						if 'tolerance' in compress:
-							# print('compress It', zoom, tile.x, tile.y, feature.group, feature.layer, layer['compress'][str(zoom)])
-							# print(gdf.geometry[0].length)
-							# print(len(gdf.geometry[0].coords), gdf.geometry[0].length, gdf.geometry[0])
-							gdf['geometry'] = gdf.simplify(tolerance=compress['tolerance'], preserve_topology=True)
-							# print(len(gdf.geometry[0].coords), gdf.geometry[0].length, gdf.geometry[0])
-							# print('')
-
-						if gdf.empty:
-							# Empty Drop
-							continue
-
-						if 'drop' in compress:
-							
-							if gdf.geometry[0].geom_type in ['Polygon', 'MultiPolygon']:
-								# Polygon Drop
-
-								if gdf.geometry[0].area < compress['drop']:
-									continue
-
-							elif gdf.geometry[0].length < compress['drop']:
-								# Line Drop
-								continue
-
-
-						# Set Precision for coords, not necessary because we use fix_coords
-						# gdf['geometry'] = set_precision(gdf.geometry.array, grid_size=0.000001)
-						
-						feature.coords = gdf.geometry[0]
-						
-
-						# print(gdf.geometry[0].geom_type)
-
-					# coords = []
-
-					# geometry_type, coords, offsets = to_ragged_array([feature.coords])
-					
-					# print(json.loads(to_geojson(feature.coords))['type'])
-					# geom_type = feature.coords.geom_type
-
-
-
-					# print(mapping(feature.coords))
-					coords = mapping(feature.coords)
-					geom_type = coords['type']
-					coords = fix_coords(coords['coordinates'])
-
-					if geom_type in ['Polygon','MultiPolygon']:
-						coords = convert_to_3d(coords)
-						if isinstance(coords[0][0], int):
-							geom_type = 'Polygon'
-						else:
-							geom_type = 'MultiPolygon'
-
-					'''
-					print(coords)
-					exit()
-
-					coords = json.loads(to_geojson(feature.coords))['coordinates']
-					coords = fix_coords(coords)
-					if geom_type == 'Polygon':
-						if len(coords) == 1:
-							coords = coords[0]
-						else:
-							geom_type = 'MultiPolygon'
-							for index in range(len(coords)):
-								if len(coords[index]) == 1:
-									coords[index] = coords[index][0]
-					'''
-
-					
-					# print(feature.group, feature.layer, len(coords), coords)
-
-					# Feature object to store
-					
-					item = [
-						str(feature.oid),
-						str(geometries.index(geom_type)),
-						str(self.groups[feature.group]['id']),
-						str(self.groups[feature.group]['layers'][feature.layer])
-					]
-
-					'''
-
-					Additional Data
-
-					'''
-
-					feature.data = json.loads(feature.data) or {}
-
-					if 'data' in layer:
-
-						for tag in layer['data']:
-
-							'''
-
-								tag: {
-									"field": "name",
-									"type": "*"
-								}
-
-							'''
-
-							tag_name = tag['field']
-							tag_type = tag['type']
-
-							if tag_name in feature.data:
-								
-								v = feature.data[tag_name]
-								
-								if tag_type == '*':
-									if not v:
-										feature.data[tag_name] = ''
-								elif tag_type == 'bool':
-									feature.data[tag_name] = '1' if v else '0'
-								elif isinstance(tag_type, list):
-
-									if 'name' in feature.data:
-										# Remove Everything in brackets
-										feature.data['name'] = re.sub(r'\([^)]*\)', '', feature.data['name']).strip()
-
-									dict_value = '0'
-									for index, t in enumerate(tag_type):
-										
-										'''
-										
-										t: {
-											"name": "London Underground",
-											"icon": "uk-tfl-lu"
-										}
-
-										'''
-
-										if t['name'] == v:
-											dict_value = str(index)
-											break;
-
-									feature.data[tag_name] = dict_value
-
-
-					data = '\t'.join(list((feature.data).values()))
-					if len(data):
-						item.append(data)
-
-					# Coords
-					coords = json.dumps(coords, separators=(',', ':'))
-					item.append(coords)
-
-					item = '\t'.join(item)
-					
-					tile_file.write(item + '\n')
-
-
-				tile_file.close()
 		
 
-	def create_tile(tile):
 
-		return True
 
 	def test(self,):
 
@@ -365,6 +170,227 @@ class Tiles:
 			print(r)
 
 		return True
+
+def create_tile(data):
+
+	tile, config, groups, layers, layers_param = data
+
+	# Create DB
+	conn = sqlite3.connect(config['db_file'])
+	conn.enable_load_extension(True)
+	conn.execute("SELECT load_extension('mod_spatialite')")
+	
+	x,y,z = tile
+	zoom = str(z)
+
+	print('Create', tile)
+	
+	'''
+	
+	Each Tile at Zoom level
+
+	'''
+
+	tile_bounds = mercantile.bounds(tile)
+	# print(tile_bounds)
+	
+	tile_bounds = box(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
+	# print(tile_bounds.wkt)
+	
+	# AsText(`coords`) as 
+	query = f'''SELECT id, oid, `group`, layer, data,
+	Hex(ST_AsBinary(coords)) as coords,
+	AsText(coords) as coords_2
+	FROM features WHERE layer IN ({layers_param})
+	and Intersects(coords, ST_GeomFromText(?))'''
+	# print(query)
+	params = layers + [tile_bounds.wkt]
+	tile_gdf = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='coords', params=tuple(params))
+
+	if tile_gdf.empty:
+		# Skip if tile is empty
+		return True
+
+	tile_gdf = gpd.clip(tile_gdf, tile_bounds, keep_geom_type=True)
+	if tile_gdf.empty:
+		return False # Skip if tile is empty
+
+	# Create File
+	tile_dir = config['data'] + '/{}/{}'.format(z,x)
+	tile_file_path = f'{tile_dir}/{y}'
+	os.makedirs(tile_dir, exist_ok=True)
+	tile_file = open(tile_file_path, 'w')
+
+	for index, feature in tile_gdf.iterrows():
+
+		'''
+
+		Parse Feature
+
+		'''
+		
+		layer = config['groups'][feature.group][feature.layer]
+		if 'compress' in layer and str(zoom) in layer['compress']:
+			compress = layer['compress'][str(zoom)]
+
+			gdf = gpd.GeoDataFrame(geometry=[feature.coords])
+
+			if 'tolerance' in compress:
+				# print('compress It', zoom, tile.x, tile.y, feature.group, feature.layer, layer['compress'][str(zoom)])
+				# print(gdf.geometry[0].length)
+				# print(len(gdf.geometry[0].coords), gdf.geometry[0].length, gdf.geometry[0])
+				gdf['geometry'] = gdf.simplify(tolerance=compress['tolerance'], preserve_topology=True)
+				# print(len(gdf.geometry[0].coords), gdf.geometry[0].length, gdf.geometry[0])
+				# print('')
+
+			if gdf.empty:
+				# Empty Drop
+				continue
+
+			if 'drop' in compress:
+				
+				if gdf.geometry[0].geom_type in ['Polygon', 'MultiPolygon']:
+					# Polygon Drop
+
+					if gdf.geometry[0].area < compress['drop']:
+						continue
+
+				elif gdf.geometry[0].length < compress['drop']:
+					# Line Drop
+					continue
+
+
+			# Set Precision for coords, not necessary because we use fix_coords
+			# gdf['geometry'] = set_precision(gdf.geometry.array, grid_size=0.000001)
+			
+			feature.coords = gdf.geometry[0]
+			
+
+			# print(gdf.geometry[0].geom_type)
+
+		# coords = []
+
+		# geometry_type, coords, offsets = to_ragged_array([feature.coords])
+		
+		# print(json.loads(to_geojson(feature.coords))['type'])
+		# geom_type = feature.coords.geom_type
+
+
+
+		# print(mapping(feature.coords))
+		coords = mapping(feature.coords)
+		geom_type = coords['type']
+		coords = fix_coords(coords['coordinates'])
+
+		if geom_type in ['Polygon','MultiPolygon']:
+			coords = convert_to_3d(coords)
+			if isinstance(coords[0][0], int):
+				geom_type = 'Polygon'
+			else:
+				geom_type = 'MultiPolygon'
+
+		'''
+		print(coords)
+		exit()
+
+		coords = json.loads(to_geojson(feature.coords))['coordinates']
+		coords = fix_coords(coords)
+		if geom_type == 'Polygon':
+			if len(coords) == 1:
+				coords = coords[0]
+			else:
+				geom_type = 'MultiPolygon'
+				for index in range(len(coords)):
+					if len(coords[index]) == 1:
+						coords[index] = coords[index][0]
+		'''
+
+		
+		# print(feature.group, feature.layer, len(coords), coords)
+
+		# Feature object to store
+		
+		item = [
+			str(feature.oid),
+			str(geometries.index(geom_type)),
+			str(groups[feature.group]['id']),
+			str(groups[feature.group]['layers'][feature.layer])
+		]
+
+		'''
+
+		Additional Data
+
+		'''
+
+		feature.data = json.loads(feature.data) or {}
+
+		if 'data' in layer:
+
+			for tag in layer['data']:
+
+				'''
+
+					tag: {
+						"field": "name",
+						"type": "*"
+					}
+
+				'''
+
+				tag_name = tag['field']
+				tag_type = tag['type']
+
+				if tag_name in feature.data:
+					
+					v = feature.data[tag_name]
+					
+					if tag_type == '*':
+						if not v:
+							feature.data[tag_name] = ''
+					elif tag_type == 'bool':
+						feature.data[tag_name] = '1' if v else '0'
+					elif isinstance(tag_type, list):
+
+						if 'name' in feature.data:
+							# Remove Everything in brackets
+							feature.data['name'] = re.sub(r'\([^)]*\)', '', feature.data['name']).strip()
+
+						dict_value = '0'
+						for index, t in enumerate(tag_type):
+							
+							'''
+							
+							t: {
+								"name": "London Underground",
+								"icon": "uk-tfl-lu"
+							}
+
+							'''
+
+							if t['name'] == v:
+								dict_value = str(index)
+								break;
+
+						feature.data[tag_name] = dict_value
+
+
+		data = '\t'.join(list((feature.data).values()))
+		if len(data):
+			item.append(data)
+
+		# Coords
+		coords = json.dumps(coords, separators=(',', ':'))
+		item.append(coords)
+
+		item = '\t'.join(item)
+		
+		tile_file.write(item + '\n')
+
+
+	tile_file.close()
+	return True
+
 
 def create_tiles(CONFIG):
 	tiles = Tiles(CONFIG)

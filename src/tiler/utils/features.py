@@ -34,7 +34,7 @@ def getFeature(self, o, type_name):
 			skip = False
 			if 'skip' in match:
 				for s in match['skip']:
-					if s in o.tags:
+					if s in o.tags and (s == '*' or s == o.tags.get(s)):
 						skip = True
 						break
 
