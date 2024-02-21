@@ -121,7 +121,7 @@ class Tiles:
 			layers = []
 			for group_name, group in self.config['groups'].items():
 				for layer_name, layer in group.items():
-					if layer['minzoom'] <= zoom and group_name in ['nature']:
+					if layer['minzoom'] <= zoom and group_name in ['nature', 'roads']:
 						layers.append(layer_name)
 
 			if not len(layers):
@@ -211,7 +211,7 @@ def create_tile(data):
 		# Skip if tile is empty
 		return True
 
-	tile_gdf = gpd.clip(tile_gdf, tile_bounds, keep_geom_type=True)
+	tile_gdf = gpd.clip(tile_gdf, tile_bounds)
 	if tile_gdf.empty:
 		return False # Skip if tile is empty
 
