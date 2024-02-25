@@ -248,7 +248,9 @@ class Tiles {
 					if(tile && tile.hide){
 						tile.hide = false;
 						for(let g of tile.containers){
-							g.classList.remove('hide');
+							// g.container.classList.remove('hide');
+							// g.parent.classList.remove('hide');
+							g.parent.appendChild(g.container);
 						}
 					}
 				}
@@ -277,7 +279,11 @@ class Tiles {
 			if(tile && !tile.hide){
 				tile.hide = true;
 				for(let g of tile.containers){
-					g.classList.add('hide');
+					// g.classList.add('hide');
+					
+					// g.remove();
+					// console.log('Hide', g, tile)
+					g.container.remove();
 				}
 			}
 		}
@@ -543,18 +549,49 @@ class Tiles {
 
 					const defsTile = document.createElementNS(this.map.svgNS, 'g');
 					defsTile.setAttribute('tile', url);
-					zoomObj.groups[feature.group].layers[feature.layer].defs.appendChild(defsTile);
+
+					const defsItem = {
+						container: defsTile,
+						parent: zoomObj.groups[feature.group].layers[feature.layer].defs
+					};
+					defsItem.parent.appendChild(defsTile);
+
+					/*
+
+					Border
+
+					*/
 
 					let borderTile;
+					let borderItem;
 					if(zoomObj.groups[feature.group].layers[feature.layer].border){
 						borderTile = document.createElementNS(this.map.svgNS, 'g');
 						borderTile.setAttribute('tile', url);
-						zoomObj.groups[feature.group].layers[feature.layer].border.appendChild(borderTile);
+						
+						borderItem = {
+							container: borderTile,
+							parent: zoomObj.groups[feature.group].layers[feature.layer].border
+						};
+
+						borderItem.parent.appendChild(borderTile);
 					}
+
+					/*
+
+					Fill
+
+					*/
 
 					const fillTile = document.createElementNS(this.map.svgNS, 'g');
 					fillTile.setAttribute('tile', url);
-					zoomObj.groups[feature.group].layers[feature.layer].fill.appendChild(fillTile);
+					
+
+					const fillItem = {
+						container: fillTile,
+						parent: zoomObj.groups[feature.group].layers[feature.layer].fill
+					};
+					fillItem.parent.appendChild(fillTile);
+
 
 					let tilesObj = {
 						defs: defsTile,
@@ -567,11 +604,11 @@ class Tiles {
 
 					zoomObj.groups[feature.group].layers[feature.layer].tiles[url] = tilesObj;
 
-					tile.containers.push(defsTile);
+					tile.containers.push(defsItem);
 					if(borderTile){
-						tile.containers.push(borderTile);
+						tile.containers.push(borderItem);
 					}
-					tile.containers.push(fillTile);
+					tile.containers.push(fillItem);
 
 					// Attach Tile Container to the Feature
 					
@@ -580,11 +617,15 @@ class Tiles {
 
 					const tileContainer = document.createElementNS(this.map.svgNS, 'g');
 					tileContainer.setAttribute('tile', url);
-					zoomObj.groups[feature.group].layers[feature.layer].container.appendChild(tileContainer);
+					const tileItem = {
+						container: tileContainer,
+						parent: zoomObj.groups[feature.group].layers[feature.layer].container
+					};
+					tileItem.parent.appendChild(tileContainer);
 
 					zoomObj.groups[feature.group].layers[feature.layer].tiles[url] = tileContainer;
 
-					tile.containers.push(tileContainer);
+					tile.containers.push(tileItem);
 				}
 			}
 
