@@ -263,7 +263,7 @@ class Maps {
 				Zoom
 
 				(!) Rewrite: From Zoom to Scale
-				Change zoom first, then calculate viewBox
+				Zoom first, then calculate viewBox
 
 				*/
 
