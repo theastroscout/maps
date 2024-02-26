@@ -112,7 +112,7 @@
 			},
 
 			"motorways": {
-				"minzoom": 8,
+				"minzoom": 12,
 				"data": [
 					{
 						"field": "name",
@@ -140,7 +140,7 @@
 			},
 
 			"highways": {
-				"minzoom": 12,
+				"minzoom": 14,
 				"data": [
 					{
 						"field": "name",
@@ -352,6 +352,12 @@
 			]
 		},
 		"area": {
+			"waterway": [
+				{
+					"values": [ "dock" ],
+					"containers": ["nature:service"]
+				}
+			],
 			"water": [
 				{
 					"values": [ "canal", "basin", "wastewater", "reservoir" ],

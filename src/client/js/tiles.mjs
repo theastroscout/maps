@@ -127,14 +127,16 @@ class Tiles {
 
 			// Hide Zoom Collection
 			if(this.storage.tiles[this.currentZoomID]){
-				this.storage.tiles[this.currentZoomID].container.classList.add('hide');
+				// this.storage.tiles[this.currentZoomID].container.classList.add('hide');
 				this.storage.tiles[this.currentZoomID].hide = true;
+				this.storage.tiles[this.currentZoomID].container.remove();
 			}
 
 			// Show Zoom Collection
 			if(this.storage.tiles[zoomID]){
-				this.storage.tiles[zoomID].container.classList.remove('hide');
+				// this.storage.tiles[zoomID].container.classList.remove('hide');
 				this.storage.tiles[zoomID].hide = false;
+				this.container.appendChild(this.storage.tiles[zoomID].container);
 			}
 
 			// Reassign Zoom ID
