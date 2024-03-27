@@ -9,7 +9,7 @@ import Style from './style.mjs';
 import Tiles from './tiles.mjs';
 import Draw from './draw.mjs';
 
-class Maps {
+class SurfyMaps {
 	
 	constructor(customOptions){
 
@@ -374,5 +374,5 @@ class Maps {
 	}
 }
 
-export default Maps;
-window.Maps = Maps;
+export default SurfyMaps;
+window.SurfyMaps = SurfyMaps;
