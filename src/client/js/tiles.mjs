@@ -4,7 +4,7 @@ Tiles
 
 */
 
-import './utils/polygon-clipping.js';
+// import './utils/polygon-clipping.js';
 const geometryTypes = ['Point','LineString','MultiLineString','Polygon','MultiPolygon'];
 
 class Tiles {

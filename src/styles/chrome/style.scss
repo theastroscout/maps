@@ -4,12 +4,12 @@ Surfy°Maps › Chrome
 
 */
 
-$data: 'https://sandbox.maps.surfy.one/data';
+$host: 'https://sandbox.maps.surfy.one';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$data}/tiles/london;
-	--sprites: '/styles/chrome/sprites.svg';
+	--tiles: #{$host}/data/tiles/london;
+	--sprites: #{$host}'/styles/chrome/sprites.svg';
 
 	--dict: '';
 }
@@ -285,12 +285,13 @@ $data: 'https://sandbox.maps.surfy.one/data';
 				> g.districts {
 					user-select: none;
 				
-					--font-rule: 12 60, 16 12;
-					--font-dim: vw;
-					--font: 19vw;
-					font-size: var(--font);
+					// --font-rule: 12 60, 16 12;
+					// --font-dim: em;
+					// --font: 19vw;
+					font-size: 44em;
+					// font-size: var(--font);
 
-					--opacity-rule: 11 0, 13 1, 15 1, 17 0;
+					--opacity-rule: 11 0, 13 .8, 15 .5, 17 0;
 					--opacity: 1;
 					opacity: var(--opacity);
 					

@@ -21,11 +21,11 @@ class Style {
 		style = style || this.map.options.style
 		this.obj = document.createElement('link');
 		this.obj.rel = 'stylesheet';
+		this.obj.setAttribute('crossorigin', 'anonymous');
 		this.obj.type = 'text/css';
-		this.obj.href = `/styles/${style}/style.scss`;
+		this.obj.href = `https://sandbox.maps.surfy.one/styles/${style}/style.scss`;
 
 		this.obj.self = this;
-
 		this.obj.onload = this.parse;
 		document.head.appendChild(this.obj);
 	}
@@ -36,8 +36,7 @@ class Style {
 
 	*/
 
-	parse(e){
-		
+	parse(e){		
 		const rules = this.sheet.rules;
 		const self = this.self;
 
