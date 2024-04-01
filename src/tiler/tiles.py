@@ -8,6 +8,7 @@ from shapely.geometry import box, mapping
 from shapely.wkt import loads as shape_load
 import mercantile
 import geopandas as gpd
+import pandas as pd
 
 import multiprocessing
 
@@ -74,8 +75,6 @@ class Tiles:
 				'id': g_id,
 				'layers': {}
 			}
-
-
 
 			l_id = 0
 			layers = []
@@ -211,7 +210,14 @@ def create_tile(data):
 		# Skip if tile is empty
 		return True
 
-	tile_gdf = gpd.clip(tile_gdf, tile_bounds)
+	buildings =  tile_gdf[tile_gdf.group == 'buildings']
+	non_buildings =  tile_gdf[tile_gdf.group != 'buildings']
+	non_buildings = gpd.clip(non_buildings, tile_bounds)
+
+	tile_gdf = pd.concat([non_buildings, buildings])
+
+	# tile_gdf = gpd.clip(tile_gdf, tile_bounds)
+
 	if tile_gdf.empty:
 		return False # Skip if tile is empty
 
