@@ -32,7 +32,7 @@
 			},
 
 			"service": {
-				"minzoom": 14,
+				"minzoom": 12,
 				"data": [
 					{
 						"field": "name",
