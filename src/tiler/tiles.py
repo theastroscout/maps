@@ -97,7 +97,7 @@ class Tiles:
 
 			g_id += 1
 
-		print(self.dict)
+		
 		with open(self.config['data'] + '/config.json', 'w') as dict_file:
 			json.dump(self.dict, dict_file, indent='\t')		
 

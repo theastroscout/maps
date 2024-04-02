@@ -24,6 +24,12 @@ class Parse:
 		self.config['bbox'] = [float('inf'), float('inf'), float('-inf'), float('-inf')]
 
 	def go(self,):
+
+		'''
+
+			Parse PBF file
+
+		'''
 		
 
 		# Remove Temp File
@@ -84,41 +90,23 @@ class Parse:
 		self.db.cursor.execute('INSERT INTO config_data (`name`,`data`) VALUES (?, ?)', ('bbox', json.dumps(self.config['bbox'])) )
 		self.db.conn.commit()
 
-		# self.test()
 		self.close()
 
-		
-
-	def test(self,):
-		self.db.cursor.execute("PRAGMA table_info(features);")
-		columns = [column[1] for column in self.db.cursor.fetchall()]
-		print('Columns', columns)
-
-		min_x, min_y, max_x, max_y = -1, 50, 1, 51.5
-		min_x, min_y, max_x, max_y = -0.0224971329,51.5041493371,-0.0200334285,51.5056863218
-		# bbox = (min_x, min_y, max_x, max_y)
-		bbox = box(min_x, min_y, max_x, max_y)
-		bbox_str = bbox.wkt
-
-
-		query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE MBRContains(BuildMBR({min_x}, {min_y}, {max_x}, {max_y}), coords)"
-		query = f"SELECT id, oid, `group`, layer, data, AsText(`coords`) FROM features WHERE Intersects(coords, ST_GeomFromText(?))"
-		result = self.db.conn.execute(query, (bbox_str,)).fetchall()
-		print('Result', len(result))
-		# for r in result:
-		#	print(r)
-
-		self.db.cursor.close()
-		self.db.conn.close()
-
 	def close(self,):
+
+		'''
+
+			Close DB
+
+		'''
+
 		self.db.cursor.close()
 		self.db.conn.close()
 
 
 if __name__ == '__main__':
-	config_name = 'canary'
-	# config_name = 'isle-of-dogs'
+	# config_name = 'canary'
+	config_name = 'isle-of-dogs'
 	# config_name = 'london'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))

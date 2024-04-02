@@ -64,6 +64,19 @@ class OSM_handler(osmium.SimpleHandler):
 		if not o.visible:
 			return True
 
+		'''
+
+			Get Address
+
+		'''
+		
+
+		'''
+
+			Get Features
+
+		'''
+
 		feature = self.getFeature(o, 'area')
 
 		if not feature:
