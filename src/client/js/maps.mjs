@@ -33,6 +33,9 @@ class SurfyMaps {
 		
 		
 		this.options = {...options, ...customOptions};
+		if(!this.options.events){
+			this.options.events = {};
+		}
 
 		/*
 
@@ -254,6 +257,16 @@ class SurfyMaps {
 				document.removeEventListener('touchmove', this.mouseHandler);
 				document.removeEventListener('touchend', this.mouseHandler);
 
+				if(this.options.events.moveend){
+					this.options.events.moveend({
+						zoom: this.options.zoom,
+						coords: {
+							lng: this.options.coords[0],
+							lat: this.options.coords[1]
+						}
+					});
+				}
+
 				break;
 
 			case 'wheel':
@@ -370,6 +383,16 @@ class SurfyMaps {
 			window.addEventListener('resize', self.map.resize, { passive: true });
 			this.style.render();
 			this.resize();
+
+			if(this.options.events.load){
+				this.options.events.load({
+					zoom: this.options.zoom,
+					coords: {
+						lng: this.options.coords[0],
+						lat: this.options.coords[1]
+					}
+				});
+			}
 		}
 	}
 }
