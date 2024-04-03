@@ -62,14 +62,7 @@ class OSM_handler(osmium.SimpleHandler):
 		'''
 
 		if not o.visible:
-			return True
-
-		'''
-
-			Get Address
-
-		'''
-		
+			return True		
 
 		'''
 
