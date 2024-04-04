@@ -27,7 +27,7 @@ class OSM_handler(osmium.SimpleHandler):
 
 	def node(self, o):
 
-		if 'amenity' in o.tags:
+		if 'amenity' in o.tags or 'shop' in o.tags:
 			data = get_data(o, 'node') 
 			print(data)
 
@@ -57,19 +57,50 @@ class OSM_handler(osmium.SimpleHandler):
 				print('Update')
 
 def get_data(o, geom_type):
-	amenity = o.tags.get('amenity')
+	
+	'''
+
+		https://wiki.openstreetmap.org/wiki/Key:shop?uselang=en-GB
+
+	'''
+
+	keywords = []
+
+	place_type = o.tags.get('amenity')
+	if not place_type:
+		place_type = o.tags.get('shop')
+		keywords.append('shop')
+		keywords.append('store')
+
+		if place_type in ['alcohol', 'bakery', 'beverages', 'brewing_supplies', 'butcher', 'cheese', 'chocolate', 'coffee', 'confectionery', 'convenience', 'dairy', 'deli', 'farm', 'food', 'frozen_food', 'greengrocer', 'health_food', '	ice_cream', 'nuts', 'pasta', 'pastry', 'seafood', 'spices', 'tea', 'water', 'wine']:
+			keywords.append('grocery')
+
 	name = o.tags.get('name')
 
 	if not name and 'addr:housename' in o.tags:
 		name = o.tags.get('addr:housename')
 
-	if not name:
-		name = amenity
+	if place_type == 'car_sharing' and 'operator' in o.tags:
+		
+		keywords.append(o.tags.get('operator'))
 
-	if amenity == 'car_sharing' and 'operator' in o.tags:
-		name = o.tags.get('operator')
+		if not name:
+			name = o.tags.get('operator')
+
+	if not name:
+		name = place_type
+		
 
 	name = parse_name(name)
+	keywords.append(name)
+	keywords.append(parse_name(place_type))
+
+	'''
+
+	Location
+
+	'''
+
 
 	location = False
 	geom = False
@@ -86,9 +117,11 @@ def get_data(o, geom_type):
 
 	location['coordinates'] = fix_coords(location['coordinates'])
 
-	# Search String
+	# Keywords
 
-	search = [name, parse_name(amenity)]
+	keywords = list(set(keywords))
+	keywords = [x.lower() for x in keywords]
+	
 
 	'''
 	
@@ -100,9 +133,9 @@ def get_data(o, geom_type):
 		'oid': o.id,
 		# 'geom_type': geom_type,
 		'name': parse_name(name),
-		'type': amenity,
+		'type': place_type,
 		'location': location,
-		'search': ' '.join(search)
+		'keywords': keywords
 	}
 
 	if geom:

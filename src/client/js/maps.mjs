@@ -117,6 +117,17 @@ class SurfyMaps {
 		this.getZoomID();
 		this.style.get();
 		this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
+
+
+		if(this.options.events.init){
+			this.options.events.init({
+				zoom: this.options.zoom,
+				coords: {
+					lng: this.options.coords[0],
+					lat: this.options.coords[1]
+				}
+			});
+		}
 	}
 
 	/*
