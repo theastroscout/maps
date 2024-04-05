@@ -138,7 +138,8 @@ def get_data(o, geom_type):
 		'name': parse_name(name),
 		'type': place_type,
 		'location': location,
-		'keywords': keywords
+		'keywords': keywords,
+		'search': ' '.join(keywords)
 	}
 
 	if geom:
