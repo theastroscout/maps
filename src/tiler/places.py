@@ -5,6 +5,8 @@ wkbfab = osmium.geom.WKBFactory()
 from shapely.geometry import Point, Polygon, MultiPolygon, mapping
 import shapely.wkb as wkblib
 
+from nanoid import generate
+
 types = []
 
 db_client = pymongo.MongoClient('mongodb://localhost:27017/')
@@ -35,6 +37,7 @@ class OSM_handler(osmium.SimpleHandler):
 
 			if not place:
 				print('Insert')
+				data['link'] = generate(size=11)
 				places_collection.insert_one(data)
 			else:
 				print('Update')
