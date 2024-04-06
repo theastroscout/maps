@@ -29,7 +29,7 @@ class OSM_handler(osmium.SimpleHandler):
 
 	def node(self, o):
 
-		if 'amenity' in o.tags or 'shop' in o.tags:
+		if 'amenity' in o.tags or 'shop' in o.tags or 'sport' in o.tags:
 			data = get_data(o, 'node') 
 			print(data)
 
@@ -46,7 +46,7 @@ class OSM_handler(osmium.SimpleHandler):
 
 	def area(self, o):
 		
-		if 'amenity' in o.tags:
+		if 'amenity' in o.tags or 'shop' in o.tags or 'sport' in o.tags:
 			data = get_data(o, 'area')
 
 			print(data)
@@ -71,12 +71,23 @@ def get_data(o, geom_type):
 
 	place_type = o.tags.get('amenity')
 	if not place_type:
-		place_type = o.tags.get('shop')
-		keywords.append('shop')
-		keywords.append('store')
+		if 'shop' in o.tags:
+			place_type = o.tags.get('shop')
+			keywords.append('shop')
+			keywords.append('store')
 
-		if place_type in ['alcohol', 'bakery', 'beverages', 'brewing_supplies', 'butcher', 'cheese', 'chocolate', 'coffee', 'confectionery', 'convenience', 'dairy', 'deli', 'farm', 'food', 'frozen_food', 'greengrocer', 'health_food', '	ice_cream', 'nuts', 'pasta', 'pastry', 'seafood', 'spices', 'tea', 'water', 'wine']:
-			keywords.append('grocery')
+			if place_type in ['alcohol', 'bakery', 'beverages', 'brewing_supplies', 'butcher', 'cheese', 'chocolate', 'coffee', 'confectionery', 'convenience', 'dairy', 'deli', 'farm', 'food', 'frozen_food', 'greengrocer', 'health_food', '	ice_cream', 'nuts', 'pasta', 'pastry', 'seafood', 'spices', 'tea', 'water', 'wine']:
+				keywords.append('grocery')
+			elif place_type in ['fitness_centre']:
+				keywords.append('gym')
+				keywords.append('fitness')
+				keywords.append('health')
+		elif 'sport' in o.tags:
+			place_type = o.tags.get('sport')
+			keywords.append('gym')
+			keywords.append('fitness')
+			keywords.append('health')
+
 
 	name = o.tags.get('name')
 
