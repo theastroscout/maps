@@ -1,5 +1,8 @@
 import pymongo
 
+import language_tool_python
+checker_tool = language_tool_python.LanguageTool('en-GB', config={'maxSpellingSuggestions': 1})
+
 import osmium
 wkbfab = osmium.geom.WKBFactory()
 from shapely.geometry import Point, Polygon, MultiPolygon, mapping
@@ -12,6 +15,10 @@ types = []
 db_client = pymongo.MongoClient('mongodb://localhost:27017/')
 db = db_client['Maps']
 places_collection = db['places']
+
+def grammarCorrector(text):
+	result = checker_tool.correct(text)
+	return result
 
 
 def fix_coords(items):
@@ -40,7 +47,7 @@ class OSM_handler(osmium.SimpleHandler):
 				data['link'] = generate(size=11)
 				places_collection.insert_one(data)
 			else:
-				print('Update')
+				print('Update Node')
 				# print(place)
 				places_collection.update_one({ '_id': place['_id']}, { '$set': data })
 
@@ -57,7 +64,8 @@ class OSM_handler(osmium.SimpleHandler):
 				print('Insert')
 				places_collection.insert_one(data)
 			else:
-				print('Update')
+				print('Update Area')
+				places_collection.update_one({ '_id': place['_id']}, { '$set': data })
 
 def get_data(o, geom_type):
 	
@@ -165,6 +173,7 @@ def get_data(o, geom_type):
 def parse_name(name):
 	name = name.split('_')
 	name = ' '.join(name).capitalize()
+	# name = grammarCorrector(name)
 	return name
 
 
