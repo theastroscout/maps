@@ -242,7 +242,7 @@ class Draw {
 	render = items => {
 		const amount = Object.keys(items).length;
 		this.total += amount;
-		console.log(`@Render Objects current: ${amount}, ${this.total} in total.`);
+		// console.log(`@Render Objects current: ${amount}, ${this.total} in total.`);
 
 		for(let fID in items){
 			let feature = items[fID];
