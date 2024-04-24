@@ -178,13 +178,13 @@ class Style {
 			this.map.defs.appendChild(clonedSymbol);
 		});
 
-		const sprites = document.createElementNS(this.map.svgNS, 'image');
-		sprites.setAttribute('href', this.sprites+'#tfl-lu');
+		// const sprites = document.createElementNS(this.map.svgNS, 'image');
+		// sprites.setAttribute('href', this.sprites+'#tfl-lu');
 		// sprites.setAttribute('width', 300);
 		// sprites.setAttribute('height', 300);
 		// sprites.style.x = 300;
-		sprites.style.width = 300;
-		sprites.style.height = 300;
+		// sprites.style.width = 300;
+		// sprites.style.height = 300;
 		// this.map.svg.appendChild(sprites);
 	}
 

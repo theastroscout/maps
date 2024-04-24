@@ -1,6 +1,7 @@
 '''
 
 py ../styles/sprites.py --src ../styles/chrome/sprites --dest ../styles/chrome/sprites.svg
+py sprites.py --src chrome/sprites --dest chrome/sprites.svg
 
 '''
 

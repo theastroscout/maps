@@ -1,15 +1,15 @@
 /*
 
-Surfy°Maps › Chrome
+Surfy°Maps › Essential
 
 */
 
 $host: 'https://sandbox.maps.surfy.one';
 
 .SurfyMaps {
-	--name: 'Surfy°Maps.Chrome';
+	--name: 'Surfy°Maps.Essential';
 	--tiles: #{$host}/data/tiles/canary;
-	--sprites: #{$host}'/styles/chrome/sprites.svg';
+	--sprites: #{$host}'/styles/essential/sprites.svg';
 
 	--dict: '';
 }
@@ -239,7 +239,7 @@ $host: 'https://sandbox.maps.surfy.one';
 				> g.stations {
 					user-select: none;
 
-					--font-rule: 14 20, 16 6;
+					--font-rule: 13.5 16, 16 6;
 					--font-dim: vw;
 					--font: 19vw;
 					font-size: var(--font);
@@ -248,14 +248,9 @@ $host: 'https://sandbox.maps.surfy.one';
 					// text-anchor: middle;
 					dominant-baseline: central;
 
-					--opacity-rule: 14 0, 15 1;
+					--opacity-rule: 13.5 0, 14 1;
 					--opacity: 1;
 					opacity: var(--opacity);
-
-					// Icon Size
-					--size-rule: 14 30, 16 10;
-					--size-dim: vw;
-					--size: 20vw;
 
 					// Tile
 					> g {
@@ -267,10 +262,6 @@ $host: 'https://sandbox.maps.surfy.one';
 								y: -5vw;
 								width: 10vw;
 								height: 10vw;
-								x: calc(var(--size) * -1.2);
-								y: calc(var(--size) / -2);
-								width: var(--size);
-								height: var(--size);
 							}
 
 							> text {
