@@ -231,7 +231,6 @@ class SurfyMaps {
 				var dx = (this.startPoint.x - point.x) / this.viewBox.scale;
 				var dy = (this.startPoint.y - point.y) / this.viewBox.scale;
 
-				
 				this.viewBox.x = Math.round(this.viewBox.x + dx);
 				this.viewBox.y = Math.round(this.viewBox.y + dy);
 
@@ -249,7 +248,7 @@ class SurfyMaps {
 
 				*/
 
-				this.update();				
+				this.update();
 
 				break;
 			
@@ -374,6 +373,7 @@ class SurfyMaps {
 
 		if(!this.states.ready){
 			this.states.ready = true;
+
 
 			/*
 
