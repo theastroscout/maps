@@ -34,9 +34,8 @@ class SurfyMaps {
 			coords: [-0.020853, 51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 14.5,
-			events: {},
-			tileSize: 1024
+			zoom: 14,
+			events: {}
 		};
 
 		// Marge Options
@@ -48,15 +47,15 @@ class SurfyMaps {
 
 		*/
 
-		this.container = document.querySelector(this.options.selector);
-		this.container.classList.add('SurfyMaps');
+		this.root = document.querySelector(this.options.selector);
+		this.root.classList.add('SurfyMaps');
 
-		this.svg = document.createElementNS(this.svgNS, 'svg');
-		this.svg.setAttribute('shape-rendering', 'geometricPrecision');
-		this.svg.setAttribute('xmlns', this.svgNS);
-  		this.svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-		this.svg.classList.add('container');
-		this.container.append(this.svg);
+		this.container = document.createElementNS(this.svgNS, 'svg');
+		this.container.setAttribute('shape-rendering', 'geometricPrecision');
+		this.container.setAttribute('xmlns', this.svgNS);
+  		this.container.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+		this.container.classList.add('container');
+		this.root.append(this.container);
 
 		/*
 
@@ -66,7 +65,8 @@ class SurfyMaps {
 
 		this.customLayer = document.createElement('div');
 		this.customLayer.classList.add('custom');
-		this.container.append(this.customLayer);
+		this.root.append(this.customLayer);
+		this.customLayers = [];
 
 		/*
 
@@ -85,22 +85,40 @@ class SurfyMaps {
 		*/
 
 		this.view = {
-			origin: this.utils.xy(this.options.coords, false)
+			tileSize: 2048,
+			zoom: 14, // To compensate for tile size
+			xy: [0, 0]
 		};
 
-		let feature = {
-			coords: [-0.022323, 51.506024],
-			name: 'Marker'
-		};
-		
-		this.draw.point(feature);
+		this.view.origin = this.utils.xy(this.options.coords, false);
 
 		// Run
 
 		this.setZoomID();
-		this.resize();
-		this.update(true);
+		this.resize(true);
+		this.update();
 		this.launch();
+
+		let center = {
+			coords: this.options.coords,
+			name: 'Center',
+			container: this.container
+		};
+
+		this.draw.point(center);
+
+		let feature = {
+			coords: [-0.022323, 51.506024],
+			name: 'Marker',
+			container: this.container
+		};
+		
+		this.draw.point(feature);
+
+		delete feature.container;
+
+		this.draw.point(feature);
+		this.customLayers.push(feature);
 	}
 
 	/*
@@ -112,12 +130,13 @@ class SurfyMaps {
 	resize = init => {
 		clearTimeout(this.resize.tmo);
 
-		this.option.width = this.container.clientWidth;
-		this.option.height = this.container.clientHeight;
+		this.view.width = this.root.clientWidth;
+		this.view.height = this.root.clientHeight;
 
 		if(!init){
 			this.resize.tmo = setTimeout(() => {
 				// Update Map
+				this.update();
 			}, 300);
 		}
 	}
@@ -135,6 +154,33 @@ class SurfyMaps {
 
 	update = () => {
 
+		const [posX, posY] = this.utils.xy(this.options.coords);
+		this.view.x = Math.round(posX - this.view.width / 2);
+		this.view.y = Math.round(posY - this.view.height / 2);
+
+		this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
+
+		// Scale
+		let viewBox = [this.view.x, this.view.y, this.view.width, this.view.height];
+		for(let i=0,l=viewBox.length; i<l; i++){
+			viewBox[i] = Math.round(viewBox[i] * this.view.scale * 100)/100;
+		}
+
+		this.container.setAttribute('viewBox', viewBox.join(' '));
+
+		/*
+
+		Custom
+
+		*/
+
+		for(let c of this.customLayers){
+			const [x, y] = this.utils.xy(c.coords, true, true);
+			c.el.style.top = y + 'px';
+			c.el.style.left = x + 'px';
+		}
+
+		// Update
 		this.tiles.update();
 
 		if(!this.states.move){
@@ -162,7 +208,11 @@ class SurfyMaps {
 
 	*/
 
-	handler(e){
+	handler = e => {
+
+		let point;
+		let handler = this.handler;
+
 		switch(e.type){
 			case 'mousedown': case 'touchstart':
 
@@ -171,6 +221,28 @@ class SurfyMaps {
 				Initialise
 
 				*/
+
+				if(typeof e.x !== 'undefined'){
+					point = {
+						x: e.x,
+						y: e.y
+					};
+				} else {
+					point = {
+						x: e.touches[0].clientX,
+						y: e.touches[0].clientY
+					};
+				}
+
+				handler.startPoint = point;
+				handler.x = this.view.xy[0];
+				handler.y = this.view.xy[1];
+
+				document.addEventListener('mousemove', this.handler);
+				document.addEventListener('mouseup', this.handler);
+
+				document.addEventListener('touchmove', this.handler);
+				document.addEventListener('touchend', this.handler);
 				
 				break;
 
@@ -182,6 +254,23 @@ class SurfyMaps {
 
 				*/
 
+				if(typeof e.x !== 'undefined'){
+					point = {
+						x: e.x,
+						y: e.y
+					};
+				} else {
+					point = {
+						x: e.touches[0].clientX,
+						y: e.touches[0].clientY
+					};
+				}
+				
+				this.view.xy[0] = handler.x + handler.startPoint.x - point.x;
+				this.view.xy[1] = handler.y + handler.startPoint.y - point.y;
+				this.options.coords = this.utils.coords(this.view.xy);
+				this.update();
+
 				break;
 
 			case 'mouseup': case 'touchend':
@@ -192,6 +281,14 @@ class SurfyMaps {
 
 				*/
 
+				document.removeEventListener('mousemove', this.handler);
+				document.removeEventListener('mouseup', this.handler);
+
+				document.removeEventListener('touchmove', this.handler);
+				document.removeEventListener('touchend', this.handler);
+
+				// this.view.xy = [handler.x, handler.y];
+
 				break;
 
 			case 'wheel':
@@ -201,6 +298,11 @@ class SurfyMaps {
 				Zoom
 
 				*/
+
+				const zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
+				this.options.zoom = Math.round((this.options.zoom + zoomSpeed * Math.sign(e.deltaY)) * 100) / 100;
+				console.log('Zoom',this.options.zoom);
+				this.update();
 
 				break;
 		}

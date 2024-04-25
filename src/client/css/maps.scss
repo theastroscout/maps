@@ -4,15 +4,57 @@ Surfy° Maps
 
 */
 
-.SurfyMap {
+.SurfyMaps {
+	position: relative;
 	width: 100vw;
 	height: 100vh;
 }
 
-.SurfyMap > .container {
+.SurfyMaps > .container {
 	transform: translate3d(0,0,0);
 	user-select: none;
 	// pointer-events: none; // Uncomment for production
+}
 
-	
+.SurfyMaps > .custom {
+	position: fixed;
+	top: 0;
+	left: 0;
+
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+
+	pointer-events: none;
+
+	> .m {
+		position: absolute;
+		pointer-events: auto;
+
+		&.default {
+			transform: translate3d(-50%, -50%, 0);
+
+			width: 7px;
+			height: 7px;
+
+			border-radius: 50%;
+			border: 2px solid black;
+
+			cursor: pointer;
+			user-select: none;
+
+			&:hover {
+				&:after {
+					transform: translate3d(0, -50%, 0);
+					content: 'Its a marker!';
+					display: block;
+					position: absolute;
+					top: 50%;
+					left: 15px;
+					white-space: nowrap;
+					font-size: 12px;
+				}
+			}
+		}
+	}
 }
