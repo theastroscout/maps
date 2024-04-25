@@ -1,19 +1,26 @@
 /*
 
-Maps
+Surfy° Maps
 
 */
 
 import Utils from './utils.mjs';
-import Style from './style.mjs';
-import Tiles from './tiles.mjs';
 import Draw from './draw.mjs';
+import Tiles from './tiles.mjs';
 
 class SurfyMaps {
-	
 	constructor(customOptions){
-
 		this.svgNS = 'http://www.w3.org/2000/svg';
+
+		/*
+
+		States
+
+		*/
+
+		this.states = {
+			move: false
+		};
 
 		/*
 
@@ -21,36 +28,23 @@ class SurfyMaps {
 
 		*/
 
-		let options = {
+		const options = {
 			selector: '#map',
 			style: 'chrome',
-			coords: [-0.020853,51.50581], // [longitude, latitude]
+			coords: [-0.020853, 51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 14.5
+			zoom: 14.5,
+			events: {},
+			tileSize: 1024
 		};
 
-		
-		
+		// Marge Options
 		this.options = {...options, ...customOptions};
-		if(!this.options.events){
-			this.options.events = {};
-		}
 
 		/*
 
-		Settings
-
-		*/
-
-		this.settings = {
-			scaleFactor: 10000000,
-			tileSize: 512
-		};
-
-		/*
-
-		Elements
+		Container
 
 		*/
 
@@ -66,272 +60,82 @@ class SurfyMaps {
 
 		/*
 
-		Signature
+		Custom Layer
 
 		*/
 
-		this.container.insertAdjacentHTML('beforeEnd', '<div class="c">Surfy°. <span></span></div>');
-		this.copy = this.container.querySelector(':scope > .c');
-		this.debug = this.container.querySelector(':scope > .c > span');
+		this.customLayer = document.createElement('div');
+		this.customLayer.classList.add('custom');
+		this.container.append(this.customLayer);
 
 		/*
 
-		States
+		Libs
 
 		*/
 
-		this.states = {
-			ready: false,
-			move: false
-		};
-
-		/*
-
-		Helpers
-
-		*/
-
-		this.helpers = {};		
-
-		/*
-
-		Initialise libs
-
-		*/
-
-		this.style = new Style(this);
 		this.utils = new Utils(this);
-		this.tiles = new Tiles(this);
 		this.draw = new Draw(this);
+		this.tiles = new Tiles(this);
 
 		/*
 
-		Load Style, Launch Map
+		Set Up
 
 		*/
 
-		this.viewBox = {
-			center: this.utils.xy(this.options.coords, false)
+		this.view = {
+			origin: this.utils.xy(this.options.coords, false)
 		};
 
-		this.getZoomID();
-		this.style.get();
-		this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
-
-
-		if(this.options.events.init){
-			this.options.events.init({
-				zoom: this.options.zoom,
-				coords: {
-					lng: this.options.coords[0],
-					lat: this.options.coords[1]
-				}
-			});
-		}
-	}
-
-	/*
-
-	Get Zoome ID
-
-	*/
-
-	getZoomID = () => {
-		this.zoomID = Math.min(Math.floor(this.options.zoom / 2) * 2, 14);
-		this.style.render();
-	}
-
-	/*
-
-	Window Resize
-
-	*/
-
-	resize = () => {
-		this.width = this.container.clientWidth;
-		this.height = this.container.clientHeight;
+		let feature = {
+			coords: [-0.022323, 51.506024],
+			name: 'Marker'
+		};
 		
-		this.svg.setAttribute('width', this.width);
-		this.svg.setAttribute('height', this.height);
+		this.draw.point(feature);
 
+		// Run
+
+		this.setZoomID();
+		this.resize();
+		this.update(true);
+		this.launch();
+	}
+
+	/*
+
+	Resize Map
+
+	*/
+
+	resize = init => {
 		clearTimeout(this.resize.tmo);
-		this.resize.tmo = setTimeout(() => {
-			this.setCenter();
-			this.update();
-		}, 100);
-	}
 
-	/*
+		this.option.width = this.container.clientWidth;
+		this.option.height = this.container.clientHeight;
 
-	Mouse Handler
-
-	*/
-
-	mouseHandler = e => {
-
-		/*
-		
-		Manipulate ViewBox
-		https://stackoverflow.com/questions/52576376/how-to-zoom-in-on-a-complex-svg-structure
-
-		*/
-
-		let point;
-
-		switch(e.type){
-			case 'mousedown': case 'touchstart':
-
-				if(typeof e.x !== 'undefined'){
-					point = {
-						x: e.x,
-						y: e.y
-					};
-				} else {
-					point = {
-						x: e.touches[0].clientX,
-						y: e.touches[0].clientY
-					};
-				}
-
-				this.startPoint = point;
-
-				this.container.classList.add('move');
-
-				document.addEventListener('mousemove', this.mouseHandler);
-				document.addEventListener('mouseup', this.mouseHandler);
-
-				document.addEventListener('touchmove', this.mouseHandler);
-				document.addEventListener('touchend', this.mouseHandler);
-
-				e.preventDefault();
-				e.stopPropagation();
-
-				break;
-			
-			case 'mousemove': case 'touchmove':
-
-				/*
-
-				Pan
-
-				*/
-
-				if(typeof e.x !== 'undefined'){
-					point = {
-						x: e.x,
-						y: e.y
-					};
-				} else {
-					point = {
-						x: e.touches[0].clientX,
-						y: e.touches[0].clientY
-					};
-				}
-				
-				var dx = (this.startPoint.x - point.x) / this.viewBox.scale;
-				var dy = (this.startPoint.y - point.y) / this.viewBox.scale;
-
-				this.viewBox.x = Math.round(this.viewBox.x + dx);
-				this.viewBox.y = Math.round(this.viewBox.y + dy);
-
-				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
-
-				this.options.coords = this.utils.viewBoxCenter(this.viewBox);
-
-				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`; 
-
-				this.startPoint = point;
-
-				/*
-
-				Update Tiles
-
-				*/
-
-				this.update();
-
-				break;
-			
-			case 'mouseup': case 'touchend':
-
-				/*
-
-				End of Movement
-
-				*/
-
-				this.container.classList.remove('move');
-				document.removeEventListener('mousemove', this.mouseHandler);
-				document.removeEventListener('mouseup', this.mouseHandler);
-
-				document.removeEventListener('touchmove', this.mouseHandler);
-				document.removeEventListener('touchend', this.mouseHandler);
-
-				if(this.options.events.moveend){
-					this.options.events.moveend({
-						zoom: this.options.zoom,
-						coords: {
-							lng: this.options.coords[0],
-							lat: this.options.coords[1]
-						}
-					});
-				}
-
-				break;
-
-			case 'wheel':
-
-				/*
-
-				Zoom
-
-				(!) Rewrite: From Zoom to Scale
-				Zoom first, then calculate viewBox
-
-				*/
-
-				this.container.classList.add('move');
-				const zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
-
-				var dw = this.viewBox.w * Math.sign(e.deltaY) * zoomSpeed;
-				var dh = this.viewBox.h * Math.sign(e.deltaY) * zoomSpeed;
-				var dx = dw * e.x / this.svg.clientWidth;
-				var dy = dh * e.y / this.svg.clientHeight;
-				
-				this.viewBox.x = Math.round(this.viewBox.x + dx);
-				this.viewBox.y = Math.round(this.viewBox.y + dy);
-				this.viewBox.w = Math.round(this.viewBox.w - dw);
-				this.viewBox.h = Math.round(this.viewBox.h - dh);
-				this.viewBox.scale = this.svg.clientWidth / this.viewBox.w;
-				this.options.zoom = this.utils.zoomFromScale(this.viewBox.scale);
-
-				this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
-
-				// Debug Update
-				this.debug.innerText = `${this.options.zoom}, [${this.options.coords.join(',')}]`;
-
-				this.style.render()
-
-				clearTimeout(this.container.tmo);
-				this.container.tmo = setTimeout(() => {
-					this.container.classList.remove('move');
-					this.getZoomID();
-					this.update();
-				}, 150);
-
-				break;
+		if(!init){
+			this.resize.tmo = setTimeout(() => {
+				// Update Map
+			}, 300);
 		}
 	}
 
+
+	setZoomID = () => {
+		this.zoomID = Math.max(Math.min(Math.floor(this.options.zoom / 2) * 2, 14, 0));
+	}
+
 	/*
 
-	Update Tiles
+	Update Map
 
 	*/
 
-	update = async () => {
-		
-		await this.tiles.get();
+	update = () => {
+
+		this.tiles.update();
 
 		if(!this.states.move){
 			return false;
@@ -342,68 +146,63 @@ class SurfyMaps {
 
 	/*
 
-	Set Center of the Map
+	Launch the map
 
 	*/
 
-	setCenter = (coords,animate) => {
-		const [x, y] = this.utils.xy(coords || this.options.coords);
-		
-		this.viewBox.scale = 0.2 * Math.pow(2, (this.options.zoom - 16));
-
-		this.viewBox.w = Math.round(this.svg.clientWidth / this.viewBox.scale);
-		this.viewBox.h = Math.round(this.svg.clientHeight / this.viewBox.scale);
-
-		const dx = x / this.viewBox.scale;
-		const dy = y / this.viewBox.scale;
-
-		this.viewBox.x = Math.round(dx - this.viewBox.w / 2);
-		this.viewBox.y = Math.round(dy - this.viewBox.h / 2);
-
-		this.svg.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
+	launch = () => {
+		this.container.addEventListener('mousedown', this.handler);
+		this.container.addEventListener('touchstart', this.handler);
+		this.container.addEventListener('wheel', this.handler);
 	}
 
-	launch = () => {
-		
-		/*
+	/*
 
-		Initialise Map
+	Handler
 
-		*/
+	*/
 
-		if(!this.states.ready){
-			this.states.ready = true;
+	handler(e){
+		switch(e.type){
+			case 'mousedown': case 'touchstart':
 
+				/*
 
-			/*
+				Initialise
 
-			Handlers
+				*/
+				
+				break;
 
-			*/
+			case 'mousemove': case 'touchmove':
 
-			this.container.addEventListener('mousedown', this.mouseHandler);
-			this.container.addEventListener('touchstart', this.mouseHandler);
-			this.container.addEventListener('wheel', this.mouseHandler);
+				/*
 
-			/*
+				Move
 
-			Resize
+				*/
 
-			*/
+				break;
 
-			window.addEventListener('resize', self.map.resize, { passive: true });
-			this.style.render();
-			this.resize();
+			case 'mouseup': case 'touchend':
 
-			if(this.options.events.load){
-				this.options.events.load({
-					zoom: this.options.zoom,
-					coords: {
-						lng: this.options.coords[0],
-						lat: this.options.coords[1]
-					}
-				});
-			}
+				/*
+
+				Stop moving
+
+				*/
+
+				break;
+
+			case 'wheel':
+
+				/*
+
+				Zoom
+
+				*/
+
+				break;
 		}
 	}
 }
