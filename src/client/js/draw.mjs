@@ -17,7 +17,7 @@ class Draw {
 	*/
 
 	point = feature => {
-		this.circle(feature.coords, feature.container);
+		this.circle(feature.coords, feature.container, feature.color);
 	}
 
 	/*
@@ -26,13 +26,13 @@ class Draw {
 
 	*/
 
-	circle = (coords, container, color, radius) => {
+	circle = (coords, container, color='red', radius) => {
 		const [x, y] = this.map.utils.xy(coords);
 		const circle = document.createElementNS(this.map.svgNS, 'circle');
 		circle.setAttribute('cx', x);
 		circle.setAttribute('cy', y);
 		circle.setAttribute('r', radius || 3);
-		circle.setAttribute('fill', color || 'red');
+		circle.setAttribute('fill', color);
 		(container || this.map.container).appendChild(circle);
 		container.appendChild(circle);
 

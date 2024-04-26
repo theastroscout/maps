@@ -60,8 +60,8 @@ class Utils {
 
 		// If custom layer
 		if(custom){
-			x = (x + this.view.x ) * this.map.view.scale;
-			y = (y + this.view.y) * this.map.view.scale;
+			x = (x + this.map.view.x) * this.map.view.scale;
+			y = (y + this.map.view.y) * this.map.view.scale;
 		}
 
 		// Offset centre

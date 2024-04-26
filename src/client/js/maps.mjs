@@ -32,7 +32,7 @@ class SurfyMaps {
 		const options = {
 			selector: '#map',
 			style: 'chrome',
-			coords: [-0.020853, 51.50581], // [longitude, latitude]
+			center: [-0.020853, 51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
 			zoom: 17,
@@ -106,7 +106,7 @@ class SurfyMaps {
 			zoom: 14, // To compensate tile size
 		};
 
-		this.view.origin = this.utils.xy(this.options.coords, false);
+		this.view.origin = this.utils.xy(this.options.center, false);
 
 		// Run
 
@@ -121,9 +121,10 @@ class SurfyMaps {
 		*/
 
 		let center = {
-			coords: this.options.coords,
+			coords: this.options.center,
 			name: 'Center',
-			container: this.container
+			container: this.container,
+			color: 'green'
 		};
 
 		this.draw.point(center);
@@ -191,7 +192,7 @@ class SurfyMaps {
 	update = () => {
 
 		// Update View Box
-		const [posX, posY] = this.utils.xy(this.options.coords);
+		const [posX, posY] = this.utils.xy(this.options.center);
 		this.view.x = Math.round(posX - this.view.width / 2);
 		this.view.y = Math.round(posY - this.view.height / 2);
 
@@ -241,6 +242,8 @@ class SurfyMaps {
 		this.container.addEventListener('touchstart', this.handler);
 		this.container.addEventListener('wheel', this.handler);
 		window.addEventListener('resize', this.resize, { passive: true });
+
+		document.addEventListener('mousemove', this.test);
 	}
 
 	/*
@@ -316,7 +319,7 @@ class SurfyMaps {
 				handler.startPoint = point;
 
 				// Obtain new coords
-				this.options.coords = this.utils.coords([this.view.x + this.view.width / 2, this.view.y + this.view.height / 2]);
+				this.options.center = this.utils.coords([this.view.x + this.view.width / 2, this.view.y + this.view.height / 2]);
 
 				// Update
 				this.update();
@@ -341,6 +344,68 @@ class SurfyMaps {
 
 				break;
 
+			case 'wheel2':
+
+				/*
+
+				Zoom
+
+				*/
+
+				var zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
+				this.options.zoom = Math.round((this.options.zoom + zoomSpeed * Math.sign(e.deltaY)) * 100) / 100;
+
+				// Change View Position
+
+				// this.view.x += (e.x - this.view.width / 2) * zoomSpeed * this.view.scale * Math.sign(e.deltaY);
+				// this.view.y += (e.y - this.view.height / 2) * zoomSpeed * this.view.scale * Math.sign(e.deltaY);
+
+				/*
+				var x = (this.view.width / 2 - e.x) / (1.2 ** this.options.zoom);
+				var y = (this.view.height / 2 - e.y) / (1.2 ** this.options.zoom);
+
+				console.log(x,y)
+				this.view.x -= x;
+				this.view.y -= y;
+				
+				// Obtain new coords
+				this.options.center = this.utils.coords([this.view.x + this.view.width / 2, this.view.y + this.view.height / 2]);
+				*/
+
+				// var xy = this.utils.coords([e.x,e.y], true, true);
+				// console.log(xy)
+
+				// Update
+				// this.update();
+				// this.view.scale = 1;
+				var dw = this.view.width * this.view.scale * Math.sign(e.deltaY) * zoomSpeed;
+				var dh = this.view.height * this.view.scale * Math.sign(e.deltaY) * zoomSpeed;
+				var dx = dw * e.x / this.container.clientWidth;
+				var dy = dh * e.y / this.container.clientHeight;
+				
+				var x = this.view.x * this.view.scale + dx;
+				var y = this.view.y * this.view.scale + dy;
+				var w = this.view.width * this.view.scale - dw;
+				var h = this.view.height * this.view.scale - dh;
+
+				x = Math.round(x * 100) / 100;
+				y = Math.round(y * 100) / 100;
+				w = Math.round(w * 100) / 100;
+				h = Math.round(h * 100) / 100;
+
+				this.view.x = x / this.view.scale;
+				this.view.y = y / this.view.scale;
+				this.view.width = w / this.view.scale;
+				this.view.height = h / this.view.scale;
+				this.container.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+
+				this.options.center = this.utils.coords([this.view.width, this.view.y]);
+
+				// this.update();
+
+
+				break;
+
 			case 'wheel':
 
 				/*
@@ -349,27 +414,34 @@ class SurfyMaps {
 
 				*/
 
-				const zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
+				var zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
 				this.options.zoom = Math.round((this.options.zoom + zoomSpeed * Math.sign(e.deltaY)) * 100) / 100;
 
-				// Change View Position
+				var dw = this.view.width * this.view.scale * Math.sign(e.deltaY) * zoomSpeed;
+				var dh = this.view.height * this.view.scale * Math.sign(e.deltaY) * zoomSpeed;
+				var dx = dw * e.x / this.container.clientWidth;
+				var dy = dh * e.y / this.container.clientHeight;
 
-				// this.view.x += (e.x - this.view.width / 2) * zoomSpeed * this.view.scale * Math.sign(e.deltaY);
-				// this.view.y += (e.y - this.view.height / 2) * zoomSpeed * this.view.scale * Math.sign(e.deltaY);
-
-				var x = (this.view.width / 2 - e.x) / (1.2 ** this.options.zoom);
-				var y = (this.view.height / 2 - e.y) / (1.2 ** this.options.zoom);
-				console.log(x,y)
-				this.view.x -= x;
-				this.view.y -= y;
+				console.log(dx, dy, dw, dh)
 				
-				// Obtain new coords
-				this.options.coords = this.utils.coords([this.view.x + this.view.width / 2, this.view.y + this.view.height / 2]);
+				var x = this.view.x * this.view.scale + dx;
+				var y = this.view.y * this.view.scale + dy;
+				var w = this.view.width * this.view.scale - dw;
+				var h = this.view.height * this.view.scale - dh;
 
-				// Update
-				this.update();
+				x = Math.round(x * 100) / 100;
+				y = Math.round(y * 100) / 100;
+				w = Math.round(w * 100) / 100;
+				h = Math.round(h * 100) / 100;
 
-				break;
+				this.view.x = x / this.view.scale;
+				this.view.y = y / this.view.scale;
+				this.view.width = w / this.view.scale;
+				this.view.height = h / this.view.scale;
+				this.container.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+
+
+			break;
 		}
 	}
 
@@ -401,6 +473,11 @@ class SurfyMaps {
 
         this.s = el;
         $(el).find('g.block').hover();
+	}
+
+	test = (e) => {
+		let xy = this.utils.coords([e.x, e.y], true, true);
+		// console.log(this.options.center, xy);
 	}
 }
 
