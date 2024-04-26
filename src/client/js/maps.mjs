@@ -34,7 +34,7 @@ class SurfyMaps {
 			coords: [-0.020853, 51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 14,
+			zoom: 17,
 			events: {}
 		};
 
@@ -324,11 +324,37 @@ class SurfyMaps {
 
 				this.update();
 				*/
-
+				/*
 				this.view.xy[0] += (e.x - this.view.width/2) * zoomSpeed / this.view.scale;
 				this.view.xy[1] += (e.y - this.view.height/2) * zoomSpeed / this.view.scale;
 				this.options.coords = this.utils.coords(this.view.xy);
 				this.update();
+				*/
+
+				this.view.x += (e.x - this.view.width/2) * zoomSpeed / this.view.scale * Math.sign(e.deltaY);
+				this.view.y += (e.y - this.view.height / 2) * zoomSpeed * Math.sign(e.deltaY);
+
+				this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
+
+				// Scale
+				let viewBox = [this.view.x, this.view.y, this.view.width, this.view.height];
+				for(let i=0,l=viewBox.length; i<l; i++){
+					viewBox[i] = Math.round(viewBox[i] * this.view.scale * 100)/100;
+				}
+
+				this.container.setAttribute('viewBox', viewBox.join(' '));
+
+				/*
+
+				Overlay
+
+				*/
+
+				for(let item of this.overlay.items){
+					const [x, y] = this.utils.xy(item.coords, true, true);
+					item.el.style.top = y + 'px';
+					item.el.style.left = x + 'px';
+				}
 
 				break;
 		}
