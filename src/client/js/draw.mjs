@@ -17,18 +17,7 @@ class Draw {
 	*/
 
 	point = feature => {
-		if(feature.container){
-			this.circle(feature.coords, feature.container);
-		} else {
-			const div = document.createElement('div');
-			div.classList.add('m');
-			div.classList.add(feature.class || 'default');
-			const [x, y] = this.map.utils.xy(feature.coords, true, true);
-			div.style.top = y + 'px';
-			div.style.left = x + 'px';
-			this.map.overlay.el.appendChild(div);
-			feature.el = div;
-		}
+		this.circle(feature.coords, feature.container);
 	}
 
 	/*

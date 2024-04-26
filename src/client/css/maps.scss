@@ -14,6 +14,21 @@ Surfy° Maps
 	transform: translate3d(0,0,0);
 	user-select: none;
 	// pointer-events: none; // Uncomment for production
+
+	> .custom {
+		.block {
+			cursor: pointer;
+			.body {
+				fill: white;
+				transition: fill .6s;
+			}
+
+			&.hover .body {
+				fill: red;
+				transition: fill .1s;
+			}
+		}
+	}
 }
 
 /*

@@ -74,6 +74,19 @@ class SurfyMaps {
 
 		/*
 
+		Custom Layers
+
+		*/
+
+		this.custom = {
+			el: document.createElementNS(this.svgNS, 'g')
+		};
+		this.custom.el.classList.add('custom');
+		this.container.appendChild(this.custom.el);
+
+
+		/*
+
 		Libs
 
 		*/
@@ -100,6 +113,12 @@ class SurfyMaps {
 		this.setZoomID();
 		this.resize();
 		this.launch();
+
+		/*
+
+		Test
+
+		*/
 
 		let center = {
 			coords: this.options.coords,
@@ -130,12 +149,14 @@ class SurfyMaps {
 		// this.draw.point(feature);
 		// this.overlay.items.push(feature);
 		feature.class = 'default';
-		this.s = this.addMarker(feature);
+		this.addMarker(feature);
 		feature.coords = [-0.022423, 51.506424];
 		let marker = this.addMarker(feature);
 		setTimeout(() => {
 			marker.remove();
-		}, 1000)
+		}, 1000);
+
+		this.loadSVG();
 	}
 
 	/*
@@ -351,6 +372,30 @@ class SurfyMaps {
 
 	addMarker = options => {
 		return new Marker(this, options);
+	}
+
+
+	loadSVG = async () => {
+		let topLeft = [-0.022221, 51.505552];
+		let bottomRight = [-0.020372, 51.504904];
+		let xy = this.utils.xy(topLeft);
+		let right = this.utils.xy(bottomRight);
+		let svgURL = 'https://sandbox.maps.surfy.one/canary-wharf.svg';
+		let src = await (await fetch(svgURL)).text();
+		// this.custom.el.innerHTML += src;
+		const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(src, 'image/svg+xml');
+        const el = svgDoc.documentElement;
+        el.setAttribute('x', xy[0]);
+        el.setAttribute('y', xy[1]);
+        el.setAttribute('width', right[0] - xy[0]);
+        el.setAttribute('height', right[1] - xy[1]);
+        this.custom.el.appendChild(el);
+
+
+
+        this.s = el;
+        $(el).find('g.block').hover();
 	}
 }
 
