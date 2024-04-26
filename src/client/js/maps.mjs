@@ -354,8 +354,14 @@ class SurfyMaps {
 
 				// Change View Position
 
-				this.view.x += (e.x - this.view.width / 2) * zoomSpeed / this.view.scale * Math.sign(e.deltaY);
-				this.view.y += (e.y - this.view.height / 2) * zoomSpeed / this.view.scale * Math.sign(e.deltaY);
+				// this.view.x += (e.x - this.view.width / 2) * zoomSpeed * this.view.scale * Math.sign(e.deltaY);
+				// this.view.y += (e.y - this.view.height / 2) * zoomSpeed * this.view.scale * Math.sign(e.deltaY);
+
+				var x = (this.view.width / 2 - e.x) / (1.2 ** this.options.zoom);
+				var y = (this.view.height / 2 - e.y) / (1.2 ** this.options.zoom);
+				console.log(x,y)
+				this.view.x -= x;
+				this.view.y -= y;
 				
 				// Obtain new coords
 				this.options.coords = this.utils.coords([this.view.x + this.view.width / 2, this.view.y + this.view.height / 2]);
