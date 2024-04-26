@@ -313,7 +313,7 @@ class SurfyMaps {
 				const zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
 				this.options.zoom = Math.round((this.options.zoom + zoomSpeed * Math.sign(e.deltaY)) * 100) / 100;
 
-				
+				/*
 				console.log(this.view.xy);
 				this.view.xy[0] += (e.x - this.view.width / 2) * zoomSpeed;
 				this.view.xy[1] += (e.y - this.view.height / 2) * zoomSpeed;
@@ -322,6 +322,12 @@ class SurfyMaps {
 				
 				this.options.coords = this.utils.coords(this.view.xy);
 
+				this.update();
+				*/
+
+				this.view.xy[0] += (e.x - this.view.width/2) * zoomSpeed / this.view.scale;
+				this.view.xy[1] += (e.y - this.view.height/2) * zoomSpeed / this.view.scale;
+				this.options.coords = this.utils.coords(this.view.xy);
 				this.update();
 
 				break;
