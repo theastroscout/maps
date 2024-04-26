@@ -23,11 +23,10 @@ class Draw {
 			const div = document.createElement('div');
 			div.classList.add('m');
 			div.classList.add(feature.class || 'default');
-			// div.innerText = 'Marker';
 			const [x, y] = this.map.utils.xy(feature.coords, true, true);
 			div.style.top = y + 'px';
 			div.style.left = x + 'px';
-			this.map.customLayer.appendChild(div);
+			this.map.overlay.el.appendChild(div);
 			feature.el = div;
 		}
 	}

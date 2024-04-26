@@ -59,14 +59,17 @@ class SurfyMaps {
 
 		/*
 
-		Custom Layer
+		Overlay
 
 		*/
 
-		this.customLayer = document.createElement('div');
-		this.customLayer.classList.add('custom');
-		this.root.append(this.customLayer);
-		this.customLayers = [];
+		this.overlay = {
+			el: document.createElement('div'),
+			items: []
+		};
+
+		this.overlay.el.classList.add('overlay');
+		this.root.append(this.overlay.el);
 
 		/*
 
@@ -117,8 +120,16 @@ class SurfyMaps {
 
 		delete feature.container;
 
+		/*
+		let coords = [-0.022534, 51.506535]
+		let xy = this.utils.xy(coords, true, true);
+		console.log(coords)
+		console.log(xy)
+		console.log(this.utils.coords(xy, true, true))
+		*/
+
 		this.draw.point(feature);
-		this.customLayers.push(feature);
+		this.overlay.items.push(feature);
 	}
 
 	/*
@@ -170,14 +181,14 @@ class SurfyMaps {
 
 		/*
 
-		Custom
+		Overlay
 
 		*/
 
-		for(let c of this.customLayers){
-			const [x, y] = this.utils.xy(c.coords, true, true);
-			c.el.style.top = y + 'px';
-			c.el.style.left = x + 'px';
+		for(let item of this.overlay.items){
+			const [x, y] = this.utils.xy(item.coords, true, true);
+			item.el.style.top = y + 'px';
+			item.el.style.left = x + 'px';
 		}
 
 		// Update
@@ -301,7 +312,16 @@ class SurfyMaps {
 
 				const zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
 				this.options.zoom = Math.round((this.options.zoom + zoomSpeed * Math.sign(e.deltaY)) * 100) / 100;
-				console.log('Zoom',this.options.zoom);
+
+				
+				console.log(this.view.xy);
+				this.view.xy[0] += (e.x - this.view.width / 2) * zoomSpeed;
+				this.view.xy[1] += (e.y - this.view.height / 2) * zoomSpeed;
+				console.log(this.view.xy);
+
+				
+				this.options.coords = this.utils.coords(this.view.xy);
+
 				this.update();
 
 				break;

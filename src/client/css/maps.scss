@@ -16,7 +16,13 @@ Surfy° Maps
 	// pointer-events: none; // Uncomment for production
 }
 
-.SurfyMaps > .custom {
+/*
+
+Overlay
+
+*/
+
+.SurfyMaps > .overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -38,7 +44,7 @@ Surfy° Maps
 			height: 7px;
 
 			border-radius: 50%;
-			border: 2px solid black;
+			border: 3px solid black;
 
 			cursor: pointer;
 			user-select: none;
