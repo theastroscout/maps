@@ -68,3 +68,18 @@ marker.class = 'default'; // Set
 marker.remove();
 
 ```
+
+<br />
+
+### Custom Layer
+
+```js
+
+const options = {
+	bbox: [-0.022221, 51.505552, -0.020372, 51.504904],
+	url: 'https://example.com/you-svg.svg'
+};
+
+const layer = await map.addSVG(options);
+
+```
