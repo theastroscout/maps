@@ -36,8 +36,8 @@ class Utils {
 
 		// If custom layer
 		if(custom){
-			x = x / this.map.view.scale + this.map.view.width / 2 - this.map.view.xy[0];
-			y = y / this.map.view.scale + this.map.view.height / 2 - this.map.view.xy[1];
+			x = x / this.map.view.scale - this.map.view.x;
+			y = y / this.map.view.scale - this.map.view.y;
 		}
 
 		x = Math.round( x * 100 ) / 100;
@@ -60,9 +60,8 @@ class Utils {
 
 		// If custom layer
 		if(custom){
-			x = (x + this.map.view.xy[0] - this.map.view.width / 2 ) * this.map.view.scale;
-
-			y = (y + this.map.view.xy[1] - this.map.view.height / 2) * this.map.view.scale;
+			x = (x + this.view.x ) * this.map.view.scale;
+			y = (y + this.view.y) * this.map.view.scale;
 		}
 
 		// Offset centre
@@ -78,6 +77,16 @@ class Utils {
 
 		
 		return [ Math.round(lng * 1e6) / 1e6, Math.round(lat * 1e6) / 1e6 ];
+	}
+
+	/*
+
+	Generate ID
+
+	*/
+
+	id = () => {
+		return Date.now().toString(36) + Math.random().toString(36).substr(8);
 	}
 }
 

@@ -7,6 +7,7 @@ Surfy° Maps
 import Utils from './utils.mjs';
 import Draw from './draw.mjs';
 import Tiles from './tiles.mjs';
+import Marker from './marker.mjs';
 
 class SurfyMaps {
 	constructor(customOptions){
@@ -65,7 +66,7 @@ class SurfyMaps {
 
 		this.overlay = {
 			el: document.createElement('div'),
-			items: []
+			items: {}
 		};
 
 		this.overlay.el.classList.add('overlay');
@@ -89,8 +90,7 @@ class SurfyMaps {
 
 		this.view = {
 			tileSize: 2048,
-			zoom: 14, // To compensate for tile size
-			xy: [0, 0]
+			zoom: 14, // To compensate tile size
 		};
 
 		this.view.origin = this.utils.xy(this.options.coords, false);
@@ -98,8 +98,7 @@ class SurfyMaps {
 		// Run
 
 		this.setZoomID();
-		this.resize(true);
-		this.update();
+		this.resize();
 		this.launch();
 
 		let center = {
@@ -128,8 +127,15 @@ class SurfyMaps {
 		console.log(this.utils.coords(xy, true, true))
 		*/
 
-		this.draw.point(feature);
-		this.overlay.items.push(feature);
+		// this.draw.point(feature);
+		// this.overlay.items.push(feature);
+		feature.class = 'default';
+		this.s = this.addMarker(feature);
+		feature.coords = [-0.022423, 51.506424];
+		let marker = this.addMarker(feature);
+		setTimeout(() => {
+			marker.remove();
+		}, 1000)
 	}
 
 	/*
@@ -138,18 +144,13 @@ class SurfyMaps {
 
 	*/
 
-	resize = init => {
+	resize = () => {
 		clearTimeout(this.resize.tmo);
 
 		this.view.width = this.root.clientWidth;
 		this.view.height = this.root.clientHeight;
-
-		if(!init){
-			this.resize.tmo = setTimeout(() => {
-				// Update Map
-				this.update();
-			}, 300);
-		}
+		
+		this.update();
 	}
 
 
@@ -165,33 +166,37 @@ class SurfyMaps {
 
 	update = () => {
 
+		// Update View Box
 		const [posX, posY] = this.utils.xy(this.options.coords);
 		this.view.x = Math.round(posX - this.view.width / 2);
 		this.view.y = Math.round(posY - this.view.height / 2);
 
+		// Scale factor
 		this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
 
-		// Scale
+		// Apply scale factor to all params
 		let viewBox = [this.view.x, this.view.y, this.view.width, this.view.height];
 		for(let i=0,l=viewBox.length; i<l; i++){
 			viewBox[i] = Math.round(viewBox[i] * this.view.scale * 100)/100;
 		}
 
+		// Update View Box
 		this.container.setAttribute('viewBox', viewBox.join(' '));
 
 		/*
 
-		Overlay
+		Update Overlay
 
 		*/
 
-		for(let item of this.overlay.items){
+		for(let id in this.overlay.items){
+			let item = this.overlay.items[id];
 			const [x, y] = this.utils.xy(item.coords, true, true);
 			item.el.style.top = y + 'px';
 			item.el.style.left = x + 'px';
 		}
 
-		// Update
+		// Update tiles
 		this.tiles.update();
 
 		if(!this.states.move){
@@ -211,6 +216,7 @@ class SurfyMaps {
 		this.container.addEventListener('mousedown', this.handler);
 		this.container.addEventListener('touchstart', this.handler);
 		this.container.addEventListener('wheel', this.handler);
+		window.addEventListener('resize', this.resize, { passive: true });
 	}
 
 	/*
@@ -223,6 +229,7 @@ class SurfyMaps {
 
 		let point;
 		let handler = this.handler;
+		let viewBox;
 
 		switch(e.type){
 			case 'mousedown': case 'touchstart':
@@ -246,8 +253,8 @@ class SurfyMaps {
 				}
 
 				handler.startPoint = point;
-				handler.x = this.view.xy[0];
-				handler.y = this.view.xy[1];
+				// handler.x = this.view.xy[0];
+				// handler.y = this.view.xy[1];
 
 				document.addEventListener('mousemove', this.handler);
 				document.addEventListener('mouseup', this.handler);
@@ -276,10 +283,18 @@ class SurfyMaps {
 						y: e.touches[0].clientY
 					};
 				}
-				
-				this.view.xy[0] = handler.x + handler.startPoint.x - point.x;
-				this.view.xy[1] = handler.y + handler.startPoint.y - point.y;
-				this.options.coords = this.utils.coords(this.view.xy);
+
+				// Change View Position
+				this.view.x += handler.startPoint.x - point.x;
+				this.view.y += handler.startPoint.y - point.y;
+
+				// Update Start Point
+				handler.startPoint = point;
+
+				// Obtain new coords
+				this.options.coords = this.utils.coords([this.view.x + this.view.width / 2, this.view.y + this.view.height / 2]);
+
+				// Update
 				this.update();
 
 				break;
@@ -298,7 +313,7 @@ class SurfyMaps {
 				document.removeEventListener('touchmove', this.handler);
 				document.removeEventListener('touchend', this.handler);
 
-				// this.view.xy = [handler.x, handler.y];
+				delete handler.startPoint;
 
 				break;
 
@@ -313,51 +328,29 @@ class SurfyMaps {
 				const zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
 				this.options.zoom = Math.round((this.options.zoom + zoomSpeed * Math.sign(e.deltaY)) * 100) / 100;
 
-				/*
-				console.log(this.view.xy);
-				this.view.xy[0] += (e.x - this.view.width / 2) * zoomSpeed;
-				this.view.xy[1] += (e.y - this.view.height / 2) * zoomSpeed;
-				console.log(this.view.xy);
+				// Change View Position
 
+				this.view.x += (e.x - this.view.width / 2) * zoomSpeed / this.view.scale * Math.sign(e.deltaY);
+				this.view.y += (e.y - this.view.height / 2) * zoomSpeed / this.view.scale * Math.sign(e.deltaY);
 				
-				this.options.coords = this.utils.coords(this.view.xy);
+				// Obtain new coords
+				this.options.coords = this.utils.coords([this.view.x + this.view.width / 2, this.view.y + this.view.height / 2]);
 
+				// Update
 				this.update();
-				*/
-				/*
-				this.view.xy[0] += (e.x - this.view.width/2) * zoomSpeed / this.view.scale;
-				this.view.xy[1] += (e.y - this.view.height/2) * zoomSpeed / this.view.scale;
-				this.options.coords = this.utils.coords(this.view.xy);
-				this.update();
-				*/
-
-				this.view.x += (e.x - this.view.width/2) * zoomSpeed / this.view.scale * Math.sign(e.deltaY);
-				this.view.y += (e.y - this.view.height / 2) * zoomSpeed * Math.sign(e.deltaY);
-
-				this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
-
-				// Scale
-				let viewBox = [this.view.x, this.view.y, this.view.width, this.view.height];
-				for(let i=0,l=viewBox.length; i<l; i++){
-					viewBox[i] = Math.round(viewBox[i] * this.view.scale * 100)/100;
-				}
-
-				this.container.setAttribute('viewBox', viewBox.join(' '));
-
-				/*
-
-				Overlay
-
-				*/
-
-				for(let item of this.overlay.items){
-					const [x, y] = this.utils.xy(item.coords, true, true);
-					item.el.style.top = y + 'px';
-					item.el.style.left = x + 'px';
-				}
 
 				break;
 		}
+	}
+
+	/*
+
+	Add Marker
+
+	*/
+
+	addMarker = options => {
+		return new Marker(this, options);
 	}
 }
 
