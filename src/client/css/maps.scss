@@ -54,7 +54,7 @@ Overlay
 		position: absolute;
 		pointer-events: auto;
 
-		&.default {
+		&._default {
 			transform: translate3d(-50%, -50%, 0);
 
 			width: 7px;
