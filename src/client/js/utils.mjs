@@ -11,6 +11,35 @@ class Utils {
 	}
 
 	xy = (coords, offset=true, custom=false) => {
+		const [lng, lat] = coords;
+		const mapWidth = Math.pow(2, this.map.view.zoom) * this.map.view.tileSize;
+
+		let x = (lng + 180) * (mapWidth / 360);
+		const radians = lat * Math.PI / 180;
+    	const mercatorY = Math.log(Math.tan((Math.PI / 4) + (radians / 2)));
+    	let y = mapWidth / 2 - (mapWidth * mercatorY) / (2 * Math.PI);
+
+    	// Substruct center to change frame of reference
+		if(offset){
+			x -= this.map.view.origin[0];
+			y -= this.map.view.origin[1];
+		}
+
+		// If custom layer
+		if(custom){
+			// x = x / this.map.view.scale - this.map.view.x;
+			// x += this.map.view.width / 2;
+			// y += this.map.view.height / 2;
+			// y = y / this.map.view.scale - this.map.view.y;
+		}
+
+    	x = Math.round( x * 100 ) / 100;
+		y = Math.round( y * 100 ) / 100;
+
+		return [x, y];
+	}
+
+	xy2 = (coords, offset=true, custom=false) => {
 
 		/*
 

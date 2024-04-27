@@ -35,7 +35,7 @@ class SurfyMaps {
 			center: [-0.020853, 51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 17,
+			zoom: 18,
 			events: {}
 		};
 
@@ -250,21 +250,14 @@ class SurfyMaps {
 		this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
 
 		const [posX, posY] = this.utils.xy(this.options.center);
-		this.view.x = Math.round(posX - this.view.width / 2);
-		this.view.y = Math.round(posY - this.view.height / 2);
-		console.log(posX, this.view.x, this.options.center);
-
-		// Apply scale factor to all params
-		let viewBox = [
-			this.view.x,
-			this.view.y,
-			this.view.width,
-			this.view.height
-		];
-
-		for(let i=0,l=viewBox.length; i<l; i++){
-			viewBox[i] = Math.round(viewBox[i] * this.view.scale * 100)/100;
-		}
+		let viewBox = [];
+		viewBox[0] = posX - this.view.width / 2 * this.view.scale;
+		viewBox[1] = posY - this.view.height / 2 * this.view.scale;
+		viewBox[2] = this.view.width * this.view.scale;
+		viewBox[3] = this.view.height * this.view.scale;
+		console.log(viewBox, this.view.scale);
+		this.view.x = viewBox[0];
+		this.view.y = viewBox[1];
 
 		// Update View Box
 		this.container.setAttribute('viewBox', viewBox.join(' '));
