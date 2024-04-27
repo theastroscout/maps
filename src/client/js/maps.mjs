@@ -255,6 +255,8 @@ class SurfyMaps {
 				document.addEventListener('touchmove', this.handler);
 				document.addEventListener('touchend', this.handler);
 				e.preventDefault();
+
+				this.events('movestart');
 				
 				break;
 
