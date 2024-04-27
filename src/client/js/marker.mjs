@@ -4,7 +4,7 @@ Surfy° Maps. Marker
 
 */
 
-const fields = ['coords', 'class', 'content'];
+const fields = ['coords', 'group', 'class', 'content'];
 
 class Marker {
 
@@ -46,6 +46,14 @@ class Marker {
 
 		// Add marker to the list
 		this.map.overlay.items[this._id] = this;
+
+		if(this._group){
+			if(!this.map.overlay.groups[this._group]){
+				this.map.overlay.groups[this._group] = [];
+			}
+			this.map.overlay.groups[this._group].push(this._id);
+			this.el.dataset.group = this._group;
+		}
 	}
 
 	/*

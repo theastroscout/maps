@@ -66,7 +66,8 @@ class SurfyMaps {
 
 		this.overlay = {
 			el: document.createElement('div'),
-			items: {}
+			items: {},
+			groups: {}
 		};
 
 		this.overlay.el.classList.add('overlay');
@@ -120,7 +121,7 @@ class SurfyMaps {
 
 		*/
 
-		// this.test();
+		this.test();
 	}
 
 	/*
@@ -389,7 +390,7 @@ class SurfyMaps {
 	addSVG = async options => {
 		let topLeft = this.utils.xy([options.bbox[0], options.bbox[1]]);
 		let bottomRight = this.utils.xy([options.bbox[2], options.bbox[3]]);
-		let svgURL = 'https://sandbox.maps.surfy.one/canary-wharf.svg';
+		let svgURL = options.url;
 		let src = await (await fetch(svgURL)).text();
 		
 		const parser = new DOMParser();
@@ -419,6 +420,26 @@ class SurfyMaps {
 				center: this.options.center
 			});
 		}
+	}
+
+	/*
+
+	Group
+
+	*/
+
+	removeGroup = name => {
+		if(!this.overlay.groups[name]){
+			return false;
+		}
+
+		for(let markerID of this.overlay.groups[name]){
+			this.overlay.items[markerID].remove();
+		}
+
+		delete this.overlay.groups[name];
+
+		return true;
 	}
 
 	/*
@@ -456,7 +477,7 @@ class SurfyMaps {
 
 		delete feature.container;
 		
-		feature.class = 'default';
+		feature.class = '_default';
 		this.addMarker(feature);
 		feature.coords = [-0.022423, 51.506424];
 		let marker = this.addMarker(feature);
@@ -466,11 +487,66 @@ class SurfyMaps {
 
 		this.addSVG({
 			bbox: [-0.022221, 51.505552, -0.020372, 51.504904],
-			url: 'https://sandbox.maps.surfy.one/canary-wharf.svg'
+			url: 'https://sandbox.maps.surfy.one/styles/test/canary-wharf.svg'
 		});
 
 		this.options.center = axis.coords;
 		this.update();
+	}
+
+	/*
+
+	Set Center
+
+	*/
+
+	setCenter = options => {
+
+		var x = { x: this.options.center[0], y: this.options.center[1], zoom: this.options.zoom };
+
+		var targetValue = { x: options.coords[0], y: options.coords[1], zoom: options.zoom || this.options.zoom };
+
+		if(options.offset){
+			const zero = this.utils.coords([0,0], true, true, options.zoom);
+			const offset = this.utils.coords(options.offset, true, true, options.zoom);
+			targetValue.x += zero[0] - offset[0];
+			targetValue.y += zero[1] - offset[1];
+		}
+
+		let change = (x, target, duration) => {
+			var startTime = performance.now();
+			var endTime = startTime + duration;
+
+			let ease = (t) => {
+				return t * t * (3 - 2 * t);
+			}
+
+			let go = () => {
+				let currentTime = performance.now();
+				let progress = Math.min(1, (currentTime - startTime) / duration);
+				let easedProgress = ease(progress);
+
+				let currentValue = {
+					x: x.x + (target.x - x.x) * easedProgress,
+					y: x.y + (target.y - x.y) * easedProgress,
+					zoom: x.zoom + (target.zoom - x.zoom) * easedProgress,
+				};
+
+				this.options.center = [ Math.round(currentValue.x * 1e6) / 1e6, Math.round(currentValue.y * 1e6) / 1e6 ];
+				this.options.zoom = Math.round(currentValue.zoom * 100) / 100;
+				this.update();
+
+				// console.log("Current value: " + JSON.stringify(currentValue), Math.round(x.x + (target.x - x.x) * easedProgress));
+				if (currentTime < endTime) {
+					requestAnimationFrame(go);
+				}
+			}
+
+			go();
+		}
+
+		change(x, targetValue, options.duration || 0);
+
 	}
 }
 

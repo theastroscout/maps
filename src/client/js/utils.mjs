@@ -18,9 +18,9 @@ class Utils {
 
 	*/
 
-	xy = (coords, offset=true, overlay=false) => {
+	xy = (coords, offset=true, overlay=false, zoom) => {
 		const [lng, lat] = coords;
-		const mapWidth = Math.pow(2, this.map.view.zoom) * this.map.view.tileSize;
+		const mapWidth = Math.pow(2, zoom || this.map.view.zoom) * this.map.view.tileSize;
 
 		let x = (lng + 180) * (mapWidth / 360);
 		const radians = lat * Math.PI / 180;
@@ -53,14 +53,19 @@ class Utils {
 
 	*/
 
-	coords = (xy, offset=true, overlay=false) => {
+	coords = (xy, offset=true, overlay=false, zoom) => {
 		let [x, y] = xy;
 		const mapWidth = Math.pow(2, this.map.view.zoom) * this.map.view.tileSize;
 
+		let scale = this.map.view.scale * 1;
+		if(zoom){
+			scale =  Math.pow(2, this.map.view.zoom  + (this.map.view.zoom - zoom)) / this.map.view.tileSize;
+		}
+
 		// If overlay layer
 		if(overlay){
-			x = (x - this.map.view.width / 2) * this.map.view.scale + this.map.view.x;
-			y = (y - this.map.view.height / 2) * this.map.view.scale + this.map.view.y;
+			x = (x - this.map.view.width / 2) * scale + this.map.view.x;
+			y = (y - this.map.view.height / 2) * scale + this.map.view.y;
 		}
 
 		// Add center to change frame of reference
