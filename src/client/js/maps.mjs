@@ -129,6 +129,15 @@ class SurfyMaps {
 
 		this.draw.point(center);
 
+		let axis = {
+			coords: [-0.02331, 51.50501],
+			name: 'Center',
+			container: this.container,
+			color: 'blue'
+		};
+
+		this.draw.point(axis);
+
 		let feature = {
 			coords: [-0.022323, 51.506024],
 			name: 'Marker',
@@ -161,6 +170,10 @@ class SurfyMaps {
 			bbox: [-0.022221, 51.505552, -0.020372, 51.504904],
 			url: 'https://sandbox.maps.surfy.one/canary-wharf.svg'
 		});
+
+		// [-0.020853, 51.50581]
+		this.options.center = axis.coords;
+		this.update();
 	}
 
 	/*
@@ -242,7 +255,13 @@ class SurfyMaps {
 		console.log(posX, this.view.x, this.options.center);
 
 		// Apply scale factor to all params
-		let viewBox = [this.view.x, this.view.y, this.view.width, this.view.height];
+		let viewBox = [
+			this.view.x,
+			this.view.y,
+			this.view.width,
+			this.view.height
+		];
+
 		for(let i=0,l=viewBox.length; i<l; i++){
 			viewBox[i] = Math.round(viewBox[i] * this.view.scale * 100)/100;
 		}
@@ -394,7 +413,7 @@ class SurfyMaps {
 
 				*/
 
-				let zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .02;
+				let zoomSpeed = Number.isInteger(e.deltaY) ? .05 : .15;
 				this.options.zoom = Math.round((this.options.zoom + zoomSpeed * Math.sign(e.deltaY)) * 100) / 100;
 				this.update();
 
