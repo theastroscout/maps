@@ -19,21 +19,16 @@ class Marker {
 			}
 		}
 
-		// Set up ID
-		this.id = options.id || this.map.utils.id();
-
 		// Create Element
 		this.el = document.createElement('div');
 
-		// Default class
-		this.el.classList.add('m');
+		// Set up ID
+		this._id = this.map.utils.id(); // System ID
+		this.id = options.id || this._id; // Custom or System ID
+		this.el.dataset.id = this.id;
 		
 		// Append Custom Class
-		if(this._class){
-			this.el.classList.add(this._class);
-		} else {
-			this._class = '';
-		}
+		this.class = this._class;
 
 		// Content
 
@@ -50,7 +45,7 @@ class Marker {
 		
 
 		// Add marker to the list
-		this.map.overlay.items[this.id] = this;
+		this.map.overlay.items[this._id] = this;
 	}
 
 	/*
@@ -61,7 +56,7 @@ class Marker {
 
 	remove = () => {
 		this.el.remove();
-		delete this.map.overlay.items[this.id];
+		delete this.map.overlay.items[this._id];
 	}
 
 	/*
@@ -102,10 +97,9 @@ class Marker {
 		return this._class;
 	}
 
-	set class(className){
-		this.el.classList.remove(this._class);
-		this._class = className;
-		this.el.classList.add(this._class);
+	set class(className=''){
+		this._class = ('m ' + className).trim();
+		this.el.setAttribute('class', this._class);
 		return true;
 	}
 

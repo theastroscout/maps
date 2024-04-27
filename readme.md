@@ -18,8 +18,14 @@ const map = new SurfyMaps({
 	selector: '#map',
 	style: 'chrome',
 	center: [-0.118092, 51.509865],
-	zoom: 14
+	zoom: 14,
+	events: {
+		
+	}
 });
+
+// Forced update of all map entities
+map.update();
 
 ```
 
@@ -27,7 +33,7 @@ const map = new SurfyMaps({
 ```js
 
 const options = {
-	id: '', // Optional. Must be unique. If empty will be assigned.
+	id: '', // Optional. If empty will be assigned.
 	coords: [-0.118092, 51.509865],
 	class: 'default',
 	content: 'HTML, Text or Empty'
@@ -45,7 +51,7 @@ Override Styles
 }
 
 DOM Element
-<div class="m {className}" data-id="{id}">{content}</div>
+<div data-id="{id}" class="m {className}">{content}</div>
 
 */
 
@@ -62,7 +68,7 @@ marker.content = 'HTML or text'; // Set
 
 // Class
 console.log(marker.content); // Get
-marker.class = 'default'; // Set
+marker.class = 'default one_more_class'; // Set
 
 // Remove Marker
 marker.remove();
@@ -76,10 +82,10 @@ marker.remove();
 ```js
 
 const options = {
-	bbox: [-0.022221, 51.505552, -0.020372, 51.504904],
+	bbox: [-0.022221, 51.505552, -0.020372, 51.504904], // [top_left_longitude, top_left_latitude, bottom_right_longitude, bottom_right_latitude]
 	url: 'https://example.com/you-svg.svg'
 };
 
-const layer = await map.addSVG(options);
+const svgElement = await map.addSVG(options);
 
 ```

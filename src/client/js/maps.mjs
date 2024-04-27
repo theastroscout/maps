@@ -54,7 +54,7 @@ class SurfyMaps {
 		this.container = document.createElementNS(this.svgNS, 'svg');
 		this.container.setAttribute('shape-rendering', 'geometricPrecision');
 		this.container.setAttribute('xmlns', this.svgNS);
-  		this.container.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+		this.container.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 		this.container.classList.add('container');
 		this.root.append(this.container);
 
@@ -147,17 +147,7 @@ class SurfyMaps {
 		this.draw.point(feature);
 
 		delete feature.container;
-
-		/*
-		let coords = [-0.022534, 51.506535]
-		let xy = this.utils.xy(coords, true, true);
-		console.log(coords)
-		console.log(xy)
-		console.log(this.utils.coords(xy, true, true))
-		*/
-
-		// this.draw.point(feature);
-		// this.overlay.items.push(feature);
+		
 		feature.class = 'default';
 		this.addMarker(feature);
 		feature.coords = [-0.022423, 51.506424];
@@ -171,7 +161,6 @@ class SurfyMaps {
 			url: 'https://sandbox.maps.surfy.one/canary-wharf.svg'
 		});
 
-		// [-0.020853, 51.50581]
 		this.options.center = axis.coords;
 		this.update();
 	}
@@ -202,62 +191,21 @@ class SurfyMaps {
 
 	*/
 
-	update_works = () => {
-		// Update View Box
-		const [posX, posY] = this.utils.xy(this.options.center);
-		this.view.x = Math.round(posX - this.view.width / 2);
-		this.view.y = Math.round(posY - this.view.height / 2);
-
-		// Scale factor
-		this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
-
-		// Apply scale factor to all params
-		let viewBox = [this.view.x, this.view.y, this.view.width, this.view.height];
-		for(let i=0,l=viewBox.length; i<l; i++){
-			viewBox[i] = Math.round(viewBox[i] * this.view.scale * 100)/100;
-		}
-
-		// Update View Box
-		this.container.setAttribute('viewBox', viewBox.join(' '));
-
-		/*
-
-		Update Overlay
-
-		*/
-
-		for(let id in this.overlay.items){
-			let item = this.overlay.items[id];
-			const [x, y] = this.utils.xy(item.coords, true, true);
-			item.el.style.top = y + 'px';
-			item.el.style.left = x + 'px';
-		}
-
-		// Update tiles
-		this.tiles.update();
-
-		if(!this.states.move){
-			return false;
-		}
-
-		requestAnimationFrame(this.update);
-	}
-
 	update = () => {
-		// Update View Box
 
 		// Scale factor
 		this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
 
 		const [posX, posY] = this.utils.xy(this.options.center);
-		let viewBox = [];
-		viewBox[0] = posX - this.view.width / 2 * this.view.scale;
-		viewBox[1] = posY - this.view.height / 2 * this.view.scale;
-		viewBox[2] = this.view.width * this.view.scale;
-		viewBox[3] = this.view.height * this.view.scale;
-		console.log(viewBox, this.view.scale);
-		this.view.x = viewBox[0];
-		this.view.y = viewBox[1];
+		let viewBox = [
+			posX - this.view.width / 2 * this.view.scale,
+			posY - this.view.height / 2 * this.view.scale,
+			this.view.width * this.view.scale,
+			this.view.height * this.view.scale
+		];
+		
+		this.view.x = posX;
+		this.view.y = posY;
 
 		// Update View Box
 		this.container.setAttribute('viewBox', viewBox.join(' '));
@@ -296,8 +244,6 @@ class SurfyMaps {
 		this.container.addEventListener('touchstart', this.handler);
 		this.container.addEventListener('wheel', this.handler);
 		window.addEventListener('resize', this.resize, { passive: true });
-
-		document.addEventListener('mousemove', this.test);
 	}
 
 	/*
@@ -334,8 +280,6 @@ class SurfyMaps {
 				}
 
 				handler.startPoint = point;
-				// handler.x = this.view.xy[0];
-				// handler.y = this.view.xy[1];
 
 				document.addEventListener('mousemove', this.handler);
 				document.addEventListener('mouseup', this.handler);
@@ -366,14 +310,14 @@ class SurfyMaps {
 				}
 
 				// Change View Position
-				this.view.x += handler.startPoint.x - point.x;
-				this.view.y += handler.startPoint.y - point.y;
+				this.view.x += (handler.startPoint.x - point.x) * this.view.scale;
+				this.view.y += (handler.startPoint.y - point.y) * this.view.scale;
 
 				// Update Start Point
 				handler.startPoint = point;
 
 				// Obtain new coords
-				this.options.center = this.utils.coords([this.view.x + this.view.width / 2, this.view.y + this.view.height / 2]);
+				this.options.center = this.utils.coords([this.view.x, this.view.y]);
 
 				// Update
 				this.update();
@@ -433,21 +377,17 @@ class SurfyMaps {
 		let src = await (await fetch(svgURL)).text();
 		
 		const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(src, 'image/svg+xml');
-        const el = svgDoc.documentElement;
-        el.setAttribute('x', topLeft[0]);
-        el.setAttribute('y', topLeft[1]);
-        el.setAttribute('width', bottomRight[0] - topLeft[0]);
-        el.setAttribute('height', bottomRight[1] - topLeft[1]);
-        this.custom.el.appendChild(el);
+		const svgDoc = parser.parseFromString(src, 'image/svg+xml');
+		const el = svgDoc.documentElement;
+		el.setAttribute('x', topLeft[0]);
+		el.setAttribute('y', topLeft[1]);
+		el.setAttribute('width', bottomRight[0] - topLeft[0]);
+		el.setAttribute('height', bottomRight[1] - topLeft[1]);
+		this.custom.el.appendChild(el);
 
-        this.s = el;
-        $(el).find('g.block').hover();
-	}
+		$(el).find('g.block').hover();
 
-	test = (e) => {
-		// let xy = this.utils.coords([e.x, e.y], true, true);
-		// console.log(this.options.center, xy);
+		return el;
 	}
 }
 
