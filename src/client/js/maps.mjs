@@ -120,7 +120,7 @@ class SurfyMaps {
 
 		*/
 
-		this.test();
+		// this.test();
 	}
 
 	/*
@@ -205,6 +205,8 @@ class SurfyMaps {
 		this.overlay.el.addEventListener('mousedown', this.handler); // Fix scroll overlap
 		this.overlay.el.addEventListener('touchstart', this.handler); // Fix scroll overlap
 		window.addEventListener('resize', this.resize, { passive: true });
+
+		this.events('init');
 	}
 
 	/*
@@ -346,6 +348,8 @@ class SurfyMaps {
 
 					delete handler.points;
 					delete handler.dist;
+
+					this.events('moveend');
 				}
 
 				break;
@@ -398,6 +402,21 @@ class SurfyMaps {
 		$(el).find('g.block').hover();
 
 		return el;
+	}
+
+	/*
+
+	Events
+
+	*/
+
+	events = name => {
+		if(this.options.events[name]){
+			this.options.events[name]({
+				zoom: this.options.zoom,
+				center: this.options.center
+			});
+		}
 	}
 
 	/*

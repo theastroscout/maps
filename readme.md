@@ -20,12 +20,24 @@ const map = new SurfyMaps({
 	center: [-0.118092, 51.509865],
 	zoom: 14,
 	events: {
-		
+		init: event, // Triggers when the map initialised
+		movestart: event, // Triggers when the map starts moving
+		moveend: event // Triggers when the map stops moving
 	}
 });
 
 // Forced update of all map entities
 map.update();
+
+// Events
+function event(data){
+	/*
+	data {
+		zoom: map.options.zoom, // zoom level, float
+		center: map.options.center // [longitude, latitude]
+	};
+	*/
+}
 
 ```
 
