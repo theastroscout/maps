@@ -141,7 +141,7 @@ class SurfyMaps {
 
 
 	setZoomID = () => {
-		this.zoomID = Math.max(Math.min(Math.floor(this.options.zoom / 2) * 2, 14, 0));
+		this.zoomID = Math.max( Math.min( Math.floor(this.options.zoom / 2) * 2, 14) , 0);
 	}
 
 	/*
@@ -151,6 +151,7 @@ class SurfyMaps {
 	*/
 
 	update = () => {
+		this.setZoomID();
 
 		// Scale factor
 		this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;

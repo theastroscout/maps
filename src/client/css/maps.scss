@@ -61,23 +61,10 @@ Overlay
 			height: 7px;
 
 			border-radius: 50%;
-			border: 3px solid black;
+			border: 2px solid black;
 
 			cursor: pointer;
 			user-select: none;
-
-			&:hover {
-				&:after {
-					transform: translate3d(0, -50%, 0);
-					content: 'Its a marker!';
-					display: block;
-					position: absolute;
-					top: 50%;
-					left: 15px;
-					white-space: nowrap;
-					font-size: 12px;
-				}
-			}
 		}
 	}
 }
