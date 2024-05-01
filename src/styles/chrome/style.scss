@@ -232,9 +232,9 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.stations {
-					user-select: none;
+					pointer-events: auto;
 
-					--font-rule: 14 2, 16 1;
+					--font-rule: 14 2, 18 .4;
 					--font-dim: em;
 					--font: 2em;
 					font-size: var(--font);
@@ -248,9 +248,9 @@ $host: 'https://sandbox.maps.surfy.one';
 					opacity: var(--opacity);
 
 					// Icon Size
-					--size-rule: 14 2, 16 1;
-					--size-dim: em;
-					--size: 2em;
+					// --size-rule: 14 2, 16 1;
+					// --size-dim: em;
+					// --size: 2em;
 
 					// Tile
 					> g {
@@ -258,17 +258,14 @@ $host: 'https://sandbox.maps.surfy.one';
 						// Label
 						> svg {
 							> image {
-								x: -12vw;
-								y: -5vw;
-								width: 10vw;
-								height: 10vw;
-								x: calc(var(--size) * -1.2);
-								y: calc(var(--size) / -2);
-								width: var(--size);
-								height: var(--size);
+								x: -.75em;
+								y: -.75em;
+								width: 1.5em;
+								height: 1.5em;
 							}
 
 							> text {
+								x: 2em;
 								--opacity-rule: 14.5 0, 16 1;
 								--opacity: 1;
 								opacity: var(--opacity);
@@ -278,6 +275,8 @@ $host: 'https://sandbox.maps.surfy.one';
 								stroke-linecap: butt;
 								stroke-linejoin: miter;
 								paint-order: stroke;
+
+								transform: translate3d(1em, 0, 0);
 
 							}
 						}
