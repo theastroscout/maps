@@ -123,8 +123,8 @@ class Utils {
 
 		const Z2 = Math.pow(2, zoom);
 
-		let west = parseInt(Math.ceil(x1 * Z2), 10);
-		let north = parseInt(Math.ceil(y1 * Z2), 10);
+		let west = parseInt(Math.floor(x1 * Z2), 10);
+		let north = parseInt(Math.floor(y1 * Z2), 10);
 		let east = parseInt(Math.ceil(x2 * Z2), 10);
 		let south = parseInt(Math.ceil(y2 * Z2), 10);
 
@@ -139,6 +139,84 @@ class Utils {
 
 	id = () => {
 		return Date.now().toString(36) + Math.random().toString(36).substr(8);
+	}
+
+	/*
+
+	Get Style Value
+
+	*/
+
+	getValue = (matrix, easing='linear', zoom=this.map.options.zoom) => {
+		
+		// If only one value
+		if(!matrix[0]){
+			return matrix;
+		}
+
+		matrix = [...matrix]; // Copy Obj
+
+		let first = matrix[0];
+		if(zoom <= first[0]){
+			return first[1];
+		}
+
+		let last = matrix.pop();
+		if(zoom >= last[0]){
+			return last[1];
+		}
+
+		for(let i=0,l=matrix.length; i<l; i++){
+			const r = matrix[i];
+			const next = matrix[i+1] || last;
+			if(zoom > r[0] && zoom <= next[0]){
+				const time = (zoom - r[0]) / (next[0] - r[0]);
+				return Number(this.easing[easing](r[1], next[1], time).toFixed(2));
+			}
+		}
+
+		return false;
+	}
+
+	/*
+
+	Easing
+	
+	*/
+
+	easing = {
+
+		/*
+
+		Linear
+
+		*/
+
+		linear: (start, end, t) => {
+			return (1 - t) * start + t * end;
+		},
+
+		/*
+
+		Ease In Quart
+
+		*/
+
+		easeInQuart: (start, end, t) => {
+			const tNormalized = t / 1;
+			const changeInValue = end - start;
+			return changeInValue * tNormalized * tNormalized * tNormalized * tNormalized + start;
+		},
+
+		/*
+
+		Ease In Expo
+
+		*/
+
+		easeInExpo: (start, end, t, base=1.5) => {
+			return start === end ? start : (end - start) * Math.pow(base, 10 * (t - 1)) + start;
+		}
 	}
 }
 

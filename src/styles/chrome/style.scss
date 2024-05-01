@@ -17,7 +17,9 @@ $host: 'https://sandbox.maps.surfy.one';
 .SurfyMaps > svg.container {
 	background-color: #fdfdfd;
 
+
 	> g.tiles {
+		pointer-events: none;
 
 		/*
 
@@ -42,7 +44,6 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.water {
-					pointer-events: none;
 					fill: #e9eaeb;
 				}
 
@@ -53,7 +54,6 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.service {
-					pointer-events: none;
 					fill: #e9eaeb;
 
 					--opacity-rule: 12 0, 14 1;
@@ -68,7 +68,6 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.green {
-					pointer-events: none;
 					fill: #ededed;
 
 					--opacity-rule: 14 0, 15.5 1;
@@ -92,11 +91,10 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.bridges {
-					pointer-events: none;
 					fill-rule: evenodd;
 					fill: #ebebeb;
-					stroke: #bfbfbf;
-					stroke-width: 1px;
+					stroke: #d9d9d9;
+					stroke-width: .5px;
 					vector-effect: non-scaling-stroke;
 
 					--opacity-rule: 14 0, 15 1;
@@ -111,10 +109,9 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.railways {
-					pointer-events: none;
 					fill: none;
-					stroke: #bebebe;
-					stroke-width: 2px;
+					stroke: #d9d9d9;
+					stroke-width: 1px;
 				}
 			}
 
@@ -130,7 +127,6 @@ $host: 'https://sandbox.maps.surfy.one';
 			*/
 
 			> g.roads {
-				// pointer-events: none;
 
 				> g.border {
 
@@ -138,21 +134,21 @@ $host: 'https://sandbox.maps.surfy.one';
 						fill: none;
 						stroke-linecap: round;
 						stroke: #d8d8d8;
-						stroke-width: 34px;
+						stroke-width: 9px;
 					}
 
 					> g.highways {
 						fill: none;
 						stroke-linecap: round;
 						stroke: #d8d8d8;
-						stroke-width: 74px;
+						stroke-width: 11px;
 					}
 
 					> g.motorways {
 						fill: none;
 						stroke-linecap: round;
 						stroke: #d8d8d8;
-						stroke-width: 84px;
+						stroke-width: 12px;
 					}
 				}
 
@@ -162,7 +158,7 @@ $host: 'https://sandbox.maps.surfy.one';
 						fill: none;
 						stroke-linecap: round;
 						stroke: #ffffff;
-						stroke-width: 70px;
+						stroke-width: 10px;
 						opacity: .5;
 					}
 
@@ -170,21 +166,21 @@ $host: 'https://sandbox.maps.surfy.one';
 						fill: none;
 						stroke-linecap: round;
 						stroke: #ffffff;
-						stroke-width: 30px;
+						stroke-width: 8px;
 					}
 
 					> g.highways {
 						fill: none;
 						stroke-linecap: round;
 						stroke: #ffffff;
-						stroke-width: 70px;
+						stroke-width: 10px;
 					}
 
 					> g.motorways {
 						fill: none;
 						stroke-linecap: round;
 						stroke: #ffffff;
-						stroke-width: 80px;
+						stroke-width: 11px;
 					}
 				}
 
@@ -201,7 +197,6 @@ $host: 'https://sandbox.maps.surfy.one';
 				--opacity: 1;
 				opacity: var(--opacity);
 
-				pointer-events: none;
 
 				> g.aero {
 					pointer-events: none;
@@ -216,8 +211,8 @@ $host: 'https://sandbox.maps.surfy.one';
 					
 					fill-rule: evenodd;
 					fill: #f7f7f7;
-					stroke: #bfbfbf;
-					stroke-width: 1px;
+					stroke: #d9d9d9;
+					stroke-width: 0.5px;
 					vector-effect: non-scaling-stroke;
 				}
 			}
@@ -239,9 +234,9 @@ $host: 'https://sandbox.maps.surfy.one';
 				> g.stations {
 					user-select: none;
 
-					--font-rule: 14 20, 16 6;
-					--font-dim: vw;
-					--font: 19vw;
+					--font-rule: 14 2, 16 1;
+					--font-dim: em;
+					--font: 2em;
 					font-size: var(--font);
 
 					fill: #9f9f9f;
@@ -253,9 +248,9 @@ $host: 'https://sandbox.maps.surfy.one';
 					opacity: var(--opacity);
 
 					// Icon Size
-					--size-rule: 14 30, 16 10;
-					--size-dim: vw;
-					--size: 20vw;
+					--size-rule: 14 2, 16 1;
+					--size-dim: em;
+					--size: 2em;
 
 					// Tile
 					> g {
@@ -279,7 +274,7 @@ $host: 'https://sandbox.maps.surfy.one';
 								opacity: var(--opacity);
 
 								stroke: #ffffff;
-								stroke-width: 1vw;
+								stroke-width: .1em;
 								stroke-linecap: butt;
 								stroke-linejoin: miter;
 								paint-order: stroke;
@@ -296,11 +291,10 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.districts {
-					user-select: none;
 				
-					--font-rule: 12 44, 16 18;
+					--font-rule: 12 14, 16 8;
 					--font-dim: em;
-					--font: 44em;
+					--font: 8em;
 					// font-size: 44em;
 					font-size: var(--font);
 
@@ -362,7 +356,6 @@ $host: 'https://sandbox.maps.surfy.one';
 
 			> g.bounds {
 				display: none;
-				pointer-events: none;
 			}
 		}
 	}

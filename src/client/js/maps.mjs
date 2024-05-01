@@ -5,6 +5,7 @@ Surfy° Maps
 */
 
 import Utils from './utils.mjs';
+import Style from './style.mjs';
 import Draw from './draw.mjs';
 import Tiles from './tiles.mjs';
 import Marker from './marker.mjs';
@@ -60,6 +61,17 @@ class SurfyMaps {
 
 		/*
 
+		Libs
+
+		*/
+
+		this.utils = new Utils(this);
+		this.style = new Style(this);
+		this.draw = new Draw(this);
+		this.tiles = new Tiles(this);
+
+		/*
+
 		Overlay
 
 		*/
@@ -85,17 +97,6 @@ class SurfyMaps {
 		this.custom.el.classList.add('custom');
 		this.container.appendChild(this.custom.el);
 
-
-		/*
-
-		Libs
-
-		*/
-
-		this.utils = new Utils(this);
-		this.draw = new Draw(this);
-		this.tiles = new Tiles(this);
-
 		/*
 
 		Set Up
@@ -111,17 +112,7 @@ class SurfyMaps {
 
 		// Run
 
-		this.setZoomID();
-		this.resize();
-		this.launch();
-
-		/*
-
-		Test
-
-		*/
-
-		this.test();
+		this.style.get();
 	}
 
 	/*
@@ -142,6 +133,7 @@ class SurfyMaps {
 
 	setZoomID = () => {
 		this.zoomID = Math.max( Math.min( Math.floor(this.options.zoom / 2) * 2, 14) , 0);
+		this.style.render();
 	}
 
 	/*
@@ -200,6 +192,7 @@ class SurfyMaps {
 	*/
 
 	launch = () => {
+		this.container.addEventListener('click', this.getCoords);
 		this.container.addEventListener('mousedown', this.handler);
 		this.container.addEventListener('touchstart', this.handler);
 		this.container.addEventListener('wheel', this.handler);
@@ -209,6 +202,29 @@ class SurfyMaps {
 		window.addEventListener('resize', this.resize, { passive: true });
 
 		this.events('init');
+
+		this.setZoomID();
+		this.resize();
+
+		/*
+
+		Test
+
+		*/
+
+		this.test();
+	}
+
+	/*
+
+	Get Coords
+
+	*/
+
+	getCoords = e => {
+		let xy = [e.x, e.y];
+		let coords = this.utils.coords(xy, true, true);
+		console.log({x: e.x, y: e.y}, coords);
 	}
 
 	/*
@@ -450,6 +466,7 @@ class SurfyMaps {
 	*/
 
 	test = () => {
+		/*
 		let center = {
 			coords: this.options.center,
 			name: 'Center',
@@ -485,9 +502,10 @@ class SurfyMaps {
 		setTimeout(() => {
 			marker.remove();
 		}, 1000);
+		*/
 
 		this.addSVG({
-			bbox: [-0.022221, 51.505552, -0.020372, 51.504904],
+			bbox: [-0.022287, 51.505448, -0.018615, 51.50462],
 			url: 'https://sandbox.maps.surfy.one/styles/test/canary-wharf.svg'
 		});
 
