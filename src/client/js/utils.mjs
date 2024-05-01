@@ -89,6 +89,50 @@ class Utils {
 
 	/*
 
+	Canvas BBox
+
+	*/
+
+	canvasBBox = () => {
+		let bbox = [...this.coords([0,0], true, true), ...this.coords([this.map.view.width, this.map.view.height], true, true)];
+		return bbox;
+	}
+
+	/*
+
+	Tile
+
+	*/
+
+	radians = coords => {
+		const [lng, lat] = coords;
+		const x = lng / 360.0 + 0.5;
+		
+		const sinlat = Math.sin(lat * ( Math.PI / 180 ));
+		const y = 0.5 - 0.25 * Math.log((1.0 + sinlat) / (1.0 - sinlat)) / Math.PI;
+
+		return [x, y];
+	}
+
+	tiles = zoom => {
+
+		const bbox = this.canvasBBox();
+
+		const [x1, y1] = this.radians([bbox[0], bbox[1]]);
+		const [x2, y2] = this.radians([bbox[2], bbox[3]]);
+
+		const Z2 = Math.pow(2, zoom);
+
+		let west = parseInt(Math.ceil(x1 * Z2), 10);
+		let north = parseInt(Math.ceil(y1 * Z2), 10);
+		let east = parseInt(Math.ceil(x2 * Z2), 10);
+		let south = parseInt(Math.ceil(y2 * Z2), 10);
+
+		return [west, north, east, south];
+	}
+
+	/*
+
 	Generate ID
 
 	*/

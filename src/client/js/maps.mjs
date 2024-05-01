@@ -491,8 +491,8 @@ class SurfyMaps {
 			url: 'https://sandbox.maps.surfy.one/styles/test/canary-wharf.svg'
 		});
 
-		this.options.center = axis.coords;
-		this.update();
+		// this.options.center = axis.coords;
+		// this.update();
 	}
 
 	/*
