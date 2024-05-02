@@ -4,7 +4,7 @@
 		"nature": {
 
 			"water": {
-				"minzoom": 8,
+				"minzoom": 10,
 				"data": [
 					{
 						"field": "name",
@@ -32,7 +32,7 @@
 			},
 
 			"service": {
-				"minzoom": 12,
+				"minzoom": 15,
 				"data": [
 					{
 						"field": "name",
@@ -48,7 +48,7 @@
 			},
 
 			"green": {
-				"minzoom": 14,
+				"minzoom": 15,
 				"data": [
 					{
 						"field": "name",
@@ -56,7 +56,11 @@
 					}
 				],
 				"compress": {
-					"14": {
+					"15": {
+						"tolerance": 0.00001,
+						"drop": 0.00000008
+					},
+					"16": {
 						"tolerance": 0.00001,
 						"drop": 0.00000001
 					}
@@ -68,7 +72,7 @@
 		"service": {
 
 			"railways": {
-				"minzoom": 14,
+				"minzoom": 16,
 				"compress": {
 					"14": {
 						"tolerance": 0.00001,
@@ -78,7 +82,7 @@
 			},
 
 			"bridgePaths": {
-				"minzoom": 14,
+				"minzoom": 16,
 				"data": [
 					{
 						"field": "name",
@@ -94,7 +98,7 @@
 			},
 
 			"bridges": {
-				"minzoom": 14,
+				"minzoom": 15,
 				"data": [
 					{
 						"field": "name",
@@ -112,7 +116,7 @@
 		"roads": {
 
 			"tunnels": {
-				"minzoom": 14,
+				"minzoom": 16,
 				"data": [
 					{
 						"field": "name",
@@ -176,7 +180,7 @@
 			},
 
 			"streets": {
-				"minzoom": 14,
+				"minzoom": 16,
 				"data": [
 					{
 						"field": "name",
@@ -184,7 +188,7 @@
 					}
 				],
 				"compress": {
-					"-14": {
+					"14": {
 						"tolerance": 0.000001,
 						"drop": 0.0000001
 					}
@@ -195,7 +199,7 @@
 		"buildings": {
 			
 			"facilities": {
-				"minzoom": 14,
+				"minzoom": 15,
 				"data": [
 					{
 						"field": "name",
@@ -211,7 +215,7 @@
 			},
 
 			"houses": {
-				"minzoom": 14,
+				"minzoom": 15,
 				"data": [
 					{
 						"field": "name",
@@ -219,7 +223,11 @@
 					}
 				],
 				"compress": {
-					"14": {
+					"15": {
+						"tolerance": 0.00001,
+						"drop": 0.00000008
+					},
+					"16": {
 						"tolerance": 0.00001,
 						"drop": 0.000000005
 					}
@@ -227,7 +235,7 @@
 			},
 
 			"aero": {
-				"minzoom": 14
+				"minzoom": 15
 			}
 		},
 

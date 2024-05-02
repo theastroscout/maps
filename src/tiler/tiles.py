@@ -108,7 +108,7 @@ class Tiles:
 		bbox = json.loads(result[0])
 		print('BBOX',bbox)
 
-		for zoom in (2, 4, 6, 8, 10, 12, 14):
+		for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17):
 		# for zoom in (2, 4, 6, 8, 10):
 
 			'''

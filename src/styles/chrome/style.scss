@@ -58,7 +58,7 @@ $blackground: #fdfdfd;
 				> g.service {
 					fill: #e9ebed;
 
-					--opacity-rule: 12 0, 14 1;
+					--opacity-rule: 15 0, 15.5 1;
 					--opacity: 1;
 					opacity: var(--opacity);
 				}
@@ -72,7 +72,7 @@ $blackground: #fdfdfd;
 				> g.green {
 					fill: #ededed;
 
-					--opacity-rule: 14 0, 15.5 1;
+					--opacity-rule: 15 0, 15.5 1;
 					--opacity: 1;
 					opacity: var(--opacity);
 				}
@@ -218,7 +218,7 @@ $blackground: #fdfdfd;
 			*/
 
 			> g.buildings {
-				--opacity-rule: 14 0, 16 1;
+				--opacity-rule: 15 0, 16 1;
 				--opacity: 1;
 				opacity: var(--opacity);
 

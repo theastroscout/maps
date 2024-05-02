@@ -132,7 +132,8 @@ class SurfyMaps {
 
 
 	setZoomID = () => {
-		this.zoomID = Math.max( Math.min( Math.floor(this.options.zoom / 2) * 2, 14) , 0);
+		let zoom = this.options.zoom < 15 ? Math.floor(this.options.zoom / 2) * 2 : Math.floor(this.options.zoom);
+		this.zoomID = Math.max( Math.min( zoom , 17) , 0);
 		this.style.render();
 	}
 
