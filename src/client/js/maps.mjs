@@ -144,6 +144,10 @@ class SurfyMaps {
 	*/
 
 	update = () => {
+		if(!this.ready){
+			return true;
+		}
+		
 		this.setZoomID();
 
 		// Scale factor
@@ -193,6 +197,7 @@ class SurfyMaps {
 	*/
 
 	launch = () => {
+
 		this.container.addEventListener('click', this.getCoords);
 		this.container.addEventListener('mousedown', this.handler);
 		this.container.addEventListener('touchstart', this.handler);
@@ -201,6 +206,8 @@ class SurfyMaps {
 		this.overlay.el.addEventListener('mousedown', this.handler); // Fix scroll overlap
 		this.overlay.el.addEventListener('touchstart', this.handler); // Fix scroll overlap
 		window.addEventListener('resize', this.resize, { passive: true });
+
+		this.ready = true;
 
 		this.events('init');
 
