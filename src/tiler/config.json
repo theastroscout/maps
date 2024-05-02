@@ -67,6 +67,32 @@
 
 		"service": {
 
+			"railways": {
+				"minzoom": 14,
+				"compress": {
+					"14": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
+					}
+				}
+			},
+
+			"bridgePaths": {
+				"minzoom": 14,
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
+				"compress": {
+					"14": {
+						"tolerance": 0.00001,
+						"drop": 0.0001
+					}
+				}
+			},
+
 			"bridges": {
 				"minzoom": 14,
 				"data": [
@@ -78,16 +104,6 @@
 				"compress": {
 					"14": {
 						"tolerance": 0.00001
-					}
-				}
-			},
-
-			"railways": {
-				"minzoom": 14,
-				"compress": {
-					"14": {
-						"tolerance": 0.00001,
-						"drop": 0.0000001
 					}
 				}
 			}
@@ -140,7 +156,7 @@
 			},
 
 			"highways": {
-				"minzoom": 14,
+				"minzoom": 12,
 				"data": [
 					{
 						"field": "name",
@@ -148,11 +164,11 @@
 					}
 				],
 				"compress": {
-					"-12": {
+					"12": {
 						"tolerance": 0.0001,
 						"drop": 0.00001
 					},
-					"-14": {
+					"14": {
 						"tolerance": 0.00001,
 						"drop": 0.0000001
 					}
@@ -327,6 +343,15 @@
 			]
 		},
 		"way": {
+			"railway": [
+				{
+					"values": [ "rail", "light_rail", "monorail", "narrow_gauge", "preserved", "tram" ],
+					"skip": {
+						"tunnel": "*"
+					},
+					"containers": [ "service:railways" ]
+				}
+			],
 			"highway": [
 				{
 					"values": [ "motorway" ],
@@ -341,13 +366,14 @@
 					"containers": [ "roads:streets" ]
 				}
 			],
-			"railway": [
+			"bridge": [
 				{
-					"values": [ "rail", "light_rail", "monorail", "narrow_gauge", "preserved", "tram" ],
+					"values": "*",
 					"skip": {
-						"tunnel": "*"
+						"man_made": "bridge",
+						"railway": "platform"
 					},
-					"containers": [ "service:railways" ]
+					"containers": [ "service:bridgePaths" ]
 				}
 			]
 		},
@@ -401,7 +427,13 @@
 			],
 			"man_made": [
 				{
-					"values": [ "bridge" ],
+					"values": [ "bridge", "pier" ],
+					"containers": [ "service:bridges" ]
+				}
+			],
+			"bridge": [
+				{
+					"values": "*",
 					"containers": [ "service:bridges" ]
 				}
 			]

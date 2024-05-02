@@ -14,8 +14,10 @@ $host: 'https://sandbox.maps.surfy.one';
 	--dict: '';
 }
 
+$blackground: #fdfdfd;
+
 .SurfyMaps > svg.container {
-	background-color: #fdfdfd;
+	background-color: $blackground;
 
 
 	> g.tiles {
@@ -44,7 +46,7 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.water {
-					fill: #e9eaeb;
+					fill: #e9ebed;
 				}
 
 				/*
@@ -54,7 +56,7 @@ $host: 'https://sandbox.maps.surfy.one';
 				*/
 
 				> g.service {
-					fill: #e9eaeb;
+					fill: #e9ebed;
 
 					--opacity-rule: 12 0, 14 1;
 					--opacity: 1;
@@ -84,6 +86,7 @@ $host: 'https://sandbox.maps.surfy.one';
 			*/
 
 			> g.service {
+
 				/*
 
 				Bridges
@@ -92,9 +95,26 @@ $host: 'https://sandbox.maps.surfy.one';
 
 				> g.bridges {
 					fill-rule: evenodd;
-					fill: #ebebeb;
-					stroke: #d9d9d9;
+					fill: #f5f5f5;
+					stroke: #e6e6e6;
 					stroke-width: .5px;
+					vector-effect: non-scaling-stroke;
+
+					--opacity-rule: 14 0, 15 1;
+					--opacity: 1;
+					opacity: var(--opacity);
+				}
+				
+				/*
+
+				Bridge Paths
+
+				*/
+
+				> g.bridgePaths {
+					fill: none;
+					stroke: $blackground;
+					stroke-width: 3px;
 					vector-effect: non-scaling-stroke;
 
 					--opacity-rule: 14 0, 15 1;
@@ -127,6 +147,9 @@ $host: 'https://sandbox.maps.surfy.one';
 			*/
 
 			> g.roads {
+				--highway-rule: 12 50, 17 10;
+				--highway-dim: px;
+				--highway: 10px;
 
 				> g.border {
 
@@ -141,7 +164,8 @@ $host: 'https://sandbox.maps.surfy.one';
 						fill: none;
 						stroke-linecap: round;
 						stroke: #d8d8d8;
-						stroke-width: 11px;
+						// stroke-width: 11px;
+						stroke-width: calc(var(--highway) * 1.15);
 					}
 
 					> g.motorways {
@@ -173,7 +197,8 @@ $host: 'https://sandbox.maps.surfy.one';
 						fill: none;
 						stroke-linecap: round;
 						stroke: #ffffff;
-						stroke-width: 10px;
+						// stroke-width: 10px;
+						stroke-width: var(--highway);
 					}
 
 					> g.motorways {
@@ -289,12 +314,10 @@ $host: 'https://sandbox.maps.surfy.one';
 
 				*/
 
-				> g.districts {
-				
-					--font-rule: 12 14, 16 8;
+				> g.districts {				
+					--font-rule: 12 12, 16 6;
 					--font-dim: em;
 					--font: 8em;
-					// font-size: 44em;
 					font-size: var(--font);
 
 					--opacity-rule: 11 0, 13 .8, 15 .5, 17 0;
@@ -307,7 +330,7 @@ $host: 'https://sandbox.maps.surfy.one';
 					dominant-baseline: central;
 
 					stroke: #ffffff;
-					stroke-width: 3vw;
+					stroke-width: 10px;
 					stroke-linecap: butt;
 					stroke-linejoin: miter;
 					paint-order: stroke;

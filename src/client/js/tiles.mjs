@@ -557,10 +557,6 @@ class Tiles {
 
 			processed[feature.id] = feature;
 
-			if(fID === '193407941'){
-				console.log('', url, item, processed[feature.id])
-			}
-
 		}
 
 		this.map.draw.render(processed);
