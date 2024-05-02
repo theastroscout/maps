@@ -15,6 +15,8 @@ import multiprocessing
 from collections import namedtuple
 DB = namedtuple('DB', ['conn', 'cursor'])
 
+import time
+
 # Geometry Types for Index
 geometries = ['Point', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon']
 
@@ -106,7 +108,7 @@ class Tiles:
 		self.db.cursor.execute("SELECT data FROM config_data WHERE name='bbox'")
 		result = self.db.cursor.fetchone()
 		bbox = json.loads(result[0])
-		print('BBOX',bbox)
+		# print('BBOX',bbox)
 
 		for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17):
 		# for zoom in (2, 4, 6, 8, 10):
@@ -148,7 +150,7 @@ class Tiles:
 
 		self.db.cursor.execute("PRAGMA table_info(features);")
 		columns = [column[1] for column in self.db.cursor.fetchall()]
-		print('DB Columns', columns)
+		# print('DB Columns', columns)
 
 
 		min_x, min_y, max_x, max_y = -0.0224971329,51.5041493371,-0.0200334285,51.5006863218
@@ -182,7 +184,7 @@ def create_tile(data):
 	x,y,z = tile
 	zoom = str(z)
 
-	print('Create', tile)
+	# print('Create', tile)
 	
 	'''
 	
@@ -399,9 +401,13 @@ def create_tile(data):
 
 
 def create_tiles(CONFIG):
+	start_time = time.time()
 	tiles = Tiles(CONFIG)
 
 	tiles.go()
+
+	execution_time = time.time() - start_time
+	print('Tiles time: {:.2f} minutes'.format(execution_time / 60))
 
 if __name__ == '__main__':
 	config_name = 'canary'
