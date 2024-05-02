@@ -23,7 +23,7 @@ class SurfyMaps {
 
 		let options = {
 			selector: '#map',
-			style: 'chrome',
+			style: 'essential',
 			coords: [-0.020853,51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,

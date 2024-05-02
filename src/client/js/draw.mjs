@@ -179,7 +179,7 @@ class Draw {
 
 			*/
 
-			const pathID = 'r'+feature.id;
+			const pathID = 'r' + feature.id + '-' + feature.tileURL;
 			path.setAttribute('id', pathID);
 
 			feature.container.defs.appendChild(path);
@@ -224,7 +224,6 @@ class Draw {
 	point = feature => {
 		const p = this.map.utils.xy([feature.coords[0]/1000000,feature.coords[1]/1000000]);
 		const text = document.createElementNS(this.map.svgNS,'text');
-		console.log(feature)
 		text.textContent = feature.data.name;
 
 		if(feature.layer === 'stations'){

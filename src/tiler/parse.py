@@ -105,8 +105,8 @@ class Parse:
 
 
 if __name__ == '__main__':
-	# config_name = 'canary'
-	config_name = 'isle-of-dogs'
+	config_name = 'canary'
+	# config_name = 'isle-of-dogs'
 	# config_name = 'london'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))

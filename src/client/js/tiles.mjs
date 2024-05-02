@@ -257,11 +257,6 @@ class Tiles {
 
 			const fID = chunks.shift();
 			
-			if(this.storage.features[zoomID][fID]){
-				// Skip feature if it exists
-				continue;
-			}
-			
 			const geomID = parseInt(chunks.shift(), 10);
 			const geomType = geometryTypes[geomID];
 			
@@ -270,6 +265,11 @@ class Tiles {
 
 			const layerID = parseInt(chunks.shift(), 10);
 			const layer = group.layers[layerID];
+
+			if(this.storage.features[zoomID][fID]){
+				// Skip feature if it exists
+				continue;
+			}
 
 			/*
 
@@ -302,7 +302,8 @@ class Tiles {
 				group: group.name,
 				layer: layer.name,
 				coords: coords,
-				data: data
+				data: data,
+				tileURL: url
 			};
 
 			
@@ -555,6 +556,10 @@ class Tiles {
 			*/
 
 			processed[feature.id] = feature;
+
+			if(fID === '193407941'){
+				console.log('', url, item, processed[feature.id])
+			}
 
 		}
 
