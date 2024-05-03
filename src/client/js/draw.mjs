@@ -46,7 +46,7 @@ class Draw {
 
 	*/
 
-	render = items => {
+	render = (url, items) => {
 		const amount = Object.keys(items).length;
 		this.total += amount;
 		// console.log(`@Render Objects current: ${amount}, ${this.total} in total.`);
@@ -69,7 +69,10 @@ class Draw {
 					break;
 			}
 		}
-		
+
+		if(!this.map.states.loaded){
+			this.map.firstLoad(url);
+		}
 	}
 
 	/*

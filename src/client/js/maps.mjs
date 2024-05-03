@@ -104,6 +104,8 @@ class SurfyMaps {
 		*/
 
 		this.view = {
+			width: this.root.clientWidth,
+			height: this.root.clientHeight,
 			tileSize: 2048,
 			zoom: 14, // To compensate tile size
 		};
@@ -530,9 +532,9 @@ class SurfyMaps {
 
 	setCenter = options => {
 
-		var x = { x: this.options.center[0], y: this.options.center[1], zoom: this.options.zoom };
+		let x = { x: this.options.center[0], y: this.options.center[1], zoom: this.options.zoom };
 
-		var targetValue = { x: options.coords[0], y: options.coords[1], zoom: options.zoom || this.options.zoom };
+		let targetValue = { x: options.coords[0], y: options.coords[1], zoom: options.zoom || this.options.zoom };
 
 		if(options.offset){
 			const zero = this.utils.coords([0,0], true, true, options.zoom);
@@ -542,8 +544,8 @@ class SurfyMaps {
 		}
 
 		let change = (x, target, duration) => {
-			var startTime = performance.now();
-			var endTime = startTime + duration;
+			let startTime = performance.now();
+			let endTime = startTime + duration;
 
 			let ease = (t) => {
 				return t * t * (3 - 2 * t);
@@ -575,6 +577,20 @@ class SurfyMaps {
 
 		change(x, targetValue, options.duration || 0);
 
+	}
+
+	/*
+
+	First Load
+
+	*/
+
+	firstLoad = url => {
+		delete this.firstLoad.tiles[url];
+		if(!Object.keys(this.firstLoad.tiles).length){
+			this.states.loaded = true;
+			this.events('loaded');
+		}
 	}
 }
 

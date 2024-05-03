@@ -208,6 +208,15 @@ class Tiles {
 
 		// Reassign visible tiles
 		this.storage.tiles[zoomID].visible = visibleTiles;
+
+		if(!this.map.states.loaded){
+			if(this.map.firstLoad.tiles){
+				this.map.firstLoad.tiles = {};
+				this.map.firstLoad();
+			} else {
+				this.map.firstLoad.tiles = {...visibleTiles};
+			}
+		}
 	}
 
 	/*
@@ -232,6 +241,10 @@ class Tiles {
 			this.parse(zoomID, url);
 		} else {
 			this.storage.tiles[zoomID].items[url] = false;
+
+			if(!this.map.states.loaded){
+				this.map.firstLoad(url);
+			}
 		}
 		
 	}
@@ -305,10 +318,6 @@ class Tiles {
 				data: data,
 				tileURL: url
 			};
-
-			if(fID === '51946915' || fID === '4499636'){
-				console.log(feature)
-			}
 
 			
 			/*
@@ -563,7 +572,7 @@ class Tiles {
 
 		}
 
-		this.map.draw.render(processed);
+		this.map.draw.render(url, processed);
 	}
 };
 
