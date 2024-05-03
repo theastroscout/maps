@@ -160,7 +160,7 @@
 			},
 
 			"highways": {
-				"minzoom": 12,
+				"minzoom": 14,
 				"data": [
 					{
 						"field": "name",
@@ -168,10 +168,6 @@
 					}
 				],
 				"compress": {
-					"12": {
-						"tolerance": 0.0001,
-						"drop": 0.00001
-					},
 					"14": {
 						"tolerance": 0.00001,
 						"drop": 0.0000001

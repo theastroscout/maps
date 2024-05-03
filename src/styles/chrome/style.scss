@@ -8,7 +8,7 @@ $host: 'https://sandbox.maps.surfy.one';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$host}/data/tiles/canary;
+	--tiles: #{$host}/data/tiles/london;
 	--sprites: #{$host}'/styles/chrome/sprites.svg';
 
 	--dict: '';
@@ -320,7 +320,7 @@ $blackground: #fdfdfd;
 					--font: 8em;
 					font-size: var(--font);
 
-					--opacity-rule: 11 0, 13 .8, 15 .5, 17 0;
+					--opacity-rule: 12 0, 13.5 .8, 15 .5, 17 0;
 					--opacity: 1;
 					opacity: var(--opacity);
 					
