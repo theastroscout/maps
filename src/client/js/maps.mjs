@@ -377,10 +377,10 @@ class SurfyMaps {
 					document.removeEventListener('touchmove', this.handler);
 					document.removeEventListener('touchend', this.handler);
 
+					this.events('moveend');
+
 					delete handler.points;
 					delete handler.dist;
-
-					this.events('moveend');
 				}
 
 				break;
