@@ -36,7 +36,7 @@ class SurfyMaps {
 			center: [-0.020853, 51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 15.1,
+			zoom: 16.3,
 			events: {}
 		};
 

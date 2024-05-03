@@ -279,38 +279,35 @@ $blackground: #fdfdfd;
 				*/
 
 				> g.stations {
-					--font-rule: 14 2, 18 .4;
-					--font-dim: em;
-					--font: 2em;
+					pointer-events: auto;
+					--font-rule: 15 32, 18 10;
+					--font-dim: px;
+					--font: 32px;
 					font-size: var(--font);
 
 					fill: #9f9f9f;
-					// text-anchor: middle;
-					dominant-baseline: central;
 
 					--opacity-rule: 14 0, 15 1;
 					--opacity: 1;
 					opacity: var(--opacity);
-
-					// Icon Size
-					// --size-rule: 14 2, 16 1;
-					// --size-dim: em;
-					// --size: 2em;
 
 					// Tile
 					> g {
 
 						// Label
 						> svg {
+							overflow: visible;
+
 							> image {
-								x: -.75em;
-								y: -.75em;
-								width: 1.5em;
-								height: 1.5em;
+								width: 1.4em;
+								height: 1.4em;
+								transform: translate(-.7em, -.7em);
 							}
 
 							> text {
-								x: 2em;
+								dominant-baseline: central;
+								text-anchor: start;
+
 								--opacity-rule: 14.5 0, 16 1;
 								--opacity: 1;
 								opacity: var(--opacity);
@@ -321,7 +318,9 @@ $blackground: #fdfdfd;
 								stroke-linejoin: miter;
 								paint-order: stroke;
 
-								transform: translate3d(1em, 0, 0);
+								text-rendering: optimizeSpeed;
+
+								transform: translate(1em, 0);
 
 							}
 						}

@@ -227,10 +227,11 @@ class Draw {
 		text.textContent = feature.data.name;
 
 		if(feature.layer === 'stations'){
+
 			const svg = document.createElementNS(this.map.svgNS, 'svg');
 			svg.setAttribute('x', p[0]);
 			svg.setAttribute('y', p[1]);
-			svg.style.overflow = 'visible';
+			// svg.style.overflow = 'visible';
 
 			svg.appendChild(text);
 
