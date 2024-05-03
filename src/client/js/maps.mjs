@@ -36,7 +36,7 @@ class SurfyMaps {
 			center: [-0.020853, 51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 18,
+			zoom: 15.1,
 			events: {}
 		};
 
@@ -134,6 +134,7 @@ class SurfyMaps {
 	setZoomID = () => {
 		let zoom = this.options.zoom < 15 ? Math.floor(this.options.zoom / 2) * 2 : Math.floor(this.options.zoom);
 		this.zoomID = Math.max( Math.min( zoom , 17) , 0);
+
 		this.style.render();
 	}
 

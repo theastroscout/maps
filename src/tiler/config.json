@@ -1,6 +1,27 @@
 {
 	"groups": {
 
+		"landuse": {
+			"areas": {
+				"minzoom": 10,
+				"data": [],
+				"compress": {
+					"10": {
+						"tolerance": 0.000005,
+						"drop": 0.00000001
+					},
+					"12": {
+						"tolerance": 0.000005,
+						"drop": 0.00000001
+					},
+					"14": {
+						"tolerance": 0.000005,
+						"drop": 0.00000001
+					}
+				}
+			}
+		},
+
 		"nature": {
 
 			"water": {
@@ -18,21 +39,33 @@
 					},
 					"10": {
 						"tolerance": 0.0005,
-						"drop": 0.000001
+						"drop": 0.00001
 					},
 					"12": {
+						"tolerance": 0.000008,
+						"drop": 0.000001
+					},
+					"14": {
+						"tolerance": 0.000008,
+						"drop": 0.000001
+					},
+					"15": {
+						"tolerance": 0.000008,
+						"drop": 0.000001
+					},
+					"16": {
 						"tolerance": 0.000005,
 						"drop": 0.0000001
 					},
-					"14": {
-						"tolerance": 0.000005,
-						"drop": 0.00000001
+					"17": {
+						"tolerance": 0.0000001,
+						"drop": 0.000000001
 					}
 				}
 			},
 
 			"service": {
-				"minzoom": 15,
+				"minzoom": 12,
 				"data": [
 					{
 						"field": "name",
@@ -40,7 +73,19 @@
 					}
 				],
 				"compress": {
+					"12": {
+						"tolerance": 0.000005,
+						"drop": 0.00000001
+					},
 					"14": {
+						"tolerance": 0.000005,
+						"drop": 0.00000001
+					},
+					"15": {
+						"tolerance": 0.000005,
+						"drop": 0.00000001
+					},
+					"16": {
 						"tolerance": 0.000005,
 						"drop": 0.00000001
 					}
@@ -62,7 +107,11 @@
 					},
 					"16": {
 						"tolerance": 0.00001,
-						"drop": 0.00000001
+						"drop": 0.0000001
+					},
+					"17": {
+						"tolerance": 0.0000001,
+						"drop": 0.000000001
 					}
 				}
 			}
@@ -72,9 +121,9 @@
 		"service": {
 
 			"railways": {
-				"minzoom": 16,
+				"minzoom": 17,
 				"compress": {
-					"14": {
+					"17": {
 						"tolerance": 0.00001,
 						"drop": 0.0000001
 					}
@@ -93,6 +142,14 @@
 					"14": {
 						"tolerance": 0.00001,
 						"drop": 0.0001
+					},
+					"15": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
+					},
+					"16": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
 					}
 				}
 			},
@@ -107,6 +164,9 @@
 				],
 				"compress": {
 					"14": {
+						"tolerance": 0.00001
+					},
+					"15": {
 						"tolerance": 0.00001
 					}
 				}
@@ -127,12 +187,20 @@
 					"14": {
 						"tolerance": 0.00001,
 						"drop": 0.0000001
+					},
+					"15": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
+					},
+					"16": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
 					}
 				}
 			},
 
 			"motorways": {
-				"minzoom": 12,
+				"minzoom": 14,
 				"data": [
 					{
 						"field": "name",
@@ -155,6 +223,14 @@
 					"14": {
 						"tolerance": 0.00001,
 						"drop": 0.0000001
+					},
+					"15": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
+					},
+					"16": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
 					}
 				}
 			},
@@ -171,12 +247,24 @@
 					"14": {
 						"tolerance": 0.00001,
 						"drop": 0.0000001
+					},
+					"15": {
+						"tolerance": 0.00001,
+						"drop": 0.00001
+					},
+					"16": {
+						"tolerance": 0.00001,
+						"drop": 0.00001
+					},
+					"17": {
+						"tolerance": 0.00001,
+						"drop": 0.0000001
 					}
 				}
 			},
 
 			"streets": {
-				"minzoom": 16,
+				"minzoom": 15,
 				"data": [
 					{
 						"field": "name",
@@ -184,9 +272,33 @@
 					}
 				],
 				"compress": {
-					"14": {
-						"tolerance": 0.000001,
-						"drop": 0.0000001
+					"15": {
+						"tolerance": 0.00001,
+						"drop": 0.001
+					},
+					"16": {
+						"tolerance": 0.00001,
+						"drop": 0.0001
+					},
+					"17": {
+						"tolerance": 0.00001,
+						"drop": 0.000001
+					}
+				}
+			},
+
+			"service": {
+				"minzoom": 17,
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
+				"compress": {
+					"17": {
+						"tolerance": 0.00001,
+						"drop": 0.000001
 					}
 				}
 			}
@@ -195,7 +307,7 @@
 		"buildings": {
 			
 			"facilities": {
-				"minzoom": 15,
+				"minzoom": 12,
 				"data": [
 					{
 						"field": "name",
@@ -211,7 +323,7 @@
 			},
 
 			"houses": {
-				"minzoom": 15,
+				"minzoom": 14,
 				"data": [
 					{
 						"field": "name",
@@ -219,26 +331,30 @@
 					}
 				],
 				"compress": {
-					"15": {
+					"14": {
 						"tolerance": 0.00001,
 						"drop": 0.00000008
 					},
+					"15": {
+						"tolerance": 0.00001,
+						"drop": 0.00000005
+					},
 					"16": {
 						"tolerance": 0.00001,
-						"drop": 0.000000005
+						"drop": 0.00000002
 					}
 				}
 			},
 
 			"aero": {
-				"minzoom": 15
+				"minzoom": 14
 			}
 		},
 
 		"labels": {
 
 			"stations": {
-				"minzoom": 12,
+				"minzoom": 15,
 				"data": [
 					{
 						"field": "name",
@@ -277,7 +393,7 @@
 			},
 
 			"districts": {
-				"minzoom": 12,
+				"minzoom": 14,
 				"data": [
 					{
 						"field": "name",
@@ -362,12 +478,16 @@
 					"containers": [ "roads:motorways" ]
 				},
 				{
-					"values": [ "trunk", "primary" ],
+					"values": [ "trunk", "primary", "secondary" ],
 					"containers": [ "roads:highways" ]
 				},
 				{
-					"values": [ "unclassified", "residential", "tertiary", "service" ],
+					"values": [ "unclassified", "residential", "tertiary" ],
 					"containers": [ "roads:streets" ]
+				},
+				{
+					"values": [ "service" ],
+					"containers": [ "roads:service" ]
 				}
 			],
 			"bridge": [
@@ -411,6 +531,16 @@
 				{
 					"values": [ "grass" ],
 					"containers": [ "nature:green" ]
+				},
+				{
+					"values": [ "residential", "commercial", "construction", "retail", "industrial", "education"],
+					"containers": [ "landuse:areas" ]
+				}
+			],
+			"highway": [
+				{
+					"values": [ "pedestrian" ],
+					"containers": [ "landuse:areas" ]
 				}
 			],
 			"leisure": [

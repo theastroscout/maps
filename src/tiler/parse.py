@@ -54,10 +54,14 @@ class Parse:
 				`oid` INTEGER,
 				`group` TEXT,
 				`layer` TEXT,
+				`group_layer` TEXT,
 				`data` TEXT,
-				`coords` GEOMETRY
+				`coords` GEOMETRY,
+				`bounds` GEOMETRY
 			)
 		''')
+		cursor.execute('CREATE INDEX idx_geom ON features(bounds);')
+
 		cursor.execute('''
 			CREATE TABLE config_data (
 				`id` INTEGER PRIMARY KEY,
@@ -90,6 +94,7 @@ class Parse:
 
 		print('Bounding Box:', self.config['bbox'])
 		self.db.cursor.execute('INSERT INTO config_data (`name`,`data`) VALUES (?, ?)', ('bbox', json.dumps(self.config['bbox'])) )
+		# self.db.cursor.execute('ANALYZE;')
 		self.db.conn.commit()
 
 		self.close()

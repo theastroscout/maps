@@ -118,10 +118,12 @@ class Style {
 					const options = v.split(',').map(v => v.trim().split(' ').map(Number))
 
 					const dim = rule.style.getPropertyValue(`--${name}-dim`);
+					const mode = rule.style.getPropertyValue(`--${name}-mode`);
 
 					const ruleItem = {
 						name: '--' + name,
 						dim: dim || '',
+						mode: mode || false,
 						rule: options,
 						set: rule.style.setProperty,
 						obj: rule
@@ -175,7 +177,10 @@ class Style {
 
 	render = () => {
 		for(let rule of this.rules){
-			const v = this.map.utils.getValue(rule.rule);
+			let v = this.map.utils.getValue(rule.rule);
+			if(rule.mode == 'round'){
+				v = Math.round(v);
+			}
 			rule.obj.style.setProperty(rule.name, v + rule.dim);
 		}
 	}

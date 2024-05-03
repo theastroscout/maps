@@ -8,7 +8,7 @@ $host: 'https://sandbox.maps.surfy.one';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$host}/data/tiles/london;
+	--tiles: #{$host}/data/tiles/isle-of-dogs;
 	--sprites: #{$host}'/styles/chrome/sprites.svg';
 
 	--dict: '';
@@ -30,6 +30,12 @@ $blackground: #fdfdfd;
 		*/
 
 		> g.zoom {
+
+			> g.landuse {
+				> g.areas {
+					fill: #f1f1f1;
+				}
+			}
 
 			/*
 
@@ -58,7 +64,7 @@ $blackground: #fdfdfd;
 				> g.service {
 					fill: #e9ebed;
 
-					--opacity-rule: 15 0, 15.5 1;
+					--opacity-rule: 12 0, 12.5 1;
 					--opacity: 1;
 					opacity: var(--opacity);
 				}
@@ -70,7 +76,8 @@ $blackground: #fdfdfd;
 				*/
 
 				> g.green {
-					fill: #ededed;
+					// fill: #ededed;
+					fill: #e3e3e3;
 
 					--opacity-rule: 15 0, 15.5 1;
 					--opacity: 1;
@@ -148,10 +155,18 @@ $blackground: #fdfdfd;
 
 			> g.roads {
 				--highway-rule: 12 50, 17 10;
+				--highway-mode: round;
 				--highway-dim: px;
 				--highway: 10px;
 
 				> g.border {
+
+					> g.service {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #d8d8d8;
+						stroke-width: 4px;
+					}
 
 					> g.streets {
 						fill: none;
@@ -186,6 +201,13 @@ $blackground: #fdfdfd;
 						opacity: .5;
 					}
 
+					> g.service {
+						fill: none;
+						stroke-linecap: round;
+						stroke: #ffffff;
+						stroke-width: 3px;
+					}
+
 					> g.streets {
 						fill: none;
 						stroke-linecap: round;
@@ -218,7 +240,7 @@ $blackground: #fdfdfd;
 			*/
 
 			> g.buildings {
-				--opacity-rule: 15 0, 16 1;
+				--opacity-rule: 14 0, 14.5 1;
 				--opacity: 1;
 				opacity: var(--opacity);
 
@@ -257,8 +279,6 @@ $blackground: #fdfdfd;
 				*/
 
 				> g.stations {
-					pointer-events: auto;
-
 					--font-rule: 14 2, 18 .4;
 					--font-dim: em;
 					--font: 2em;
@@ -315,12 +335,12 @@ $blackground: #fdfdfd;
 				*/
 
 				> g.districts {				
-					--font-rule: 12 12, 16 6;
+					--font-rule: 13 12, 16 6;
 					--font-dim: em;
 					--font: 8em;
 					font-size: var(--font);
 
-					--opacity-rule: 12 0, 13.5 .8, 15 .5, 17 0;
+					--opacity-rule: 14 0, 14.5 .8, 15 .5, 17 0;
 					--opacity: 1;
 					opacity: var(--opacity);
 					
@@ -345,7 +365,19 @@ $blackground: #fdfdfd;
 				*/
 
 				> g.cities {
-					pointer-events: none;
+					font-size: 14em;
+					fill: #9f9f9f;
+					text-anchor: middle;
+					text-align: center;
+					dominant-baseline: central;
+
+					stroke: #ffffff;
+					stroke-width: 10px;
+					stroke-linecap: butt;
+					stroke-linejoin: miter;
+					paint-order: stroke;
+
+					text-rendering: optimizeSpeed;
 				}
 
 				/*
