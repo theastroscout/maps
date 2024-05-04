@@ -121,8 +121,9 @@ class Tiles:
 
 		bunch = []
 
-		for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17): # Full Set
-		# for zoom in [15]:
+		# for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17): # Full Set
+		# for zoom in (2, 4, 6, 8, 10, 12):
+		for zoom in [10]:
 
 			'''
 
@@ -668,7 +669,7 @@ def create_tiles(conf):
 if __name__ == '__main__':
 	config_name = 'canary'
 	config_name = 'london'
-	config_name = 'isle-of-dogs'
+	# config_name = 'isle-of-dogs'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))
 

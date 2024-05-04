@@ -36,7 +36,7 @@ class SurfyMaps {
 			center: [-0.020853, 51.50581], // [longitude, latitude]
 			minZoom: 1,
 			maxZoom: 24,
-			zoom: 15.5,
+			zoom: 10.5,
 			events: {}
 		};
 
@@ -104,8 +104,8 @@ class SurfyMaps {
 		*/
 
 		this.view = {
-			width: this.root.clientWidth,
-			height: this.root.clientHeight,
+			//width: this.root.clientWidth,
+			// height: this.root.clientHeight,
 			tileSize: 2048,
 			zoom: 14, // To compensate tile size
 		};
@@ -124,7 +124,17 @@ class SurfyMaps {
 	*/
 
 	resize = () => {
-		clearTimeout(this.resize.tmo);
+
+		if(this.root.dataset.freeze){
+			return true;
+		}
+
+		if(this.view.width === this.root.clientWidth && this.view.height === this.root.clientHeight){
+			return true;
+		}
+
+		console.log('Resize')
+		
 
 		this.view.width = this.root.clientWidth;
 		this.view.height = this.root.clientHeight;
@@ -170,6 +180,7 @@ class SurfyMaps {
 			console.log(this.view);
 			console.log(viewBox);
 			console.log(this.options);
+			console.log([posX, posY]);
 		}
 		
 		this.view.x = posX;
@@ -224,6 +235,17 @@ class SurfyMaps {
 
 		this.setZoomID();
 		this.resize();
+
+		/*
+
+		If Set Center was called too early
+
+		*/
+
+		if(this.whenReady){
+			this.setCenter(this.whenReady);
+			delete this.whenReady;
+		}
 
 		/*
 
@@ -540,6 +562,11 @@ class SurfyMaps {
 	*/
 
 	setCenter = options => {
+
+		if(!this.ready){
+			this.whenReady = options;
+			return true;
+		}
 
 		let x = { x: this.options.center[0], y: this.options.center[1], zoom: this.options.zoom };
 

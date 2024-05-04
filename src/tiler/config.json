@@ -1,14 +1,23 @@
 {
 	"groups": {
 
-		"landuse": {
-			"areas": {
+		"areas": {
+			"boundaries": {
+				"minzoom": 8,
+				"maxzoom": 14,
+				"data": [],
+				"compress": {
+					
+				}
+			},
+
+			"landuse": {
 				"minzoom": 10,
 				"data": [],
 				"compress": {
 					"10": {
-						"tolerance": 0.000005,
-						"drop": 0.00000001
+						"tolerance": 0.00005,
+						"drop": 0.000001
 					},
 					"12": {
 						"tolerance": 0.000005,
@@ -103,7 +112,7 @@
 				"compress": {
 					"10": {
 						"tolerance": 0.00001,
-						"drop": 0.00001
+						"drop": 0.0001
 					},
 					"12": {
 						"tolerance": 0.00001,
@@ -472,6 +481,7 @@
 	},
 
 	"filters": {
+
 		"node": {
 			"railway": [
 				{
@@ -498,6 +508,8 @@
 				}
 			]
 		},
+
+
 		"way": {
 			"railway": [
 				{
@@ -537,7 +549,20 @@
 				}
 			]
 		},
+
 		"area": {
+			"boundary": [
+				{
+					"values": [ "administrative" ],
+					"filters": [
+						{
+							"tag": "admin_level",
+							"value": 8
+						}
+					],
+					"containers": [ "areas:boundaries" ]
+				}
+			],
 			"waterway": [
 				{
 					"values": [ "dock" ],
@@ -570,13 +595,13 @@
 				},
 				{
 					"values": [ "residential", "commercial", "construction", "retail", "industrial", "education"],
-					"containers": [ "landuse:areas" ]
+					"containers": [ "areas:landuse" ]
 				}
 			],
 			"highway": [
 				{
 					"values": [ "pedestrian" ],
-					"containers": [ "landuse:areas" ]
+					"containers": [ "areas:landuse" ]
 				}
 			],
 			"leisure": [
