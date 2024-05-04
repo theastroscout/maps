@@ -33,6 +33,11 @@ $water: #e9ebed;
 		> g.zoom {
 
 			> g.areas {
+				> g.boundaries {
+					fill: #f1f1f1;
+					// fill: red;
+				}
+
 				> g.landuse {
 					fill: #f1f1f1;
 					// fill: red;
@@ -79,7 +84,7 @@ $water: #e9ebed;
 
 				> g.green {
 					fill: #e3e3e3;
-					fill: green;
+					// fill: green;
 
 					--opacity-rule: 10 0, 12 1;
 					--opacity: 1;

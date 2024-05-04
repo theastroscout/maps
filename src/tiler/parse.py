@@ -115,8 +115,8 @@ if __name__ == '__main__':
 	start_time = time.time()
 
 	# config_name = 'canary'
-	# config_name = 'isle-of-dogs'
-	config_name = 'london'
+	config_name = 'isle-of-dogs'
+	# config_name = 'london'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))
 

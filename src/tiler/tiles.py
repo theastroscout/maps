@@ -122,8 +122,8 @@ class Tiles:
 		bunch = []
 
 		# for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17): # Full Set
-		# for zoom in (2, 4, 6, 8, 10, 12):
-		for zoom in [10]:
+		for zoom in (2, 4, 6, 8, 10, 12):
+		# for zoom in [10]:
 
 			'''
 
