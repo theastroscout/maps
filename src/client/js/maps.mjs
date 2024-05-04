@@ -156,6 +156,7 @@ class SurfyMaps {
 		// Scale factor
 		this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
 
+
 		const [posX, posY] = this.utils.xy(this.options.center);
 		let viewBox = [
 			posX - this.view.width / 2 * this.view.scale,
@@ -163,6 +164,13 @@ class SurfyMaps {
 			this.view.width * this.view.scale,
 			this.view.height * this.view.scale
 		];
+
+		if(isNaN(viewBox[0])){
+			console.log('SCALE!')
+			console.log(this.view);
+			console.log(viewBox);
+			console.log(this.options);
+		}
 		
 		this.view.x = posX;
 		this.view.y = posY;
@@ -283,7 +291,8 @@ class SurfyMaps {
 
 				document.addEventListener('touchmove', this.handler);
 				document.addEventListener('touchend', this.handler);
-				e.preventDefault();
+				
+				// e.preventDefault();
 
 				this.events('movestart');
 				
