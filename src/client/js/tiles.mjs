@@ -569,7 +569,6 @@ class Tiles {
 			*/
 
 			processed[feature.id] = feature;
-
 		}
 
 		this.map.draw.render(url, processed);

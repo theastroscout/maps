@@ -93,7 +93,7 @@
 			},
 
 			"green": {
-				"minzoom": 15,
+				"minzoom": 10,
 				"data": [
 					{
 						"field": "name",
@@ -101,13 +101,25 @@
 					}
 				],
 				"compress": {
+					"10": {
+						"tolerance": 0.00001,
+						"drop": 0.00001
+					},
+					"12": {
+						"tolerance": 0.00001,
+						"drop": 0.000001
+					},
+					"14": {
+						"tolerance": 0.00001,
+						"drop": 0.0000008
+					},
 					"15": {
 						"tolerance": 0.00001,
 						"drop": 0.00000008
 					},
 					"16": {
 						"tolerance": 0.00001,
-						"drop": 0.0000001
+						"drop": 0.00000001
 					},
 					"17": {
 						"tolerance": 0.0000001,
@@ -168,6 +180,30 @@
 					},
 					"15": {
 						"tolerance": 0.00001
+					},
+					"16": {
+						"tolerance": 0.000001
+					}
+				}
+			},
+
+			"tunnels": {
+				"minzoom": 15,
+				"data": [
+					{
+						"field": "name",
+						"type": "*"
+					}
+				],
+				"compress": {
+					"14": {
+						"tolerance": 0.00001
+					},
+					"15": {
+						"tolerance": 0.00001
+					},
+					"16": {
+						"tolerance": 0.000001
 					}
 				}
 			}
@@ -274,7 +310,7 @@
 				"compress": {
 					"15": {
 						"tolerance": 0.00001,
-						"drop": 0.001
+						"drop": 0.005
 					},
 					"16": {
 						"tolerance": 0.00001,
@@ -569,6 +605,12 @@
 				{
 					"values": "*",
 					"containers": [ "service:bridges" ]
+				}
+			],
+			"tunnel": [
+				{
+					"values": "*",
+					"containers": [ "service:tunnels" ]
 				}
 			]
 		}

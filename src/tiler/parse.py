@@ -115,7 +115,7 @@ if __name__ == '__main__':
 	start_time = time.time()
 
 	# config_name = 'canary'
-	# config_name = 'isle-of-dogs'
+	config_name = 'isle-of-dogs'
 	config_name = 'london'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))
@@ -133,5 +133,5 @@ if __name__ == '__main__':
 	execution_time = time.time() - start_time
 	print('Parsing time: {:.2f} minutes'.format(execution_time / 60))
 	
-	print('Creating tiles...')
-	create_tiles(CONFIG)
+	# print('Creating tiles...')
+	# create_tiles(CONFIG)
