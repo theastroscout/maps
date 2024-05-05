@@ -122,8 +122,8 @@ class Tiles:
 		bunch = []
 
 		# for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17): # Full Set
-		for zoom in (2, 4, 6, 8, 10, 12):
-		# for zoom in [10]:
+		# for zoom in (2, 4, 6, 8, 10, 12):
+		for zoom in [15]:
 
 			'''
 
@@ -355,7 +355,7 @@ def create_tile(data):
 
 					if tag_name == 'name' and v:
 						# Remove Everything in brackets, e.g. Westferry (DLR) > Westferry
-						v = re.sub(r'\([^)]*\)', '', v).strip()
+						v = feature.data[tag_name] = re.sub(r'\([^)]*\)', '', v).strip()
 					
 					if tag_type == '*':
 						if not v:
@@ -402,232 +402,8 @@ def create_tile(data):
 
 	tile_file.close() # Close Tile File
 
-	timePoint('Done')
+	# timePoint('Done')
 
-
-def create_tile_arch(data):
-	tile, db, config, groups, group_layers, group_layers_param = data
-
-	# Create DB
-	# conn = sqlite3.connect(config['db_file'])
-	# conn.enable_load_extension(True)
-	# conn.execute("SELECT load_extension('mod_spatialite')")
-	
-	x,y,z = tile
-	zoom = str(z)
-	
-	'''
-	
-	Each Tile at Zoom level
-
-	'''
-
-	tile_bounds = mercantile.bounds(tile)
-	tile_bounds = box(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
-
-	query = f'''SELECT id, oid, `group`, layer, data,
-	Hex(ST_AsBinary(coords)) as coords
-	FROM features WHERE group_layer IN ({group_layers_param})
-	and Intersects(coords, ST_GeomFromText(?))'''
-	
-	params = group_layers + [tile_bounds.wkt]
-
-	tile_gdf = gpd.GeoDataFrame.from_postgis(query, db.conn, geom_col='coords', params=tuple(params))
-
-	if tile_gdf.empty:
-		# Skip if tile is empty
-		return True
-
-	'''
-
-	Clip Tile excluding Buildings
-
-	'''
-
-	buildings =  tile_gdf[tile_gdf.group == 'buildings']
-	non_buildings =  tile_gdf[tile_gdf.group != 'buildings']
-	non_buildings = gpd.clip(non_buildings, tile_bounds)
-
-	tile_gdf = pd.concat([non_buildings, buildings])
-
-	if tile_gdf.empty:
-		return True # Skip if tile is empty
-
-	'''
-
-	Create Tile File
-
-	'''
-
-	tile_dir = config['data'] + '/{}/{}'.format(z,x)
-	tile_file_path = f'{tile_dir}/{y}'
-	os.makedirs(tile_dir, exist_ok=True)
-	tile_file = open(tile_file_path, 'w')
-
-	'''
-	
-	Loop through all features to compress and prepare for storing
-
-	'''
-
-	for index, feature in tile_gdf.iterrows():
-
-		if feature.coords.geom_type == 'MultiLineString':
-			feature.coords = linemerge(feature.coords)
-
-		'''
-
-		Parse Feature
-
-		'''
-		
-		layer = config['groups'][feature.group][feature.layer]
-
-		if 'compress' in layer and str(zoom) in layer['compress']:
-			compress = layer['compress'][str(zoom)]
-			
-			if 'tolerance' in compress:
-				# print('Before', feature.coords.length)
-				feature.coords = feature.coords.simplify(tolerance=compress['tolerance'], preserve_topology=True)
-
-				if feature.coords.length == 0:
-					print('Empty', feature.coords.length)
-
-			if 'drop' in compress:
-				
-				if feature.coords.geom_type in ['Polygon', 'MultiPolygon']:
-					# Polygon Drop
-
-					if feature.coords.area < compress['drop']:
-						continue
-
-				elif feature.coords.geom_type == 'LineString' and  feature.coords.length < compress['drop']:
-					# Line Drop
-					continue
-			else:
-				if feature.coords.geom_type in ['Polygon', 'MultiPolygon']:
-					# Polygon Drop
-
-					if feature.coords.area == 0:
-						print('Polygon Dropped')
-						continue
-
-				elif feature.coords.geom_type == 'LineString' and feature.coords.length == 0:
-					# Line Drop
-					print('Line Dropped')
-					continue
-
-
-		coords = mapping(feature.coords)
-		geom_type = coords['type']
-
-		coords = fix_coords(coords['coordinates'])
-
-		if geom_type in ['Polygon', 'MultiPolygon']:
-			coords = convert_to_3d(coords)
-			if isinstance(coords[0][0], int):
-				geom_type = 'Polygon'
-			else:
-				geom_type = 'MultiPolygon'
-
-
-		'''
-
-		Record Line Object (Item)
-
-		'''
-		
-		item = [
-			str(feature.oid),
-			str(geometries.index(geom_type)),
-			str(groups[feature.group]['id']),
-			str(groups[feature.group]['layers'][feature.layer])
-		]
-
-		'''
-
-		Additional Data
-
-		'''
-
-		feature.data = json.loads(feature.data) or {}
-
-		if 'data' in layer:
-
-			for tag in layer['data']:
-
-				'''
-
-					tag: {
-						"field": "name",
-						"type": "*"
-					}
-
-				'''
-
-				tag_name = tag['field']
-				tag_type = tag['type']
-
-				if tag_name in feature.data:
-					
-					v = feature.data[tag_name]
-					
-					if tag_type == '*':
-						if not v:
-							feature.data[tag_name] = ''
-					elif tag_type == 'bool':
-						feature.data[tag_name] = '1' if v else '0'
-					elif isinstance(tag_type, list):
-
-						if 'name' in feature.data:
-							# Remove Everything in brackets
-							feature.data['name'] = re.sub(r'\([^)]*\)', '', feature.data['name']).strip()
-
-						dict_value = '0'
-						for index, t in enumerate(tag_type):
-							
-							'''
-							
-							t: {
-								"name": "London Underground",
-								"icon": "uk-tfl-lu"
-							}
-
-							'''
-
-							if t['name'] == v:
-								dict_value = str(index)
-								break;
-
-						feature.data[tag_name] = dict_value
-
-
-		data = '\t'.join(list((feature.data).values()))
-		if len(data):
-			item.append(data)
-
-		# Coords
-		coords = json.dumps(coords, separators=(',', ':'))
-		item.append(coords)
-
-		item = '\t'.join(item)
-
-		# timePoint('JSON')
-		
-		tile_file.write(item + '\n')
-
-		# timePoint('Written')
-
-
-	tile_file.close()
-
-	# timePoint('Finish')
-	# print(len(tile_gdf))
-	# print('')
-
-	# time.sleep(1)
-
-	return True
 
 '''
 
@@ -668,8 +444,8 @@ def create_tiles(conf):
 
 if __name__ == '__main__':
 	config_name = 'canary'
-	config_name = 'london'
-	# config_name = 'isle-of-dogs'
+	# config_name = 'london'
+	config_name = 'isle-of-dogs'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))
 

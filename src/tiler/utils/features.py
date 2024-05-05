@@ -41,6 +41,26 @@ def getFeature(self, o, type_name):
 			if skip:
 				continue
 
+			'''
+
+			Additional Filters
+
+			'''
+
+			if 'filters' in match:
+				filtered = False
+				for extra_filter in match['filters']:
+					if extra_filter['tag'] not in o.tags:
+						filtered = True
+						break
+
+					if o.tags.get(extra_filter['tag']) != extra_filter['value']:
+						filtered = True
+						break
+
+				if filtered:
+					continue
+
 			group, layer = match['containers'][0].split(':')
 			spec = self.config['groups'][group][layer]
 

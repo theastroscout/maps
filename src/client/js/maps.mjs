@@ -290,6 +290,7 @@ class SurfyMaps {
 				*/
 
 				if(handler.points){
+					// Catch second touch
 					return true;
 				}
 
@@ -307,12 +308,14 @@ class SurfyMaps {
 				}
 
 				handler.points = points;
+				handler.dist = points[0];
+				handler.startTime = new Date();
 
-				this.root.addEventListener('mousemove', this.handler);
-				this.root.addEventListener('mouseup', this.handler);
+				window.addEventListener('mousemove', this.handler);
+				window.addEventListener('mouseup', this.handler);
 
-				this.root.addEventListener('touchmove', this.handler);
-				this.root.addEventListener('touchend', this.handler);
+				window.addEventListener('touchmove', this.handler);
+				window.addEventListener('touchend', this.handler);
 				
 				e.preventDefault();
 
@@ -333,9 +336,7 @@ class SurfyMaps {
 						x: e.x,
 						y: e.y
 					}];
-					// console.log(1);
 				} else {
-					// console.log(handler.points.length);
 					points = [{
 						id: e.touches[0].identifier,
 						x: e.touches[0].clientX,
@@ -356,12 +357,12 @@ class SurfyMaps {
 						});
 					}
 					
-					if(!handler.dist && points[1]){
+					if(!handler.zoom && points[1]){
 						// Initial Distance between Touches
-						handler.dist = Math.sqrt(Math.pow(points[0].x - points[1].x, 2) + Math.pow(points[0].y - points[1].y, 2));
+						handler.zoom = Math.sqrt(Math.pow(points[0].x - points[1].x, 2) + Math.pow(points[0].y - points[1].y, 2));
 					} else if(handler.points[1] && !points[1]){
 						// Delete
-						delete handler.dist;
+						delete handler.zoom;
 					}
 				}
 
@@ -369,16 +370,16 @@ class SurfyMaps {
 				this.view.x += (handler.points[0].x - points[0].x) * this.view.scale;
 				this.view.y += (handler.points[0].y - points[0].y) * this.view.scale;
 
-				if(handler.dist){
+				if(handler.zoom){
 					/*
 
 					Calc Zoom Gesture
 
 					*/
 
-					const distance = Math.sqrt(Math.pow(points[0].x - points[1].x, 2) + Math.pow(points[0].y - points[1].y, 2));					
-					this.options.zoom = Math.round((this.options.zoom + (distance - handler.dist) * .01 ) * 100) / 100;
-					handler.dist = distance;
+					const zoomDistance = Math.sqrt(Math.pow(points[0].x - points[1].x, 2) + Math.pow(points[0].y - points[1].y, 2));
+					this.options.zoom = Math.round((this.options.zoom + (zoomDistance - handler.zoom) * .01 ) * 100) / 100;
+					handler.zoom = zoomDistance;
 				}
 
 				// Update Start Point
@@ -402,16 +403,41 @@ class SurfyMaps {
 
 				if(!e.touches || e.touches.length === 0){
 
-					this.root.removeEventListener('mousemove', this.handler);
-					this.root.removeEventListener('mouseup', this.handler);
+					window.removeEventListener('mousemove', this.handler);
+					window.removeEventListener('mouseup', this.handler);
 
-					this.root.removeEventListener('touchmove', this.handler);
-					this.root.removeEventListener('touchend', this.handler);
+					window.removeEventListener('touchmove', this.handler);
+					window.removeEventListener('touchend', this.handler);
 
-					this.events('moveend');
+					/*
 
+					Distance
+
+					*/
+
+					if(typeof e.x !== 'undefined'){
+						points = {
+							x: e.x,
+							y: e.y
+						};
+					} else {
+						points = {
+							x: e.changedTouches[0].clientX,
+							y: e.changedTouches[0].clientY
+						};
+					}
+					handler.dist = Math.sqrt(Math.pow(handler.dist.x - points.x, 2) + Math.pow(handler.dist.y - points.y, 2));
+					
+
+					if(handler.dist > 5){
+						this.events('moveend');
+					}
+
+					// Clean Assets
 					delete handler.points;
 					delete handler.dist;
+					delete handler.zoom;
+
 				}
 
 				break;
