@@ -8,21 +8,20 @@ $host: 'https://sandbox.maps.surfy.one';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$host}/data/tiles/london;
+	--tiles: #{$host}/data/tiles/isle-of-dogs;
 	--sprites: #{$host}'/styles/chrome/sprites.svg';
 
 	--dict: '';
 }
 
-$blackground: #fdfdfd;
+$background: #fdfdfd;
 $water: #e9ebed;
 
 .SurfyMaps > svg.container {
-	background-color: $blackground;
-
+	background-color: $background;
+	pointer-events: none;
 
 	> g.tiles {
-		pointer-events: none;
 
 		/*
 
@@ -142,7 +141,7 @@ $water: #e9ebed;
 
 				> g.bridgePaths {
 					fill: none;
-					stroke: $blackground;
+					stroke: $background;
 					stroke-width: 3px;
 					vector-effect: non-scaling-stroke;
 

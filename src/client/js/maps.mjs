@@ -220,10 +220,10 @@ class SurfyMaps {
 
 	launch = () => {
 
-		this.container.addEventListener('click', this.getCoords);
-		this.container.addEventListener('mousedown', this.handler);
-		this.container.addEventListener('touchstart', this.handler);
-		this.container.addEventListener('wheel', this.handler);
+		this.root.addEventListener('click', this.getCoords);
+		this.root.addEventListener('mousedown', this.handler);
+		this.root.addEventListener('touchstart', this.handler);
+		this.root.addEventListener('wheel', this.handler);
 		this.overlay.el.addEventListener('wheel', this.handler); // Fix scroll overlap
 		this.overlay.el.addEventListener('mousedown', this.handler); // Fix scroll overlap
 		this.overlay.el.addEventListener('touchstart', this.handler); // Fix scroll overlap
@@ -253,7 +253,7 @@ class SurfyMaps {
 
 		*/
 
-		this.test();
+		// this.test();
 	}
 
 	/*
@@ -308,13 +308,13 @@ class SurfyMaps {
 
 				handler.points = points;
 
-				document.addEventListener('mousemove', this.handler);
-				document.addEventListener('mouseup', this.handler);
+				this.root.addEventListener('mousemove', this.handler);
+				this.root.addEventListener('mouseup', this.handler);
 
-				document.addEventListener('touchmove', this.handler);
-				document.addEventListener('touchend', this.handler);
+				this.root.addEventListener('touchmove', this.handler);
+				this.root.addEventListener('touchend', this.handler);
 				
-				// e.preventDefault();
+				e.preventDefault();
 
 				this.events('movestart');
 				
@@ -402,11 +402,11 @@ class SurfyMaps {
 
 				if(!e.touches || e.touches.length === 0){
 
-					document.removeEventListener('mousemove', this.handler);
-					document.removeEventListener('mouseup', this.handler);
+					this.root.removeEventListener('mousemove', this.handler);
+					this.root.removeEventListener('mouseup', this.handler);
 
-					document.removeEventListener('touchmove', this.handler);
-					document.removeEventListener('touchend', this.handler);
+					this.root.removeEventListener('touchmove', this.handler);
+					this.root.removeEventListener('touchend', this.handler);
 
 					this.events('moveend');
 
@@ -568,6 +568,28 @@ class SurfyMaps {
 			return true;
 		}
 
+		options = structuredClone(options);
+
+		if(!options.duration){
+
+			if(options.offset){
+				const zero = this.utils.coords([0,0], true, true, options.zoom || this.options.zoom);
+				const offset = this.utils.coords(options.offset, true, true, options.zoom || this.options.zoom);
+
+				options.coords[0] += zero[0] - offset[0];
+				options.coords[1] += zero[1] - offset[1];
+			}
+
+			this.options.center = [ Math.round(options.coords[0] * 1e6) / 1e6, Math.round(options.coords[1] * 1e6) / 1e6 ];
+
+			if(options.zoom){
+				this.options.zoom = Math.round(options.zoom * 100) / 100;
+			}
+
+			this.update();
+			return true;
+		}
+
 		let x = { x: this.options.center[0], y: this.options.center[1], zoom: this.options.zoom };
 
 		let targetValue = { x: options.coords[0], y: options.coords[1], zoom: options.zoom || this.options.zoom };
@@ -611,7 +633,7 @@ class SurfyMaps {
 			go();
 		}
 
-		change(x, targetValue, options.duration || 0);
+		change(x, targetValue, options.duration);
 
 	}
 
