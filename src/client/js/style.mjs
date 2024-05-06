@@ -23,7 +23,7 @@ class Style {
 		this.obj.rel = 'stylesheet';
 		this.obj.setAttribute('crossorigin', 'anonymous');
 		this.obj.type = 'text/css';
-		this.obj.href = `https://sandbox.maps.surfy.one/styles/${style}/style.scss`;
+		this.obj.href = `${this.map.endpoint}/styles/${style}/style.scss`;
 
 		this.obj.self = this;
 		this.obj.onload = this.parse;

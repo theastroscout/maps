@@ -13,6 +13,7 @@ import Marker from './marker.mjs';
 class SurfyMaps {
 	constructor(customOptions){
 		this.svgNS = 'http://www.w3.org/2000/svg';
+		this.endpoint = 'https://sandbox.maps.surfy.one';
 
 		/*
 
