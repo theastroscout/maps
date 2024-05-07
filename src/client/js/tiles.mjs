@@ -552,7 +552,7 @@ class Tiles {
 		}
 
 		const data = {
-			method: 'bulk',
+			method: 'get',
 			urls: urls
 		};
 

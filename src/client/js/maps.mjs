@@ -132,10 +132,7 @@ class SurfyMaps {
 
 		if(this.view.width === this.root.clientWidth && this.view.height === this.root.clientHeight){
 			return true;
-		}
-
-		console.log('Resize')
-		
+		}		
 
 		this.view.width = this.root.clientWidth;
 		this.view.height = this.root.clientHeight;

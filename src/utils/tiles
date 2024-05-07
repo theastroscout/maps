@@ -1,0 +1,3 @@
+#!/bin/bash
+g++ tiles.cpp -o tiles.app -lsqlite3
+./tiles.app

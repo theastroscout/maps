@@ -78,7 +78,7 @@ def threaded_client(client_connection):
 
 	# Get Result
 	output = {'status': False, 'msg': 'Method is not found'}
-	if payload['method'] == 'bulk':
+	if payload['method'] == 'get':
 		del output['msg']
 		output['status'] = True
 

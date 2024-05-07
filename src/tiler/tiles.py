@@ -121,9 +121,9 @@ class Tiles:
 
 		bunch = []
 
-		# for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17): # Full Set
+		for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17): # Full Set
 		# for zoom in (2, 4, 6, 8, 10, 12, 14, 15):
-		for zoom in [12]:
+		# for zoom in [12]:
 
 			'''
 
@@ -148,7 +148,10 @@ class Tiles:
 			options = [ group_layers, CONFIG ]
 			# bunch = []
 			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
+				print(tile)
 				bunch.append([tile] + options)
+
+		return False
 
 		'''
 
@@ -444,7 +447,7 @@ def create_tiles(conf):
 
 if __name__ == '__main__':
 	config_name = 'canary'
-	config_name = 'london'
+	# config_name = 'london'
 	# config_name = 'isle-of-dogs'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))
