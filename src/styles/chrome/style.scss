@@ -385,6 +385,10 @@ $water: #e9ebed;
 				*/
 
 				> g.cities {
+					--opacity-rule: 15 1, 17 0;
+					--opacity: 1;
+					opacity: var(--opacity);
+
 					font-size: 14em;
 					fill: #9f9f9f;
 					text-anchor: middle;

@@ -11,12 +11,16 @@ from collections import namedtuple
 Spec = namedtuple('Spec', ['group', 'layer', 'level'])
 
 class OSM_handler(osmium.SimpleHandler):
-
-	def node(self, o):
-		add_place(o, 'node')
+	def __init__(self):
+		osmium.SimpleHandler.__init__(self)
+		self.wkbfab = osmium.geom.WKBFactory()
 
 	def area(self, o):
-		add_place(o, 'area')
+		# add_place(o, 'area')
+		if 'name' in o.tags and o.tags.get('name') == 'Mile End Park':
+			# 2172601
+			print('AREA',o.tags)
+	
 
 FILTERS = {
 	'node': {
@@ -59,6 +63,13 @@ FILTERS = {
 def add_place(o, geom_type):
 	# print(o)
 
+	return True
+	if geom_type == 'way':
+		return True
+
+	if o.tags.get('name') == 'Mile End Park':
+		print('Skip', o.tags.get('name'), geom_type, o.tags)
+
 	spec = False
 	for tag in FILTERS[geom_type]:
 
@@ -84,13 +95,12 @@ def add_place(o, geom_type):
 
 		spec = Spec(tag, tag_value, level) # Tag, Value, Level
 
-		if tag == 'place':
-			print(spec)
 		break
 
 	if not spec:
 		return True		
 
+	
 
 	location = None
 	if geom_type == 'node':
@@ -98,10 +108,11 @@ def add_place(o, geom_type):
 	else:
 		wkbshape = wkbfab.create_multipolygon(o)
 		location = wkblib.loads(wkbshape, hex=True)
-		location = location.simplify(tolerance=.00001, preserve_topology=True)
-		if location.area < .00004:
+		location = location.simplify(tolerance=.000001, preserve_topology=True)
+		if location.area < .0000001:
 			return True
 		location = mapping(location)
+
 		
 	# Name
 
