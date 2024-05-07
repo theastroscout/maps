@@ -114,6 +114,7 @@ class Tiles {
 		const tiles = this.map.utils.tiles(zoomID);
 		
 		let visibleTiles = {};
+		let queue = [];
 
 		for(let x = tiles[0]; x <= tiles[2]; x++){
 			for(let y = tiles[1]; y <= tiles[3]; y++){
@@ -135,7 +136,8 @@ class Tiles {
 						joinTiles: {}, // To store Join Tiles
 					};
 
-					this.load(zoomID, url);
+					// this.load(zoomID, url)
+					queue.push(url)
 
 					/*
 
@@ -209,44 +211,7 @@ class Tiles {
 		// Reassign visible tiles
 		this.storage.tiles[zoomID].visible = visibleTiles;
 
-		if(!this.map.states.loaded){
-			if(this.map.firstLoad.tiles){
-				this.map.firstLoad.tiles = {};
-				this.map.firstLoad();
-			} else {
-				this.map.firstLoad.tiles = {...visibleTiles};
-			}
-		}
-	}
-
-	/*
-
-	Load Tile
-
-	*/
-
-	load = async (zoomID, url) => {
-		let result;
-		try {
-			let rUrl = `${this.map.style.tiles}/${url}`;
-			result = await(await fetch(rUrl)).text();
-		} catch(e){
-			// Continue Regardless Error
-			result = '0';
-		}
-		
-		this.storage.tiles[zoomID].items[url].src = result;
-
-		if(result !== '0'){
-			this.parse(zoomID, url);
-		} else {
-			this.storage.tiles[zoomID].items[url] = false;
-
-			if(!this.map.states.loaded){
-				this.map.firstLoad(url);
-			}
-		}
-		
+		this.load(zoomID, queue);
 	}
 
 	/*
@@ -572,6 +537,83 @@ class Tiles {
 		}
 
 		this.map.draw.render(url, processed);
+	}
+
+	/*
+
+	Load Tiles
+
+	*/
+
+	load = async (zoomID, urls) => {
+
+		if(!urls.length){
+			return true;
+		}
+
+		const data = {
+			method: 'bulk',
+			urls: urls
+		};
+
+		const response = await fetch(this.map.style.tiles, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(data)
+		});
+
+		const result = await response.json();
+
+		if(!result.status){
+			return false;
+		}
+
+		for(let url in result.data){
+			const data = result.data[url];
+			this.storage.tiles[zoomID].items[url].src = data;
+
+			if(data !== '0'){
+				this.parse(zoomID, url);
+			} else {
+				this.storage.tiles[zoomID].items[url] = false;
+			}
+		}
+
+		if(!this.map.states.loaded){
+			this.map.firstLoad();
+		}
+	}
+
+	/*
+
+	Lazy Tiles Load, One by One
+
+	*/
+
+	lazyLoad = async (zoomID, url) => {
+		let result;
+		try {
+			let rUrl = `${this.map.style.tiles}/${url}`;
+			result = await(await fetch(rUrl)).text();
+		} catch(e){
+			// Continue Regardless Error
+			result = '0';
+		}
+		
+		this.storage.tiles[zoomID].items[url].src = result;
+
+		if(result !== '0'){
+			this.parse(zoomID, url);
+		} else {
+			this.storage.tiles[zoomID].items[url] = false;
+
+			if(!this.map.states.loaded){
+				this.map.firstLoad(url);
+			}
+		}
+		
 	}
 };
 

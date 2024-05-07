@@ -457,6 +457,8 @@ class SurfyMaps {
 				e.preventDefault();
 				e.stopPropagation();
 
+				this.events('moveend');
+
 
 			break;
 		}
@@ -670,9 +672,8 @@ class SurfyMaps {
 
 	*/
 
-	firstLoad = url => {
-		delete this.firstLoad.tiles[url];
-		if(!Object.keys(this.firstLoad.tiles).length){
+	firstLoad = () => {
+		if(!this.states.loaded){
 			this.states.loaded = true;
 			this.events('loaded');
 		}

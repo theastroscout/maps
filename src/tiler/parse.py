@@ -83,11 +83,15 @@ class Parse:
 
 		'''
 
+		# Remove Node Cache File
+		if os.path.exists(self.config['tmp_file']):
+			os.remove(self.config['tmp_file'])
+
 		# idx = 'dense_file_array,' + self.config['tmp_file']
 		idx = 'sparse_file_array,' + self.config['tmp_file']
 		handler.apply_file(self.config['pbf_input'], locations=True, idx=idx)
 
-		# Remove Temp File
+		# Remove Node Cache File
 		if os.path.exists(self.config['tmp_file']):
 			os.remove(self.config['tmp_file'])
 

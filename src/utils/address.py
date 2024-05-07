@@ -1,3 +1,4 @@
+import os
 import pymongo
 import osmium
 import json
@@ -15,11 +16,11 @@ class OSM_handler(osmium.SimpleHandler):
 		osmium.SimpleHandler.__init__(self)
 		self.wkbfab = osmium.geom.WKBFactory()
 
+	def node(self, o):
+		add_place(o, 'node')
+
 	def area(self, o):
-		# add_place(o, 'area')
-		if 'name' in o.tags and o.tags.get('name') == 'Mile End Park':
-			# 2172601
-			print('AREA',o.tags)
+		add_place(o, 'area')
 	
 
 FILTERS = {
@@ -61,14 +62,6 @@ FILTERS = {
 }
 
 def add_place(o, geom_type):
-	# print(o)
-
-	return True
-	if geom_type == 'way':
-		return True
-
-	if o.tags.get('name') == 'Mile End Park':
-		print('Skip', o.tags.get('name'), geom_type, o.tags)
 
 	spec = False
 	for tag in FILTERS[geom_type]:
@@ -109,7 +102,9 @@ def add_place(o, geom_type):
 		wkbshape = wkbfab.create_multipolygon(o)
 		location = wkblib.loads(wkbshape, hex=True)
 		location = location.simplify(tolerance=.000001, preserve_topology=True)
-		if location.area < .0000001:
+		if o.tags.get('name') == 'Mile End Park':
+			print(o, location.area)
+		if location.area < .00001:
 			return True
 		location = mapping(location)
 
@@ -140,6 +135,12 @@ if __name__ == '__main__':
 
 	locations_collection.create_index([('location', '2dsphere')])
 
+	# Remove Node Cache
+	try:
+		os.remove('/storage/maps/tmp/tmp.nodecache')
+	except OSError:
+		pass
+
 	handler = OSM_handler()
 	idx = 'sparse_file_array,/storage/maps/tmp/tmp.nodecache'
 	pbf_input = '/storage/maps/tiles/isle-of-dogs/src.pbf'
@@ -150,4 +151,5 @@ if __name__ == '__main__':
 	for item in boundaries:
 		locations_collection.insert_one(item)
 
+	os.remove('/storage/maps/tmp/tmp.nodecache')
 	print('Complete')
