@@ -6,6 +6,8 @@ g++ tiles.cpp -o tiles -lsqlite3
 */
 
 #include <iostream>
+#include <fstream>
+
 #include <array>
 #include <sqlite3.h>
 #include "libs/json.hpp"
@@ -33,8 +35,7 @@ std::vector<int> tilesRange(int zoom, double x1, double y1, double x2, double y2
 	return {west, north, east, south};
 }
 
-int main() {
-
+std::vector<std::vector<int>> getTiles() {
 	/*
 
 	Get BBox from DB
@@ -87,9 +88,89 @@ int main() {
 		
 	}
 
-	// Print the tiles
-    for (const auto& tile : tiles) {
-       std::cout << "[" << tile[0] << ", " << tile[1] << ", " << tile[2] << "]" << std::endl;
+	return tiles;
+}
+
+json getConfig(){
+	std::ifstream file("../tiler/config.json");
+
+	if (!file.is_open()) {
+		std::cerr << "Error opening Config file." << std::endl;
+		return 1;
+	}
+
+	std::string jsonString((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+	// Parse the JSON string
+	json config;
+	try {
+		config = json::parse(jsonString);
+	} catch (const std::exception& e) {
+		std::cerr << "Error parsing JSON: " << e.what() << std::endl;
+		return 1;
+	}
+
+	return config;
+}
+
+int main() {
+
+	/*
+
+	Config
+
+	*/
+
+	json config = getConfig();
+	std::cout << "Config Name: " << config["name"] << std::endl;
+
+	// Groups and Layers Index
+	config["group_index"] = {};
+
+	json dict;
+
+	int groupID = 0;
+	for (auto& [groupName, groupData] : config["groups"].items()) {
+
+		int layerID = 0;
+		json layers;
+
+		for (auto& [layerName, layerData] : groupData.items()) {
+			layers[layerName] = {
+				{"name", layerName}
+			};
+		}
+
+		config["group_index"][groupName] = {
+			{"id", groupID},
+			{"layers", layers}
+		};
+        groupID++;
+
+        json dictItem = {
+        	{"name", groupName},
+        	{"layers", layers}
+        };
+
+        dict.push_back(dictItem);
     }
+
+    std::cout << "Group Index" << config["group_index"] << std::endl;
+
+	/*
+	
+	Tiles
+
+	*/
+
+	/*
+
+	std::vector<std::vector<int>> tiles = getTiles();
+
+	// Print the tiles
+	for (const auto& tile : tiles) {
+	   std::cout << "[" << tile[0] << ", " << tile[1] << ", " << tile[2] << "]" << std::endl;
+	}
+	*/
 	return 0;
 }
