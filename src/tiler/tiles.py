@@ -151,6 +151,9 @@ class Tiles:
 				print(tile)
 				bunch.append([tile] + options)
 
+				print(bbox, mercantile.bounds(tile))
+				exit()
+
 		return False
 
 		'''

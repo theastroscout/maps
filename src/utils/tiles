@@ -1,3 +1,6 @@
 #!/bin/bash
-g++ tiles.cpp -o tiles.app -lsqlite3
-./tiles.app
+if g++ tiles.cpp -o tiles.app -lsqlite3 -Werror -Wfatal-errors; then
+	./tiles.app
+else
+	echo "Compilation failed. Unable to execute ./tiles.app."
+fi
