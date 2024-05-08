@@ -118,6 +118,7 @@ class Tiles:
 		cursor.execute("SELECT data FROM config_data WHERE name='bbox'")
 		result = cursor.fetchone()
 		bbox = json.loads(result[0])
+		print('BBox', bbox);
 
 		bunch = []
 

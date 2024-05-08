@@ -24,7 +24,7 @@ json config;
 
 std::vector<double> radians(double lng, double lat) {
 	double x = lng / 360.0 + 0.5;
-	double sinlat = std::sin(lat * (M_PI / 180.0));
+	double sinlat = std::sin(lat * M_PI / 180.0);
 	double y = 0.5 - 0.25 * std::log((1.0 + sinlat) / (1.0 - sinlat)) / M_PI;
 
 	return {x, y};
@@ -66,9 +66,9 @@ json getTiles() {
 
 	*/
 
-	std::vector<double> topLeft = radians(bbox[0], bbox[1]);
-	std::vector<double> bottomRight = radians(bbox[2], bbox[3]);
-	print("Radians: ", topLeft, bottomRight);
+	std::vector<double> westSouth = radians(bbox[0], bbox[3]);
+	std::vector<double> eastNorth = radians(bbox[2], bbox[1]);
+	print("Radians: ", westSouth, eastNorth);
 	
 	/*
 
@@ -76,12 +76,13 @@ json getTiles() {
 
 	*/
 	
-	std::array<int, 10> zoomLevels = {2, 4, 6, 8, 10, 12, 14, 15, 16, 17};
+	std::array<int, 10> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15, 16, 17 };
+	// std::array<int, 1> zoomLevels = { 2 };
 	
 	json tiles = json::array();
 
 	for (int zoom : zoomLevels) {
-		// print("Zoom: ", zoom);
+		print("Zoom: ", zoom);
 
 		std::vector<std::string> zoomGroupLayers;
 
@@ -97,11 +98,11 @@ json getTiles() {
 			continue;
 		}
 
-		std::vector<int> bounds = tilesRange(zoom, topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]);
+		std::vector<int> bounds = tilesRange(zoom, westSouth[0], westSouth[1], eastNorth[0], eastNorth[1]);
 
-		for (int i = bounds[0]; i <= bounds[2]; ++i) {
-			for (int j = bounds[3]; j <= bounds[1]; ++j) {
-				tiles.push_back({zoom, i, j, zoomGroupLayers});
+		for (int x = bounds[0]; x < bounds[2]; ++x) {
+			for (int y = bounds[1]; y < bounds[3]; ++y) {
+				tiles.push_back({zoom, x, y, zoomGroupLayers});
 			}
 		}
 		
@@ -111,17 +112,21 @@ json getTiles() {
 }
 
 std::vector<double> getTileBounds(int zoom, int xtile, int ytile) {
-    double Z2 = std::pow(2, zoom);
+	double Z2 = std::pow(2, zoom);
 
-    double ul_lon_deg = xtile / Z2 * 360.0 - 180.0;
-    double ul_lat_rad = std::atan(std::sinh(M_PI * (1 - 2 * ytile / Z2)));
-    double ul_lat_deg = ul_lat_rad * 180.0 / M_PI;
+	double ul_lon_deg = xtile / Z2 * 360.0 - 180.0;
+	double ul_lat_rad = std::atan(std::sinh(M_PI * (1 - 2 * ytile / Z2)));
+	double ul_lat_deg = ul_lat_rad * 180.0 / M_PI;
 
-    double lr_lon_deg = (xtile + 1) / Z2 * 360.0 - 180.0;
-    double lr_lat_rad = std::atan(std::sinh(M_PI * (1 - 2 * (ytile + 1) / Z2)));
-    double lr_lat_deg = lr_lat_rad * 180.0 / M_PI;
+	double lr_lon_deg = (xtile + 1) / Z2 * 360.0 - 180.0;
+	double lr_lat_rad = std::atan(std::sinh(M_PI * (1 - 2 * (ytile + 1) / Z2)));
+	double lr_lat_deg = lr_lat_rad * 180.0 / M_PI;
 
-    return {ul_lon_deg, lr_lat_deg, lr_lon_deg, ul_lat_deg};
+	// return {ul_lon_deg, lr_lat_deg, lr_lon_deg, ul_lat_deg};
+	return {std::round(ul_lon_deg * 1e7) / 1e7,
+			std::round(lr_lat_deg * 1e7) / 1e7,
+			std::round(lr_lon_deg * 1e7) / 1e7,
+			std::round(ul_lat_deg * 1e7) / 1e7};
 }
 
 json loadJSON(const std::string& path) {
@@ -217,12 +222,13 @@ int main() {
 	*/
 
 	json tiles = getTiles();
-
 	/*
 	for (const auto& tile : tiles) {
 	   print(tile);
 	}
 	*/
+	
+	
 	print(tiles[0]);
 	std::vector<double> bounds = getTileBounds(tiles[0][0], tiles[0][1], tiles[0][2]);
 	print(bounds);
