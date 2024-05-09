@@ -1,10 +1,3 @@
-/*
-
-g++ tiles.cpp -o tiles -lsqlite3
-./tiles
-
-*/
-
 #include <iostream>
 #include <fstream>
 
@@ -16,6 +9,7 @@ using json = nlohmann::ordered_json;
 #include <cmath>
 #include <vector>
 
+#include "libs/sqlite.hpp"
 #include "libs/print.hpp"
 using surfy::print;
 
@@ -111,22 +105,43 @@ json getTiles() {
 	return tiles;
 }
 
-std::vector<double> getTileBounds(int zoom, int xtile, int ytile) {
+std::string getTilePolygon(int zoom, int xtile, int ytile) {
 	double Z2 = std::pow(2, zoom);
 
-	double ul_lon_deg = xtile / Z2 * 360.0 - 180.0;
-	double ul_lat_rad = std::atan(std::sinh(M_PI * (1 - 2 * ytile / Z2)));
-	double ul_lat_deg = ul_lat_rad * 180.0 / M_PI;
+	double upperLeftLngDeg = xtile / Z2 * 360.0 - 180.0;
+	double upperLeftLatRad = std::atan(std::sinh(M_PI * (1 - 2 * ytile / Z2)));
+	double upperLeftLatDeg = upperLeftLatRad * 180.0 / M_PI;
 
-	double lr_lon_deg = (xtile + 1) / Z2 * 360.0 - 180.0;
-	double lr_lat_rad = std::atan(std::sinh(M_PI * (1 - 2 * (ytile + 1) / Z2)));
-	double lr_lat_deg = lr_lat_rad * 180.0 / M_PI;
+	double lowerRightLngDeg = (xtile + 1) / Z2 * 360.0 - 180.0;
+	double lowerRightLatRad = std::atan(std::sinh(M_PI * (1 - 2 * (ytile + 1) / Z2)));
+	double lowerRightLatDeg = lowerRightLatRad * 180.0 / M_PI;
 
 	// return {ul_lon_deg, lr_lat_deg, lr_lon_deg, ul_lat_deg};
-	return {std::round(ul_lon_deg * 1e7) / 1e7,
-			std::round(lr_lat_deg * 1e7) / 1e7,
-			std::round(lr_lon_deg * 1e7) / 1e7,
-			std::round(ul_lat_deg * 1e7) / 1e7};
+	/*
+	std::vector<double> tile = {std::round(upperLeftLngDeg * 1e7) / 1e7,
+			std::round(lowerRightLatDeg * 1e7) / 1e7,
+			std::round(lowerRightLngDeg * 1e7) / 1e7,
+			std::round(upperLeftLatDeg * 1e7) / 1e7};
+	*/
+
+
+	std::vector<double> tile = {
+		upperLeftLngDeg,
+		lowerRightLatDeg,
+		lowerRightLngDeg,
+		upperLeftLatDeg
+	};
+
+	print(tile);
+	print(std::to_string(tile[2]));
+
+	std::string polygon = "POLYGON ((" +
+		std::to_string(tile[2]) + " " + std::to_string(tile[1]) + ", " +
+		std::to_string(tile[2]) + " " + std::to_string(tile[3]) + ", " +
+		std::to_string(tile[0]) + " " + std::to_string(tile[3]) + ", " +
+		std::to_string(tile[0]) + " " + std::to_string(tile[1]) + ", " +
+		std::to_string(tile[2]) + " " + std::to_string(tile[1]) + "))";
+	return polygon;
 }
 
 json loadJSON(const std::string& path) {
@@ -229,9 +244,26 @@ int main() {
 	*/
 	
 	
-	print(tiles[0]);
-	std::vector<double> bounds = getTileBounds(tiles[0][0], tiles[0][1], tiles[0][2]);
-	print(bounds);
+	print(tiles[200]);
+	json tile = tiles[200];
+	std::string boundsPoly = getTilePolygon(tile[0], tile[1], tile[2]);
+	print(boundsPoly);
+
+	std::string placeholder;
+	int size = tile[3].size();
+	for (int i = 0; i < size; ++i) {
+        placeholder += "?,";
+    }
+    placeholder.erase(placeholder.size() - 1);
+    print("placeholder", placeholder);
+
+    surfy::SQLiteDB db("/storage/maps/tiles/canary/canary.db");
+		
+	// Example query execution
+	std::vector<char*> params;
+	params.push_back("bbox");
+	db.query("SELECT data FROM config_data WHERE name='?'", callback, params);
+    
 
 	return 0;
 }

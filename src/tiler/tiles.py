@@ -144,16 +144,24 @@ class Tiles:
 				continue
 
 			group_layers_param = ', '.join('?' for _ in group_layers)
+			print(group_layers)
+			print(group_layers_param)
+			exit()
 
 			# options = [ DB, self.config, self.groups, group_layers, group_layers_param, ]
 			options = [ group_layers, CONFIG ]
 			# bunch = []
 			for tile in mercantile.tiles(bbox[0], bbox[1], bbox[2], bbox[3], zooms=zoom, truncate=False):
-				print(tile)
+				# print(tile)
 				bunch.append([tile] + options)
 
-				print(bbox, mercantile.bounds(tile))
-				exit()
+
+		tile = bunch[200][0]
+		print(mercantile.bounds(tile))
+		tile_bounds = mercantile.bounds(tile)
+		tile_bounds = box(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
+		print(tile_bounds.wkt)
+		exit()
 
 		return False
 

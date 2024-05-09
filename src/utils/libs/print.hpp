@@ -1,5 +1,5 @@
-#ifndef PRINT_HPP
-#define PRINT_HPP
+#ifndef SURFY_PRINT_HPP
+#define SURFY_PRINT_HPP
 
 #include <iostream>
 #include <string>
