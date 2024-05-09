@@ -10,8 +10,11 @@ using json = nlohmann::ordered_json;
 #include <vector>
 
 #include "libs/sqlite.hpp"
+surfy::SQLiteDB db;
+
 #include "libs/print.hpp"
 using surfy::print;
+
 
 json config;
 
@@ -43,15 +46,8 @@ json getTiles() {
 
 	*/
 
-	sqlite3* db;
-	int rc = sqlite3_open("/storage/maps/tiles/canary/canary.db", &db);
-	sqlite3_stmt* stmt;
-	const char* sql = "SELECT data FROM config_data WHERE name='bbox'";
-	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-	rc = sqlite3_step(stmt); // Execute
-	
-	const unsigned char* bboxSrc = sqlite3_column_text(stmt, 0);
-	json bbox = json::parse(bboxSrc);
+	json bboxData = db.findOne("SELECT data FROM config_data WHERE name='bbox'");
+	json bbox = bboxData["data"];
 	print("BBox: ", bbox);
 	
 	/*
@@ -166,6 +162,11 @@ json loadJSON(const std::string& path) {
 	return jsonData;
 }
 
+// void callback(json* data) {
+void callback(const json& data) {
+	print("Async Callback Result", data);
+}
+
 int main() {
 
 	/*
@@ -179,7 +180,11 @@ int main() {
 	config = loadJSON("../tiler/configs/" + config_name + ".json");
 	json filters = loadJSON("../tiler/config.json");
 	config.update(filters);
+
+	// Initialise DB
+	db.connect("/storage/maps/tiles/canary/canary.db");
 	
+	// Just...
 	print("Config Name: ", config["name"]);
 
 	std::string configPath = config["data"];
@@ -252,18 +257,26 @@ int main() {
 	std::string placeholder;
 	int size = tile[3].size();
 	for (int i = 0; i < size; ++i) {
-        placeholder += "?,";
-    }
-    placeholder.erase(placeholder.size() - 1);
-    print("placeholder", placeholder);
+		placeholder += "?,";
+	}
+	placeholder.erase(placeholder.size() - 1);
+	print("Placeholder", placeholder);
 
-    surfy::SQLiteDB db("/storage/maps/tiles/canary/canary.db");
 		
 	// Example query execution
-	std::vector<char*> params;
+	std::vector<std::string> params;
 	params.push_back("bbox");
-	db.query("SELECT data FROM config_data WHERE name='?'", callback, params);
-    
+
+	// db.query("SELECT data FROM config_data WHERE name=?;", params, callback);
+
+	json result = db.findOne("SELECT data FROM config_data WHERE name=?;", params);
+	print("Find one:", result);
+
+	result = db.findSync("SELECT data FROM config_data WHERE name=?;", params);
+	print("Find Sync:", result);
+
+	db.find("SELECT data FROM config_data WHERE name=?;", callback, params);
+	
 
 	return 0;
 }

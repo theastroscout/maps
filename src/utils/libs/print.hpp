@@ -7,7 +7,7 @@
 
 
 namespace surfy {
-	using json = nlohmann::ordered_json;	
+	using json = nlohmann::ordered_json;
 
 	// Overload for printing JSON objects
 	inline void print(const json& arg) {
