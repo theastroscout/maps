@@ -1,3 +1,9 @@
+/*
+
+sudo apt-get install libboost-all-dev
+
+*/
+
 #include <iostream>
 #include <fstream>
 
@@ -10,12 +16,26 @@ using json = nlohmann::ordered_json;
 #include <vector>
 
 #include "libs/sqlite.hpp"
-surfy::SQLiteDB db;
+surfy::SQLite db;
 
 #include "libs/print.hpp"
 using surfy::print;
 
+/*
 
+Boost
+
+*/
+
+#include <boost/geometry.hpp>
+namespace bg = boost::geometry;
+typedef bg::model::d2::point_xy<double> point_type;
+typedef bg::model::polygon<point_type> polygon_type;
+typedef bg::model::linestring<point_type> linestring_type;
+typedef bg::model::multi_polygon<bg::model::polygon<point_type>> multipolygon_type;
+
+
+// Global Config
 json config;
 
 
@@ -53,12 +73,12 @@ json getTiles() {
 	/*
 
 	Radians of BBox
+	Collect Tiles From West to East from South to North
 
 	*/
 
 	std::vector<double> westSouth = radians(bbox[0], bbox[3]);
 	std::vector<double> eastNorth = radians(bbox[2], bbox[1]);
-	print("Radians: ", westSouth, eastNorth);
 	
 	/*
 
@@ -72,7 +92,6 @@ json getTiles() {
 	json tiles = json::array();
 
 	for (int zoom : zoomLevels) {
-		print("Zoom: ", zoom);
 
 		std::vector<std::string> zoomGroupLayers;
 
@@ -112,31 +131,20 @@ std::string getTilePolygon(int zoom, int xtile, int ytile) {
 	double lowerRightLatRad = std::atan(std::sinh(M_PI * (1 - 2 * (ytile + 1) / Z2)));
 	double lowerRightLatDeg = lowerRightLatRad * 180.0 / M_PI;
 
-	// return {ul_lon_deg, lr_lat_deg, lr_lon_deg, ul_lat_deg};
-	/*
-	std::vector<double> tile = {std::round(upperLeftLngDeg * 1e7) / 1e7,
-			std::round(lowerRightLatDeg * 1e7) / 1e7,
-			std::round(lowerRightLngDeg * 1e7) / 1e7,
-			std::round(upperLeftLatDeg * 1e7) / 1e7};
-	*/
-
-
+	// Stringify automaticaly rounds float to 6 decimals
 	std::vector<double> tile = {
 		upperLeftLngDeg,
-		lowerRightLatDeg,
+		upperLeftLatDeg,
 		lowerRightLngDeg,
-		upperLeftLatDeg
+		lowerRightLatDeg
 	};
 
-	print(tile);
-	print(std::to_string(tile[2]));
-
-	std::string polygon = "POLYGON ((" +
+	std::string polygon = "POLYGON (" +
+		std::to_string(tile[0]) + " " + std::to_string(tile[1]) + ", " +
 		std::to_string(tile[2]) + " " + std::to_string(tile[1]) + ", " +
 		std::to_string(tile[2]) + " " + std::to_string(tile[3]) + ", " +
 		std::to_string(tile[0]) + " " + std::to_string(tile[3]) + ", " +
-		std::to_string(tile[0]) + " " + std::to_string(tile[1]) + ", " +
-		std::to_string(tile[2]) + " " + std::to_string(tile[1]) + "))";
+		std::to_string(tile[0]) + " " + std::to_string(tile[1]) + ")";
 	return polygon;
 }
 
@@ -162,9 +170,61 @@ json loadJSON(const std::string& path) {
 	return jsonData;
 }
 
-// void callback(json* data) {
 void callback(const json& data) {
-	print("Async Callback Result", data);
+	print("One by one Callback Result", data);
+}
+
+int parseTile(json tile) {
+	std::string boundsPoly = getTilePolygon(tile[0], tile[1], tile[2]);
+	
+	std::string placeholders;
+	int size = tile[3].size();
+	for (int i = 0; i < size; ++i) {
+		placeholders += "?,";
+	}
+	placeholders.erase(placeholders.size() - 1);
+	
+	std::string query = "SELECT id, oid, group_layer, `group`, layer, data, ST_AsText(coords) AS coords FROM features WHERE group_layer IN ("+placeholders+") and Intersects(coords, ST_GeomFromText(?));";
+
+	std::vector<std::string> params = tile[3];
+	params.push_back(boundsPoly);
+	
+	json features = db.find(query, params);
+	
+	// print("Features", features);
+
+	if (features.empty()) {
+		return 0;
+	}
+
+	for (const auto& feature : features) {
+		// print(feature);
+		
+		std::string geom = feature["coords"];
+		std::string geom_type;
+		if (geom.find("POINT") != std::string::npos) {
+			geom_type = "point";
+			point_type point;
+			bg::read_wkt(geom, point);
+		} else if (geom.find("MULTIPOLYGON") != std::string::npos) {
+			geom_type = "multi_polygon";
+			multipolygon_type multi_polygon;
+			bg::read_wkt(geom, multi_polygon);
+		} else if (geom.find("POLYGON") != std::string::npos) {
+			geom_type = "polygon";
+			polygon_type polygon;
+			bg::read_wkt(geom, polygon);
+		} else if (geom.find("LINESTRING") != std::string::npos) {
+			geom_type = "linestring";
+			linestring_type linestring;
+			bg::read_wkt(geom, linestring);
+		} else {
+			print("Unknown Geometry Type", geom);
+		}
+		// bg::read_wkt(wkt_string, geom);
+	}
+
+	return 1;
 }
 
 int main() {
@@ -182,7 +242,8 @@ int main() {
 	config.update(filters);
 
 	// Initialise DB
-	db.connect("/storage/maps/tiles/canary/canary.db");
+	db.connect("/storage/maps/tiles/canary/canary.db", true);
+	db.query("SELECT load_extension('mod_spatialite')");
 	
 	// Just...
 	print("Config Name: ", config["name"]);
@@ -242,40 +303,37 @@ int main() {
 	*/
 
 	json tiles = getTiles();
+	
 	/*
 	for (const auto& tile : tiles) {
-	   print(tile);
+		// print(tile);
+		std::string boundsPoly = getTilePolygon(tile[0], tile[1], tile[2]);
+
+		std::string placeholders;
+		int size = tile[3].size();
+		for (int i = 0; i < size; ++i) {
+			placeholders += "?,";
+		}
+		placeholders.erase(placeholders.size() - 1);
+
+		std::string query = "SELECT id, oid, group_layer, `group`, layer, data, Hex(ST_AsBinary(coords)) as coords FROM features WHERE group_layer IN (" + placeholders + ") and Intersects(coords, ST_GeomFromText(?))";
+
+		std::vector<std::string> params = tile[3];
+		params.push_back(boundsPoly);
+		
+		json features = db.findSync(query, params);
+
+		if (features["status"] == false) {
+			
+		} else {
+			print(features);
+		}
 	}
 	*/
+
+	parseTile(tiles[800]);
 	
 	
-	print(tiles[200]);
-	json tile = tiles[200];
-	std::string boundsPoly = getTilePolygon(tile[0], tile[1], tile[2]);
-	print(boundsPoly);
-
-	std::string placeholder;
-	int size = tile[3].size();
-	for (int i = 0; i < size; ++i) {
-		placeholder += "?,";
-	}
-	placeholder.erase(placeholder.size() - 1);
-	print("Placeholder", placeholder);
-
-		
-	// Example query execution
-	std::vector<std::string> params;
-	params.push_back("bbox");
-
-	// db.query("SELECT data FROM config_data WHERE name=?;", params, callback);
-
-	json result = db.findOne("SELECT data FROM config_data WHERE name=?;", params);
-	print("Find one:", result);
-
-	result = db.findSync("SELECT data FROM config_data WHERE name=?;", params);
-	print("Find Sync:", result);
-
-	db.find("SELECT data FROM config_data WHERE name=?;", callback, params);
 	
 
 	return 0;

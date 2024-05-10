@@ -120,6 +120,14 @@ class Tiles:
 		bbox = json.loads(result[0])
 		print('BBox', bbox);
 
+		query = f'''SELECT id, oid, group_layer, `group`, layer, data,
+			Hex(ST_AsBinary(coords)) as coords
+			FROM features LIMIT 1'''
+		cursor.execute(query)
+		result = cursor.fetchone()
+		print(result)
+		exit()
+
 		bunch = []
 
 		for zoom in (2, 4, 6, 8, 10, 12, 14, 15, 16, 17): # Full Set
