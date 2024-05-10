@@ -1,5 +1,6 @@
 #!/bin/bash
-if g++ tiles.cpp -o tiles.app -lsqlite3 -DBOOST_ALLOW_DEPRECATED_HEADERS -Werror -Wfatal-errors; then
+# if g++ tiles.cpp -o tiles.app -lsqlite3 -DBOOST_ALLOW_DEPRECATED_HEADERS -Werror -Wfatal-errors; then
+if g++ tiles.cpp -o tiles.app -lsqlite3 -Werror -Wfatal-errors; then
 	./tiles.app
 else
 	echo "Compilation failed. Unable to execute ./tiles.app."

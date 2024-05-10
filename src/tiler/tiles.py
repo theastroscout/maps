@@ -111,22 +111,14 @@ class Tiles:
 		# Create DB
 
 		conn = sqlite3.connect(CONFIG['db_file'], check_same_thread=False)
-		# conn.enable_load_extension(True)
-		# conn.execute("SELECT load_extension('mod_spatialite')")
+		conn.enable_load_extension(True)
+		conn.execute("SELECT load_extension('mod_spatialite')")
 		cursor = conn.cursor()
 
 		cursor.execute("SELECT data FROM config_data WHERE name='bbox'")
 		result = cursor.fetchone()
 		bbox = json.loads(result[0])
 		print('BBox', bbox);
-
-		query = f'''SELECT id, oid, group_layer, `group`, layer, data,
-			Hex(ST_AsBinary(coords)) as coords
-			FROM features LIMIT 1'''
-		cursor.execute(query)
-		result = cursor.fetchone()
-		print(result)
-		exit()
 
 		bunch = []
 
@@ -152,9 +144,6 @@ class Tiles:
 				continue
 
 			group_layers_param = ', '.join('?' for _ in group_layers)
-			print(group_layers)
-			print(group_layers_param)
-			exit()
 
 			# options = [ DB, self.config, self.groups, group_layers, group_layers_param, ]
 			options = [ group_layers, CONFIG ]
@@ -164,11 +153,28 @@ class Tiles:
 				bunch.append([tile] + options)
 
 
-		tile = bunch[200][0]
+		print("Bunch length:",len(bunch))
+
+		# for i in range(1000):
+		bb = bunch[8]
+		group_layers = bb[1]
+		tile = bb[0]
 		print(mercantile.bounds(tile))
 		tile_bounds = mercantile.bounds(tile)
 		tile_bounds = box(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
-		print(tile_bounds.wkt)
+		print("WKT",tile_bounds.wkt)
+		group_layers_param = ', '.join('?' for _ in group_layers)
+		query = f'''SELECT id, oid, `group`, layer, data,
+		Hex(ST_AsBinary(coords)) as coords
+		FROM features WHERE group_layer IN ({group_layers_param})
+		and Intersects(coords, ST_GeomFromText(?))'''
+		
+		params = group_layers + [tile_bounds.wkt]
+		print(query, params)
+		
+		tile_gdf = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='coords', params=tuple(params))
+		print(tile_gdf)
+
 		exit()
 
 		return False

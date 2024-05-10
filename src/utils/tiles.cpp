@@ -21,18 +21,7 @@ surfy::SQLite db;
 #include "libs/print.hpp"
 using surfy::print;
 
-/*
-
-Boost
-
-*/
-
-#include <boost/geometry.hpp>
-namespace bg = boost::geometry;
-typedef bg::model::d2::point_xy<double> point_type;
-typedef bg::model::polygon<point_type> polygon_type;
-typedef bg::model::linestring<point_type> linestring_type;
-typedef bg::model::multi_polygon<bg::model::polygon<point_type>> multipolygon_type;
+#include "libs/geom.hpp"
 
 
 // Global Config
@@ -120,31 +109,31 @@ json getTiles() {
 	return tiles;
 }
 
-std::string getTilePolygon(int zoom, int xtile, int ytile) {
+std::string getTileBox(int zoom, int xtile, int ytile) {
 	double Z2 = std::pow(2, zoom);
 
-	double upperLeftLngDeg = xtile / Z2 * 360.0 - 180.0;
-	double upperLeftLatRad = std::atan(std::sinh(M_PI * (1 - 2 * ytile / Z2)));
-	double upperLeftLatDeg = upperLeftLatRad * 180.0 / M_PI;
+	double west = xtile / Z2 * 360.0 - 180.0;
+	double northRad = std::atan(std::sinh(M_PI * (1 - 2 * ytile / Z2)));
+	double north = northRad * 180.0 / M_PI;
 
-	double lowerRightLngDeg = (xtile + 1) / Z2 * 360.0 - 180.0;
-	double lowerRightLatRad = std::atan(std::sinh(M_PI * (1 - 2 * (ytile + 1) / Z2)));
-	double lowerRightLatDeg = lowerRightLatRad * 180.0 / M_PI;
+	double east = (xtile + 1) / Z2 * 360.0 - 180.0;
+	double southRad = std::atan(std::sinh(M_PI * (1 - 2 * (ytile + 1) / Z2)));
+	double south = southRad * 180.0 / M_PI;
 
 	// Stringify automaticaly rounds float to 6 decimals
 	std::vector<double> tile = {
-		upperLeftLngDeg,
-		upperLeftLatDeg,
-		lowerRightLngDeg,
-		lowerRightLatDeg
+		west,
+		north,
+		east,
+		south
 	};
 
-	std::string polygon = "POLYGON (" +
-		std::to_string(tile[0]) + " " + std::to_string(tile[1]) + ", " +
-		std::to_string(tile[2]) + " " + std::to_string(tile[1]) + ", " +
+	std::string polygon = "(" +
 		std::to_string(tile[2]) + " " + std::to_string(tile[3]) + ", " +
+		std::to_string(tile[2]) + " " + std::to_string(tile[1]) + ", " +
+		std::to_string(tile[0]) + " " + std::to_string(tile[1]) + ", " +
 		std::to_string(tile[0]) + " " + std::to_string(tile[3]) + ", " +
-		std::to_string(tile[0]) + " " + std::to_string(tile[1]) + ")";
+		std::to_string(tile[2]) + " " + std::to_string(tile[3]) + ")";
 	return polygon;
 }
 
@@ -175,7 +164,35 @@ void callback(const json& data) {
 }
 
 int parseTile(json tile) {
-	std::string boundsPoly = getTilePolygon(tile[0], tile[1], tile[2]);
+	/*
+	Polygon mask, original;
+	bg::read_wkt("POLYGON((-0.035706 51.4848, -0.032959 51.4848,-0.032959 51.4831,-0.035706 51.4831,-0.035706 51.4848))", mask);
+	bg::read_wkt("POLYGON((-0.042242 51.513198, -0.042204 51.513163, -0.032959 51.4848,-0.032959 51.4831, -0.042242 51.513198))", original);
+
+	std::deque<Polygon> clipped_multipolygon;
+    bg::intersection(original, mask, clipped_multipolygon);
+    for (const Polygon& polygon : clipped_multipolygon) {
+    	print("Clipped", bg::wkt(polygon));
+    }
+    */
+
+
+
+	// Get Tile BBox
+	std::string boundsBox = getTileBox(tile[0], tile[1], tile[2]);
+	print("Tile BBox", boundsBox);
+	/*
+	Python
+	LngLatBbox(west=-0.03570556640625, south=51.4830933498849, east=-0.032958984375, north=51.484803739516046)
+	POLYGON ((-0.032958984375 51.4830933498849, -0.032958984375 51.484803739516046, -0.03570556640625 51.484803739516046, -0.03570556640625 51.4830933498849, -0.032958984375 51.4830933498849))
+	
+	C++
+
+	POLYGON (-0.035706 51.484804, -0.032959 51.484804, -0.032959 51.483093, -0.035706 51.483093, -0.035706 51.484804)
+
+	Tile BBox (-0.032959 51.483093, -0.032959 51.484804, -0.035706 51.484804, -0.035706 51.483093, -0.032959 51.483093)
+
+	*/
 	
 	std::string placeholders;
 	int size = tile[3].size();
@@ -187,11 +204,12 @@ int parseTile(json tile) {
 	std::string query = "SELECT id, oid, group_layer, `group`, layer, data, ST_AsText(coords) AS coords FROM features WHERE group_layer IN ("+placeholders+") and Intersects(coords, ST_GeomFromText(?));";
 
 	std::vector<std::string> params = tile[3];
-	params.push_back(boundsPoly);
+	params.push_back("POLYGON (" + boundsBox + ")");
 	
+	// Find all features inside Tile BBox
 	json features = db.find(query, params);
 	
-	// print("Features", features);
+	
 
 	if (features.empty()) {
 		return 0;
@@ -203,29 +221,69 @@ int parseTile(json tile) {
 		std::string geom = feature["coords"];
 		std::string geom_type;
 		if (geom.find("POINT") != std::string::npos) {
-			geom_type = "point";
-			point_type point;
-			bg::read_wkt(geom, point);
+			geom_type = "Point";
+			// Point point;
+			// bg::read_wkt(geom, point);
 		} else if (geom.find("MULTIPOLYGON") != std::string::npos) {
-			geom_type = "multi_polygon";
-			multipolygon_type multi_polygon;
-			bg::read_wkt(geom, multi_polygon);
+			geom_type = "MultiPolygon";
+			// MultiPolygon multiPolygon;
+			// bg::read_wkt(geom, multiPolygon);
+
+			/*
+			print("BBox:", bg::wkt(bounds));
+			print("Src Geom:", geom);
+			double a = bg::area(multiPolygon);
+			print("Area:", a);
+			*/
+
+			// std::deque<Polygon> clipped;
+			// bg::intersection(mask, multiPolygon, clipped);
+			/*
+			if (clipped.empty()) {
+				double a = bg::area(multiPolygon);
+				print("Empty");
+				print("Src Geom:", geom);
+				print("Mask:", boundsBox);
+				print("Area", a);
+			} else {
+				for (const Polygon& polygon : clipped) {
+					// Polygon result;
+					// bg::intersection(polygon, bounds, result);
+					// print("Clipped:", bg::wkt(polygon));
+					// print("Clipped:", bg::area(polygon));
+				}
+			}
+
+			print("\n\n");
+			*/
+
 		} else if (geom.find("POLYGON") != std::string::npos) {
-			geom_type = "polygon";
-			polygon_type polygon;
-			bg::read_wkt(geom, polygon);
+			geom_type = "Polygon";
+			// Polygon polygon;
+			// bg::read_wkt(geom, polygon);
+
+			// bg::model::polygon<Point> result;
+			// bg::intersection(polygon, bounds, result);
+
 		} else if (geom.find("LINESTRING") != std::string::npos) {
-			geom_type = "linestring";
-			linestring_type linestring;
-			bg::read_wkt(geom, linestring);
+			geom_type = "LineString";
+			// LineString lineString;
+			// bg::read_wkt(geom, lineString);
+			/*
+			print("BBox:", bg::wkt(bounds));
+			print("Src Geom:", geom);
+			LineString result;
+			bg::intersection(bounds, lineString, result);
+			std::cout << bg::wkt(result) << "\n\n";
+			*/
 		} else {
 			print("Unknown Geometry Type", geom);
 		}
-		// bg::read_wkt(wkt_string, geom);
 	}
 
 	return 1;
 }
+
 
 int main() {
 
@@ -331,10 +389,44 @@ int main() {
 	}
 	*/
 
-	parseTile(tiles[800]);
-	
-	
-	
+	// parseTile(tiles[8]);
+
+	/*
+	Geometry::Polygon poly = Geometry::parsePolygon("POLYGON ((-0.035706 51.484804, -0.032959 51.484804))");
+	// Print vertices
+    std::cout << "Vertices of the polygon:" << std::endl;
+    for (const auto& vertex : poly.vertices) {
+        std::cout << "(" << vertex.x << ", " << vertex.y << ")" << std::endl;
+    }
+    */
+
+    Geometry::Point point = Geometry::parsePoint("POINT (-0.035706 51.484804)");
+    std::cout << "Point: " << point << std::endl;
+
+    print("\n\n");
+
+    Geometry::Polygon poly = Geometry::parsePolygon("POLYGON ((40 40, 20 45, 45 30, 40 40))");
+	std::cout << "Polygon: " << poly << std::endl;
+
+	print("\n\n");
+
+    poly = Geometry::parsePolygon("POLYGON ((40 40, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20))");
+	std::cout << "Polygon Complex: " << poly << std::endl;
+	std::cout << "Poly outer" << poly.outer[0] << std::endl;
+
+	print("\n\n");
+	/*
+	// "MULTIPOLYGON (((-0.03302 51.49947, -0.032959 51.484804, -0.035706 51.484804)),((-0.03302 51.49947, -0.032959 51.484804, -0.035706 51.484804)))"
+	std::string multiPolygonString = "MULTIPOLYGON (((-0.05 51.49947, -0.032959 51.484804, -0.035706 51.484804)),((-0.03302 51.49947, -0.032959 51.484804, -0.035706 51.484804)))";
+    Geometry::MultiPolygon multiPoly = Geometry::parseMultiPolygon(multiPolygonString);
+   	std::cout << "MultiPolygon: " << multiPoly << std::endl;
+
+   	print("\n\n");
+
+   	multiPolygonString = "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))";
+   	multiPoly = Geometry::parseMultiPolygon(multiPolygonString);
+   	std::cout << "MultiPolygon Complex: " << multiPoly << std::endl;
+   	*/
 
 	return 0;
 }
