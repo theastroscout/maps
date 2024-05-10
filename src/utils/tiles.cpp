@@ -407,26 +407,32 @@ int main() {
 
     Geometry::Polygon poly = Geometry::parsePolygon("POLYGON ((40 40, 20 45, 45 30, 40 40))");
 	std::cout << "Polygon: " << poly << std::endl;
+	std::cout << "Polygon Length: " << poly.length << std::endl;
 
 	print("\n\n");
 
     poly = Geometry::parsePolygon("POLYGON ((40 40, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20))");
 	std::cout << "Polygon Complex: " << poly << std::endl;
-	std::cout << "Poly outer" << poly.outer[0] << std::endl;
+	std::cout << "First Point of outer: " << poly.outer[0] << std::endl;
 
 	print("\n\n");
-	/*
-	// "MULTIPOLYGON (((-0.03302 51.49947, -0.032959 51.484804, -0.035706 51.484804)),((-0.03302 51.49947, -0.032959 51.484804, -0.035706 51.484804)))"
-	std::string multiPolygonString = "MULTIPOLYGON (((-0.05 51.49947, -0.032959 51.484804, -0.035706 51.484804)),((-0.03302 51.49947, -0.032959 51.484804, -0.035706 51.484804)))";
-    Geometry::MultiPolygon multiPoly = Geometry::parseMultiPolygon(multiPolygonString);
-   	std::cout << "MultiPolygon: " << multiPoly << std::endl;
 
-   	print("\n\n");
+	std::string polygonString = poly.wkt();
+	std::cout << "Print Polygon WKT: " << polygonString << std::endl;
 
-   	multiPolygonString = "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))";
-   	multiPoly = Geometry::parseMultiPolygon(multiPolygonString);
-   	std::cout << "MultiPolygon Complex: " << multiPoly << std::endl;
-   	*/
+	print("\n\n");
+
+	Geometry::MultiPolygon multiPoly = Geometry::parseMultiPolygon("MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20)),((40 40, 20 45, 45 30, 40 40)),((40 40, 20 45, 45 30, 40 40)))");
+
+	std::cout << "Print MultiPolygon: " << multiPoly << std::endl;
+	std::cout << "First Polygon of MultiPolygon: " << multiPoly.polygons[0] << std::endl;
+
+	std::string multiPolyString = multiPoly.wkt();
+	std::cout << "Print MultiPolygon WKT: " << multiPolyString << std::endl;
+
+	print("\n\n");
+	std::cout << "MultyPolygon Length: " << multiPoly.length << std::endl;
+
 
 	return 0;
 }
