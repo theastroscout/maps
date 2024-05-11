@@ -287,6 +287,8 @@ int parseTile(json tile) {
 
 int main() {
 
+	std::cout << std::fixed << std::setprecision(7);
+
 	/*
 
 	Config
@@ -405,13 +407,28 @@ int main() {
 
     print("\n\n");
 
-    Geometry::Polygon poly = Geometry::parsePolygon("POLYGON ((40 40, 20 45, 45 30, 40 40))");
+    // Geometry::Polygon poly = Geometry::parsePolygon("POLYGON ((40 40, 20 45, 45 30, 40 40))");
+    // {{0, 0}, {1, 1}, {2, 2}, {3, 3}, {4, 4}}
+    Geometry::Polygon poly = Geometry::parsePolygon("POLYGON ((0 0, 1 1, 3 3, 4 4, 5 6, 7 15, 3 6, 0 0))");
 	std::cout << "Polygon: " << poly << std::endl;
 	std::cout << "Polygon Length: " << poly.length << std::endl;
 
-	print("\n\n");
+	Geometry::simplify(poly, 2);
 
-    poly = Geometry::parsePolygon("POLYGON ((40 40, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20))");
+	print("\n\n\n\n");
+
+	Geometry::Polygon polyS = Geometry::parsePolygon("POLYGON ((-0.0426899 51.5166536, -0.0426874 51.51564, -0.0415785 51.5156202, -0.0416071 51.5158, -0.0416962 51.5159493, -0.0421352 51.5163716, -0.0425499 51.5166216, -0.0426899 51.5166536))");
+
+	print("SIMPLIFY POLY S");
+	print(polyS);
+	// Geometry::Polygon simplified = Geometry::simplify(polyS, .00001);
+	Geometry::Polygon simplified = Geometry::simplify(polyS, .001);
+	print("SIMPLIFIED", simplified);
+
+	print("\n\n\n\n");
+
+    // poly = Geometry::parsePolygon("POLYGON ((40 40, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20))");
+    poly = Geometry::parsePolygon("POLYGON ((-0.035706 51.484804, -0.032959 51.484804, -0.032959 51.483093, -0.035706 51.483093, -0.035706 51.484804))");
 	std::cout << "Polygon Complex: " << poly << std::endl;
 	std::cout << "First Point of outer: " << poly.outer[0] << std::endl;
 

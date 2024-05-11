@@ -50,10 +50,8 @@ namespace Geometry {
 
 	*/
 
-	double distance(const Point& a, const Point& b) {
-		double dx = b.x - a.x;
-		double dy = b.y - a.y;
-		return sqrt(dx * dx + dy * dy);
+	double distance(const Point& p1, const Point& p2) {
+		return std::sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 	}
 
 	// Parse Coordinates String
@@ -124,7 +122,11 @@ namespace Geometry {
 
 	/*
 
+
+
 	Polygon
+
+
 
 	*/
 
@@ -138,13 +140,20 @@ namespace Geometry {
 		return length;
 	}
 
+	/*
+	
+	Calculate Polygon Area
+	Gauss's area
+
+	*/
+
 	float polygonArea(const std::vector<Point>& coords, const size_t& size) {
-	    float area = 0;
-	    for (int i = 0; i < size; ++i) {
-	        int j = (i + 1) % size;
-	        area += coords[i].x * coords[j].y - coords[j].x * coords[i].y;
-	    }
-	    return abs(area) / 2.0f;
+		double area = 0;
+		for (int i = 0; i < size; ++i) {
+			int j = (i + 1) % size;
+			area += coords[i].x * coords[j].y - coords[j].x * coords[i].y;
+		}
+		return area / 2;
 	}
 
 	Info polygonInfo(Polygon& poly) {
@@ -243,7 +252,11 @@ namespace Geometry {
 
 	/*
 
+
+
 	MultyPolygon
+
+
 
 	*/
 
@@ -317,7 +330,9 @@ namespace Geometry {
 
 
 	
-	Clip Polygon
+	Clipping Polygon by Mask
+	Sutherland-Hodgman algorithm
+
 	Mask Polygon should be sorted couterclockwise
 
 
@@ -329,29 +344,29 @@ namespace Geometry {
 		std::vector<Point> output = input;
 		
 		for (int i = 0; i < mask.size(); ++i) {
-	        std::vector<Point> input = output;
-	        output.clear();
-	        
-	        const Point& a = mask[i];
-	        const Point& b = mask[(i + 1) % mask.size()];
+			std::vector<Point> input = output;
+			output.clear();
+			
+			const Point& a = mask[i];
+			const Point& b = mask[(i + 1) % mask.size()];
 
-	        for (int j = 0; j < input.size(); ++j) {
-	            const Point& p1 = input[j];
-	            const Point& p2 = input[(j + 1) % input.size()];
+			for (int j = 0; j < input.size(); ++j) {
+				const Point& p1 = input[j];
+				const Point& p2 = input[(j + 1) % input.size()];
 
-	            float p1Side = (a.x - b.x) * (p1.y - a.y) - (a.y - b.y) * (p1.x - a.x);
-	            float p2Side = (a.x - b.x) * (p2.y - a.y) - (a.y - b.y) * (p2.x - a.x);
+				float p1Side = (a.x - b.x) * (p1.y - a.y) - (a.y - b.y) * (p1.x - a.x);
+				float p2Side = (a.x - b.x) * (p2.y - a.y) - (a.y - b.y) * (p2.x - a.x);
 
-	            if (p1Side >= 0)
-	                output.push_back(p1);
-	            if (p1Side * p2Side < 0) {
-	                Point intersect;
-	                intersect.x = (p1.x * p2Side - p2.x * p1Side) / (p2Side - p1Side);
-	                intersect.y = (p1.y * p2Side - p2.y * p1Side) / (p2Side - p1Side);
-	                output.push_back(intersect);
-	            }
-	        }
-	    }
+				if (p1Side >= 0)
+					output.push_back(p1);
+				if (p1Side * p2Side < 0) {
+					Point intersect;
+					intersect.x = (p1.x * p2Side - p2.x * p1Side) / (p2Side - p1Side);
+					intersect.y = (p1.y * p2Side - p2.y * p1Side) / (p2Side - p1Side);
+					output.push_back(intersect);
+				}
+			}
+		}
 
 		return output;
 	}
@@ -371,6 +386,122 @@ namespace Geometry {
 
 		return result;
 	}
+
+	/*
+
+
+
+	Simplify
+	Douglas-Peucker algorithm
+
+
+	*/
+
+	// Find the point with the maximum distance from the line segment
+	double maxDistance(Point p1, Point p2, Point p) {
+	    double dx = p2.x - p1.x;
+	    double dy = p2.y - p1.y;
+	    double dist;
+
+	    if (dx == 0 && dy == 0) {
+	        // p1 and p2 are the same point
+	        dist = distance(p1, p);
+	    } else {
+	        double t = ((p.x - p1.x) * dx + (p.y - p1.y) * dy) / (dx * dx + dy * dy);
+	        if (t < 0) {
+	            // Closest point is p1
+	            dist = distance(p, p1);
+	        } else if (t > 1) {
+	            // Closest point is p2
+	            dist = distance(p, p2);
+	        } else {
+	            // Closest point is on the line segment
+	            Point closest;
+	            closest.x = p1.x + t * dx;
+	            closest.y = p1.y + t * dy;
+	            dist = distance(p, closest);
+	        }
+	    }
+
+	    return dist;
+	}
+
+	// Douglas-Peucker simplification algorithm
+	void douglasPeucker(std::vector<Point>& points, const double& epsilon, std::vector<Point>& simplified) {
+	    // Find the point with the maximum distance
+	    double maxDist = 0;
+	    int index = 0;
+	    int end = points.size();
+
+	    for (int i = 1; i < end - 1; ++i) {
+	        double dist = maxDistance(points[0], points[end - 1], points[i]);
+	        if (dist > maxDist) {
+	            maxDist = dist;
+	            index = i;
+	        }
+	    }
+
+	    // If max distance is greater than epsilon, recursively simplify
+	    if (maxDist > epsilon) {
+	        std::vector<Point> firstHalf(points.begin(), points.begin() + index + 1);
+	        std::vector<Point> secondHalf(points.begin() + index, points.end());
+	        std::vector<Point> simplifiedFirstHalf;
+	        std::vector<Point> simplifiedSecondHalf;
+	        douglasPeucker(firstHalf, epsilon, simplifiedFirstHalf);
+	        douglasPeucker(secondHalf, epsilon, simplifiedSecondHalf);
+
+	        // Avoid duplicating the endpoint of the first half and the starting point of the second half
+	        simplified.insert(simplified.end(), simplifiedFirstHalf.begin(), simplifiedFirstHalf.end() - 1);
+	        simplified.insert(simplified.end(), simplifiedSecondHalf.begin(), simplifiedSecondHalf.end());
+	    } else {
+	        // Keep the endpoints
+	        simplified.push_back(points[0]);
+	        simplified.push_back(points[end - 1]);
+	    }
+	}
+
+	std::vector<Point> simplifyPolygon(std::vector<Point> points, const double& epsilon) {
+		std::vector<Point> simplified;
+
+		if (points.size() < 3) {
+			simplified = points;
+			return simplified;
+		}
+
+		bool isClosed = false;
+		Point front = points.front();
+		Point back = points.back();
+		if (front.x == back.x && front.y == back.y) {
+			isClosed = true;
+			points.pop_back();
+		}
+
+		douglasPeucker(points, epsilon, simplified);
+
+		if (isClosed) {
+			simplified.push_back(simplified[0]);
+		}
+
+		return simplified;
+	}
+
+	Polygon simplify(const Polygon& poly, const double& epsilon) {
+		
+		Polygon result;
+		
+		result.outer = simplifyPolygon(poly.outer, epsilon);
+		if (poly.inner.size()) {
+			result.inner = simplifyPolygon(poly.inner, epsilon);
+		}
+
+		Info info = polygonInfo(result);
+		result.vertices = info.vertices;
+		result.length = info.length;
+		result.area = info.area;
+
+		return result;
+	}
+
 
 	
 }
