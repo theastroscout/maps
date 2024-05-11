@@ -420,6 +420,10 @@ int main() {
 	std::string polygonString = poly.wkt();
 	std::cout << "Print Polygon WKT: " << polygonString << std::endl;
 
+	std::cout << "Polygon vertices amount: " << poly.vertices << std::endl;
+	std::cout << "Polygon Length: " << poly.length << std::endl;
+	std::cout << "Polygon Area: " << poly.area << std::endl;
+
 	print("\n\n");
 
 	Geometry::MultiPolygon multiPoly = Geometry::parseMultiPolygon("MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20)),((40 40, 20 45, 45 30, 40 40)),((40 40, 20 45, 45 30, 40 40)))");
@@ -431,8 +435,25 @@ int main() {
 	std::cout << "Print MultiPolygon WKT: " << multiPolyString << std::endl;
 
 	print("\n\n");
+	std::cout << "MultyPolygon vertices: " << multiPoly.vertices << std::endl;
 	std::cout << "MultyPolygon Length: " << multiPoly.length << std::endl;
+	std::cout << "MultyPolygon Area: " << multiPoly.area << std::endl;
 
+	/*
+
+	Clipping Polygon
+
+	*/
+
+	print("\n\n");
+
+	Geometry::Polygon polyA = Geometry::parsePolygon("POLYGON ((0 0, 20 0, 20 20, 0 20, 0 0), (20 20, 0 0, 0 10, 10 20 ))");
+
+	// Geometry::Polygon mask = Geometry::parsePolygon("POLYGON ((0 0, 15 0, 15 15, 0 15, 0 0))");
+	Geometry::Polygon mask = Geometry::parsePolygon("POLYGON ((0 0, 0 15, 15 15, 15 0))");
+
+	Geometry::Polygon maskResult = Geometry::clip(polyA, mask);
+	print("maskResult", maskResult);
 
 	return 0;
 }

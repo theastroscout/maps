@@ -10,6 +10,12 @@ namespace Geometry {
 		double y;
 	};
 
+	struct Info {
+		unsigned int vertices = 0;
+		double length = 0;
+		double area = 0;
+	};
+
 	struct Line {
 		double length = 0;
 		std::vector<Point> coords;
@@ -22,6 +28,7 @@ namespace Geometry {
 	};
 
 	struct Polygon {
+		unsigned int vertices = 0;
 		double area = 0;
 		double length = 0;
 		std::vector<Point> inner;
@@ -30,6 +37,7 @@ namespace Geometry {
 	};
 
 	struct MultiPolygon {
+		unsigned int vertices = 0;
 		double area = 0;
 		double length = 0;
 		std::vector<Polygon> polygons;
@@ -120,24 +128,43 @@ namespace Geometry {
 
 	*/
 
-	double polygonSegmentLength(const std::vector<Point>& coords) {
+	double polygonLength(const std::vector<Point>& coords, const size_t& size) {
 		double length = 0;
-		size_t l = coords.size() - 1;
-		for (size_t i = 0; i < l; ++i) {
+		// size_t l = coords.size() - 1;
+		for (size_t i = 0; i < size; ++i) {
 			// std::cout << coords[i].x << std::endl;
 			length += distance(coords[i], coords[i+1]);
 		}
 		return length;
 	}
 
-	double polygonDistance(Polygon& poly) {
-		double length = polygonSegmentLength(poly.outer);
+	float polygonArea(const std::vector<Point>& coords, const size_t& size) {
+	    float area = 0;
+	    for (int i = 0; i < size; ++i) {
+	        int j = (i + 1) % size;
+	        area += coords[i].x * coords[j].y - coords[j].x * coords[i].y;
+	    }
+	    return abs(area) / 2.0f;
+	}
 
-		if(poly.inner.size()){
-			length += polygonSegmentLength(poly.inner);
+	Info polygonInfo(Polygon& poly) {
+		Info info;
+
+		size_t outerSize = poly.outer.size();
+		if(outerSize > 0){
+			info.vertices += outerSize;
+			info.length += polygonLength(poly.outer, outerSize - 1);
+			info.area += polygonArea(poly.outer, outerSize);
 		}
 
-		return length;
+		size_t innerSize = poly.inner.size();
+		if(innerSize > 0){
+			info.vertices += innerSize;
+			info.length += polygonLength(poly.inner, innerSize - 1);
+			info.area += polygonArea(poly.inner, innerSize);
+		}
+
+		return info;
 	}
 
 	// Convert String to Polygon
@@ -176,7 +203,10 @@ namespace Geometry {
 			pass++;
 		}
 
-		poly.length = polygonDistance(poly);
+		Info info = polygonInfo(poly);
+		poly.vertices = info.vertices;
+		poly.length = info.length;
+		poly.area = info.area;
 
 		return poly;
 	}
@@ -245,12 +275,13 @@ namespace Geometry {
 			// Parse Polygon String
 			Polygon poly = parsePolygon(polyStr);
 
+			multiPoly.vertices += poly.vertices;
 			multiPoly.length += poly.length;
+			multiPoly.area += poly.area;
 
 			multiPoly.polygons.push_back(poly);
 		}
 
-		multiPoly.area = 2.546;
 		return multiPoly;
 	}
 
@@ -281,6 +312,67 @@ namespace Geometry {
 		printMultiPolygon(os, *this);
 		return os.str();
 	}
+
+	/*
+
+
+	
+	Clip Polygon
+	Mask Polygon should be sorted couterclockwise
+
+
+
+	*/	
+
+	std::vector<Point> clipper(const std::vector<Point>& input, const std::vector<Point>& mask){
+
+		std::vector<Point> output = input;
+		
+		for (int i = 0; i < mask.size(); ++i) {
+	        std::vector<Point> input = output;
+	        output.clear();
+	        
+	        const Point& a = mask[i];
+	        const Point& b = mask[(i + 1) % mask.size()];
+
+	        for (int j = 0; j < input.size(); ++j) {
+	            const Point& p1 = input[j];
+	            const Point& p2 = input[(j + 1) % input.size()];
+
+	            float p1Side = (a.x - b.x) * (p1.y - a.y) - (a.y - b.y) * (p1.x - a.x);
+	            float p2Side = (a.x - b.x) * (p2.y - a.y) - (a.y - b.y) * (p2.x - a.x);
+
+	            if (p1Side >= 0)
+	                output.push_back(p1);
+	            if (p1Side * p2Side < 0) {
+	                Point intersect;
+	                intersect.x = (p1.x * p2Side - p2.x * p1Side) / (p2Side - p1Side);
+	                intersect.y = (p1.y * p2Side - p2.y * p1Side) / (p2Side - p1Side);
+	                output.push_back(intersect);
+	            }
+	        }
+	    }
+
+		return output;
+	}
+
+	Polygon clip(const Polygon& poly, const Polygon& maskSrc) {
+		Polygon result;
+		std::vector<Point> mask = maskSrc.outer;
+
+		result.outer = clipper(poly.outer, mask);
+		
+		// Mask inner polygon if exists
+		if(poly.inner.size()){
+			result.inner = clipper(poly.inner, mask);
+		}
+
+		// result.length = polygonLength(result);
+
+		return result;
+	}
+
+	
 }
 
 #endif
