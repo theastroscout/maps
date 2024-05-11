@@ -21,7 +21,7 @@ surfy::SQLite db;
 #include "libs/print.hpp"
 using surfy::print;
 
-#include "libs/geom.hpp"
+#include "libs/surfy/geom/main.h"
 
 
 // Global Config
@@ -287,7 +287,7 @@ int parseTile(json tile) {
 
 int main() {
 
-	std::cout << std::fixed << std::setprecision(7);
+	// std::cout << std::fixed << std::setprecision(6);
 
 	/*
 
@@ -402,6 +402,19 @@ int main() {
     }
     */
 
+
+
+
+
+
+
+
+
+
+
+
+	/*
+
     Geometry::Point point = Geometry::parsePoint("POINT (-0.035706 51.484804)");
     std::cout << "Point: " << point << std::endl;
 
@@ -446,7 +459,7 @@ int main() {
 	Geometry::MultiPolygon multiPoly = Geometry::parseMultiPolygon("MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20)),((40 40, 20 45, 45 30, 40 40)),((40 40, 20 45, 45 30, 40 40)))");
 
 	std::cout << "Print MultiPolygon: " << multiPoly << std::endl;
-	std::cout << "First Polygon of MultiPolygon: " << multiPoly.polygons[0] << std::endl;
+	std::cout << "First Polygon of MultiPolygon: " << multiPoly.items[0] << std::endl;
 
 	std::string multiPolyString = multiPoly.wkt();
 	std::cout << "Print MultiPolygon WKT: " << multiPolyString << std::endl;
@@ -456,13 +469,9 @@ int main() {
 	std::cout << "MultyPolygon Length: " << multiPoly.length << std::endl;
 	std::cout << "MultyPolygon Area: " << multiPoly.area << std::endl;
 
-	/*
 
-	Clipping Polygon
 
-	*/
-
-	print("\n\n");
+	print("\n\nCLIPPING\n\n");
 
 	Geometry::Polygon polyA = Geometry::parsePolygon("POLYGON ((0 0, 20 0, 20 20, 0 20, 0 0), (20 20, 0 0, 0 10, 10 20 ))");
 
@@ -471,6 +480,11 @@ int main() {
 
 	Geometry::Polygon maskResult = Geometry::clip(polyA, mask);
 	print("maskResult", maskResult);
+
+	*/
+
+	Geometry::test();
+
 
 	return 0;
 }

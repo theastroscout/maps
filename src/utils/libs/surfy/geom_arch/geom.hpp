@@ -1,5 +1,7 @@
 #ifndef SURFY_GEOM_HPP
 #define SURFY_GEOM_HPP
+#pragma once
+#include "geom.hpp"
 
 #include <vector>
 
@@ -25,7 +27,7 @@ namespace Geometry {
 	struct MultiLine {
 		unsigned int vertices = 0;
 		double length = 0;
-		std::vector<Line> lines;
+		std::vector<Line> items;
 	};
 
 	struct Polygon {
@@ -41,23 +43,12 @@ namespace Geometry {
 		unsigned int vertices = 0;
 		double area = 0;
 		double length = 0;
-		std::vector<Polygon> polygons;
+		std::vector<Polygon> items;
 		std::string wkt() const; // Return WKT string
 	};
 
-	namespace utils {
-		void asd();
-	}
-
-	/*
-
-	Calc Distance Between Two Points
-
-	*/
-
-	double distance(const Point& p1, const Point& p2) {
-		return std::sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
-	}
+	namespace utils {};
+    
 
 	// Parse Coordinates String
 	std::vector<Point> parseCoordsString(const std::string& str) {
@@ -102,8 +93,6 @@ namespace Geometry {
 
 	Point parsePoint(const std::string& str) {
 		Point point;
-
-		utils::asd();
 		
 		// Find the start and end positions of the coordinates substring
 		size_t startPos = str.find("(");
@@ -142,7 +131,7 @@ namespace Geometry {
 		// size_t l = coords.size() - 1;
 		for (size_t i = 0; i < size; ++i) {
 			// std::cout << coords[i].x << std::endl;
-			length += distance(coords[i], coords[i+1]);
+			length += utils::distance(coords[i], coords[i+1]);
 		}
 		return length;
 	}
@@ -299,7 +288,7 @@ namespace Geometry {
 			multiPoly.length += poly.length;
 			multiPoly.area += poly.area;
 
-			multiPoly.polygons.push_back(poly);
+			multiPoly.items.push_back(poly);
 		}
 
 		return multiPoly;
@@ -309,9 +298,9 @@ namespace Geometry {
 	void printMultiPolygon(std::ostream& os, const MultiPolygon& multiPoly) {
 		os << "MULTIPOLYGON (";
 
-		size_t length = multiPoly.polygons.size();
+		size_t length = multiPoly.items.size();
 		for (size_t i = 0; i < length; ++i) {
-			printPolygonBody(os, multiPoly.polygons[i]);
+			printPolygonBody(os, multiPoly.items[i]);
 			if (i != length - 1) {
 				os << ",";
 			}
@@ -424,21 +413,21 @@ namespace Geometry {
 
 	    if (dx == 0 && dy == 0) {
 	        // p1 and p2 are the same point
-	        dist = distance(p1, p);
+	        dist = utils::distance(p1, p);
 	    } else {
 	        double t = ((p.x - p1.x) * dx + (p.y - p1.y) * dy) / (dx * dx + dy * dy);
 	        if (t < 0) {
 	            // Closest point is p1
-	            dist = distance(p, p1);
+	            dist = utils::distance(p, p1);
 	        } else if (t > 1) {
 	            // Closest point is p2
-	            dist = distance(p, p2);
+	            dist = utils::distance(p, p2);
 	        } else {
 	            // Closest point is on the line segment
 	            Point closest;
 	            closest.x = p1.x + t * dx;
 	            closest.y = p1.y + t * dy;
-	            dist = distance(p, closest);
+	            dist = utils::distance(p, closest);
 	        }
 	    }
 
@@ -522,11 +511,7 @@ namespace Geometry {
 
 		return result;
 	}
-
-
 	
 }
-
-#include "geom.utils.hpp"
 
 #endif
