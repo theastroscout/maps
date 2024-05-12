@@ -284,6 +284,27 @@ int parseTile(json tile) {
 	return 1;
 }
 
+struct Point {
+    int x;
+    int y;
+};
+
+struct Line {
+    Point start;
+    Point end;
+};
+
+// Factory function
+auto factory(const std::string& objectType) {
+    if (objectType == "Point") {
+        return Point{};
+    } else if (objectType == "Line") {
+        return Line{};
+    } else {
+        throw std::invalid_argument("Unknown object type");
+    }
+}
+
 
 int main() {
 
@@ -486,9 +507,21 @@ int main() {
 	surfy::geom::test();
 
 	
-	surfy::geom::Shape point = surfy::geom::Shape("POINT (-0.035706 51.484804)");
-	print("Point:", point.num.intValue);
-	// print("X:", point.x, "Y:", point.y);
+	// surfy::geom::Shape shape = surfy::geom::Shape("POINT (-0.035706 51.484804)");
+	// print("Point:", point.num.intValue);
+	// print("Type:", shape.type, "ID:", shape.geom.point.id, "X:", shape.geom.point.x, "Y:", shape.geom.point.y);
+	// print("Type:", shape.type, "ID:", shape.geom.line.id);
+
+	// surfy::geom::Shape shapeInstancePoint = surfy::geom::ShapeFactory::createShape("POINT (-0.035706 51.484804)");
+	// surfy::geom::Shape& shapeInstancePoint = surfy::geom::ShapeFactory("POINT (-0.035706 51.484804)");
+
+	// print("X:", shapeInstancePoint.x);
+
+	try {
+        Point& obj1 = factory("POINT ()");
+    } catch (const std::invalid_argument& e) {
+        std::cerr << e.what() << std::endl;
+    }
 
 
 	return 0;

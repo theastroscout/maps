@@ -1,6 +1,8 @@
 #ifndef GEOM_HPP
 #define GEOM_HPP
 #pragma once
+#include <iostream>
+#include <string>
 #include <vector>
 
 namespace surfy::geom {
@@ -57,7 +59,8 @@ namespace surfy::geom {
 #include "types.h"
 #include "utils.h"
 
-namespace surfy::geom {
+
+namespace surfy::geom2 {
 	/*
 	class Geometry {
 	public:
@@ -65,19 +68,26 @@ namespace surfy::geom {
 	};
 	*/
 
-	struct Point {
-		std::string type = "Point";
-		double x;
+	
+	struct Geometry {
+		int id;
 	};
 
-	struct Line {
-		std::string type = "Line";
+	struct Point : public Geometry {
+		std::string type = "Point";
 		double x;
 		double y;
 	};
 
+	struct Line : public Geometry {
+		std::string type = "Line";
+		std::vector<Point> coords;
+	};
+
 	struct Polygon {
 		std::string type = "Polygon";
+		std::vector<Point> outer;
+		std::vector<Point> inner;
 	};
 
 	
@@ -103,19 +113,40 @@ namespace surfy::geom {
 	    // template<typename Geom>
 	    // Geom geom;
 
-	    union {
+	    /*union {
 	        int intValue;
 	        float floatValue;
 	        double doubleValue;
-	    } num;
+	    } num;*/
+/*
+	    union Geometry {
+	    	Point point;
+	    	Line line;
+	    } geom;*//*
+
+	    union Geometry {
+	    	Point point;
+	    	Line line;
+	    	Polygon poly;
+	    	Geometry(){}
+	    	~Geometry(){}
+	    } geom;
+	    */
+
+
 
 	    
 		Shape(const std::string& src) {
+
 	        if (src.find("POINT") != std::string::npos) {
 	            type = "Point";
-	            num.intValue = 1;
+	            
+	            // asd = 3;
+
+	            // geom = new Point();
+	            // geom.x = 10;
 	            // Point point;
-	            // geom = point;
+	            // geom.point = point;
 	            // std::cout << geom.point.x << std::endl;
 	            // std::cout << geom.line.x << std::endl;
 	           //  Point point;
@@ -133,14 +164,22 @@ namespace surfy::geom {
 	            // new (&geom.point) Point(); // Placement new to initialize the point member
 	        } else if (src.find("LINE") != std::string::npos) {
 	            type = "Line";
-	            num.doubleValue = 1.3;
+	            // Line line;
+	            // geom.line = line;
+	            // num.doubleValue = 1.3;
 	            // Line line;
 	            // geom = line;
 	            // new (&geom.line) Line(); // Placement new to initialize the line member
+	        } else {
+	        	// Line point;
+	           //  geom.point = point;
 	        }
 	    }
 
 	    ~Shape() {
+
+	    	// delete geom;
+
 	    	/*
 	        if (type == "Point") {
 	            geom.point.~Point(); // Explicitly call the destructor for Point
