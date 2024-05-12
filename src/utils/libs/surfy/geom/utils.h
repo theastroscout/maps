@@ -1,9 +1,9 @@
-#ifndef SURFY_GEOM_UTILS_HPP
-#define SURFY_GEOM_UTILS_HPP
-#pragma once
-#include "main.h"
+#ifndef GEOM_UTILS_HPP
+#define GEOM_UTILS_HPP
+// #pragma once
+// #include "main.h"
 
-namespace Geometry::utils {
+namespace surfy::geom::utils {
 
 	/*
 
@@ -11,8 +11,9 @@ namespace Geometry::utils {
 
 	*/
 
-	double distance() {
-		std::cout << "Hello from Utils!" << std::endl;
+	double distance(const types::Point& p1) {
+
+		std::cout << "Hello from Utils!" << p1.x << std::endl;
 		return 2.3;
 	}
 }

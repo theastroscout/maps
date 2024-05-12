@@ -9,19 +9,19 @@ sudo apt-get install libboost-all-dev
 
 #include <array>
 #include <sqlite3.h>
-#include "libs/json.hpp"
+#include "libs/json.h"
 using json = nlohmann::ordered_json;
 
 #include <cmath>
 #include <vector>
 
-#include "libs/sqlite.hpp"
+#include "libs/sqlite.h"
 surfy::SQLite db;
 
-#include "libs/print.hpp"
+#include "libs/print.h"
 using surfy::print;
 
-#include "libs/surfy/geom/main.h"
+#include "libs/surfy/geom/geom.h"
 
 
 // Global Config
@@ -483,7 +483,12 @@ int main() {
 
 	*/
 
-	Geometry::test();
+	surfy::geom::test();
+
+	
+	surfy::geom::Shape point = surfy::geom::Shape("POINT (-0.035706 51.484804)");
+	print("Point:", point.num.intValue);
+	// print("X:", point.x, "Y:", point.y);
 
 
 	return 0;

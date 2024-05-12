@@ -9,7 +9,7 @@ For multithreading is better to run new instance for each thread
 
 #include <sqlite3.h>
 #include <iostream>
-#include "json.hpp"
+#include "json.h"
 
 namespace surfy {
 	using json = nlohmann::ordered_json;
