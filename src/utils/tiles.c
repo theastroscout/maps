@@ -486,11 +486,22 @@ int main() {
 	surfy::geom::test();
 
 	
-	surfy::geom::Shape shape = surfy::geom::Shape("POINT (-0.035706 51.484804)");
-	print("Type:", shape.type);
+	surfy::geom::Shape pointShape = surfy::geom::Shape("POINT (-0.035706 51.484804)");
+	print("Type:", pointShape.type);
+	std::string pointWKT = pointShape.wkt();
+	print(pointWKT, "\n\n");
 
-	surfy::geom::Shape shape2 = surfy::geom::Shape("LINESTRING (-0.035706 51.484804, -0.035706 51.484804)");
-	print("Type:", shape2.type);
+	surfy::geom::Shape lineShape = surfy::geom::Shape("LINESTRING (-0.035706 51.484804, -0.035706 51.484804)");
+	print("Type:", lineShape.type);
+	std::string lineWKT = lineShape.wkt();
+	print(lineWKT, "\n\n");
+
+	surfy::geom::Shape polyShape = surfy::geom::Shape("POLYGON ((-0.035706 51.484804, -0.025706 51.484804))");
+	print("Type:", polyShape.type);
+	print("Area", polyShape.geom.polygon.area);
+	print("Length", polyShape.geom.polygon.length);
+	std::string polyWKT = polyShape.wkt();
+	print(polyWKT, "\n\n");
 
 
 	return 0;

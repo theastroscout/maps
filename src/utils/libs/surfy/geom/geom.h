@@ -14,7 +14,11 @@ namespace surfy::geom {
 		std::string wkt() const; // Return WKT string
 	};
 
-	struct Point {
+	std::string Geometry::wkt() const {
+		return "Blimey!";
+	}
+
+	struct Point : public Geometry {
 		double x;
 		double y;
 	};
@@ -52,21 +56,103 @@ namespace surfy::geom {
 	class Shape {
 	public:
 		std::string type;
+		std::string source;
 
 		union Geometry {
 			Point point;
 			Line line;
+			MultiLine multiline;
+			Polygon polygon;
+			MultiPolygon multiPolygon;
+
 			Geometry(){}
 			~Geometry(){}
+
 		} geom;
+
+		/*
+
+		WKT
+		Stringify geometry, e.g. POINT (1 2) or LINESTRING (0 0, 2 2)
+
+		*/
+
+		std::string wkt() {
+			std::stringstream os;		
+
+			if (type == "Point") {
+
+				os << "POINT (";
+				utils::printPoint(os, geom.point);
+				os << ")";
+
+			} else if (type == "Line") {
+
+				os << "LINESTRING (";
+				utils::printCoords(os, geom.line.coords);
+				os << ")";
+			}
+
+			return os.str();
+		}
 		
 
 		Shape (const std::string& src) {
+			source = src; // Store source just in case
+
+			// Find the start and end positions of the coordinates substring
+			size_t startPos = src.find("(");
+			size_t endPos = src.rfind(")");
+			std::string body = src.substr(startPos + 1, endPos - startPos - 1);
+
+			if (startPos == std::string::npos || endPos == std::string::npos) {
+				type = "Error";
+				return;
+			}
+
 			if (src.find("POINT") != std::string::npos) {
+				
 				type = "Point";
-				geom.point.x = 2;
+				std::vector<Point> coords = utils::parseCoordsString(body);
+				geom.point = coords[0];
+
 			} else if (src.find("LINE") != std::string::npos) {
+
 				type = "Line";
+				geom.line.coords = utils::parseCoordsString(body);
+
+			} else if (src.find("POLYGON") != std::string::npos) {
+
+				type = "Polygon";
+
+				int pass = 1;
+				size_t pos = 0;
+				while (pos < body.size()) {
+					size_t start = body.find("(", pos);
+					size_t end = body.find(")", start);
+					if (start == std::string::npos || end == std::string::npos) {
+						break; // No more polygons found
+					}
+
+					std::string polyStr = body.substr(start + 1, end - start - 1);
+					pos = end + 1;
+
+					std::vector<Point> coords = utils::parseCoordsString(polyStr);
+					if (pass == 1) {
+						geom.polygon.outer = coords;
+					} else {
+						geom.polygon.inner = coords;
+					}
+
+					pass++;
+				}
+
+				utils::refreshPolygon(geom.polygon);
+
+
+			} else {
+
+				type = "Error";
 			}
 		}
 		~Shape() {}

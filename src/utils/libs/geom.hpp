@@ -102,8 +102,6 @@ namespace Geometry {
 
 	Point parsePoint(const std::string& str) {
 		Point point;
-
-		utils::asd();
 		
 		// Find the start and end positions of the coordinates substring
 		size_t startPos = str.find("(");
