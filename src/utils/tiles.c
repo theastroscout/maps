@@ -522,7 +522,6 @@ int main() {
 
 	print("\n\n");
 
-	return 0;
 
 	/*
 
@@ -538,6 +537,25 @@ int main() {
 	print("Length:", cLine.length, cLine.geom.line.length);
 	std::string cLineWKT = cLine.wkt();
 	print(cLineWKT, "\n\n");
+
+	/*
+
+	Simplify Line
+
+	*/
+
+	print("Simplify Line");
+	sg::Shape sLine = sg::Shape("LINESTRING (0 0, 2 2, 10 2, 6 6, 7 7, 30 30)");
+	sg::Shape sLineSimplified = sLine.simplify(2);
+	print("Simplified Line", sLineSimplified);
+
+	print("\n\n");
+
+	sg::Shape complexPoly = sg::Shape("POLYGON ((-0.0426899 51.5166536, -0.0426874 51.51564, -0.0415785 51.5156202, -0.0416071 51.5158, -0.0416962 51.5159493, -0.0421352 51.5163716, -0.0425499 51.5166216, -0.0426899 51.5166536))");
+	sg::Shape simplePoly = complexPoly.simplify(.0001);
+	print("Simplified Polygon", simplePoly);
+
+	return 0;
 
 	/*
 
@@ -579,7 +597,7 @@ int main() {
 	print(polyWKT2, "\n\n");
 
 
-	sg::Shape polyA = sg::Shape("POLYGON ((0 0, 20 0, 20 20, 0 20, 0 0), (20 20, 0 0, 0 10, 10 20 ))");
+	sg::Shape polyA = sg::Shape("POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0),(0 0, 0 5, 5 5, 5 0, 0 0))");
 	print("Polygon Src", polyA);
 	print("Mask Src", mask);
 	sg::Shape clipped = sg::clip(polyA, mask);

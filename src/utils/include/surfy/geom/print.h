@@ -54,4 +54,69 @@ namespace surfy::geom {
 			os << ")";
 		}
 	}
+
+	/*
+
+	Point
+
+	*/
+
+	std::ostream& operator<<(std::ostream& os, const Point& point) {
+		os << "POINT (";
+		print::point(os, point);
+		os << ")";
+		return os;
+	}
+
+	/*
+
+	Line
+
+	*/
+
+	std::ostream& operator<<(std::ostream& os, const Line& line) {
+		os << "LINESTRING (";
+		print::line(os, line.coords);
+		os << ")";
+		return os;
+	}
+
+	/*
+
+	Polygon
+
+	*/
+
+	std::ostream& operator<<(std::ostream& os, const Polygon& poly) {
+		os << "POLYGON ";
+		print::polygon(os, poly);
+		return os;
+	}
+
+	/*
+
+	Shape
+
+	*/
+
+	std::ostream& operator<<(std::ostream& os, const Shape& shape) {
+		if (shape.type == "Point") {
+
+			os << "POINT (";
+			print::point(os, shape.geom.point);
+			os << ")";
+
+		} else if (shape.type == "Line") {
+
+			os << "LINESTRING (";
+			print::line(os, shape.geom.line.coords);
+			os << ")";
+
+		} else if (shape.type == "Polygon") {
+			os << "POLYGON ";
+			print::polygon(os, shape.geom.polygon);
+		}
+
+		return os;
+	}
 }

@@ -19,8 +19,7 @@ namespace surfy::geom {
 	}
 
 	struct Point : public Geometry {
-		double x;
-		double y;
+		double x, y;
 	};
 
 	struct Line : public Geometry {
@@ -42,12 +41,25 @@ namespace surfy::geom {
 		unsigned int size = 0;
 		std::vector<Polygon> items = {};
 	};
-}
 
-#include "utils.h"
-#include "print.h"
+	namespace utils {
+		double distance(const Point& p1, const Point& p2);
+		std::vector<Point> parseCoordsString(const std::string& str);
+		double length(const std::vector<Point>& coords, size_t size);
+		float area(const std::vector<Point>& coords, size_t size);
+	};
 
-namespace surfy::geom {
+	namespace print {
+		void point(std::ostream& os, const Point& point);
+		void line(std::ostream& os, const std::vector<Point>& coords);
+		void polygon(std::ostream& os, const Polygon& poly);
+	};
+
+	/*
+
+	Shape
+
+	*/
 
 	class Shape {
 	public:
@@ -287,14 +299,15 @@ namespace surfy::geom {
 
 					pass++;
 				}
-				
-				// utils::refreshPolygon(geom.polygon);
 
 			}
 
 			// Update size, Length, and Area
 			refresh();
 		}
+
+		Shape simplify(const double& intolerance);
+
 		/*
 		Shape (const Polygon& poly) {
 			new (&geom.polygon) Polygon(poly);
@@ -308,73 +321,11 @@ namespace surfy::geom {
 			
 		}
 	};
-
-	/*
-
-	Point
-
-	*/
-
-	std::ostream& operator<<(std::ostream& os, const Point& point) {
-		os << "POINT (";
-		print::point(os, point);
-		os << ")";
-		return os;
-	}
-
-	/*
-
-	Line
-
-	*/
-
-	std::ostream& operator<<(std::ostream& os, const Line& line) {
-		os << "LINESTRING (";
-		print::line(os, line.coords);
-		os << ")";
-		return os;
-	}
-
-	/*
-
-	Polygon
-
-	*/
-
-	std::ostream& operator<<(std::ostream& os, const Polygon& poly) {
-		os << "POLYGON ";
-		print::polygon(os, poly);
-		return os;
-	}
-
-	/*
-
-	Shape
-
-	*/
-
-	std::ostream& operator<<(std::ostream& os, const Shape& shape) {
-		if (shape.type == "Point") {
-
-			os << "POINT (";
-			print::point(os, shape.geom.point);
-			os << ")";
-
-		} else if (shape.type == "Line") {
-
-			os << "LINESTRING (";
-			print::line(os, shape.geom.line.coords);
-			os << ")";
-
-		} else if (shape.type == "Polygon") {
-			os << "POLYGON ";
-			print::polygon(os, shape.geom.polygon);
-		}
-
-		return os;
-	}
 }
 
-#include "clippers.h"
+#include "print.h"
+#include "utils.h"
+#include "clip.h"
+#include "simplify.h"
 
 #endif
