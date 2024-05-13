@@ -1,69 +1,10 @@
-#ifndef GEOM_HPP
-#define GEOM_HPP
-#pragma once
-#include <iostream>
-#include <string>
-#include <vector>
 
-namespace surfy::geom {
-
-	struct Geometry {
-		unsigned int vertices = 0;
-		double length = 0;
-		double area = 0;
-		std::string wkt() const; // Return WKT string
-	};
-
-	std::string Geometry::wkt() const {
-		return "Blimey!";
-	}
-
-	struct Point : public Geometry {
-		double x;
-		double y;
-	};
-
-	struct Line : public Geometry {
-		std::vector<Point> coords;
-	};
-
-	struct MultiLine : public Geometry {
-		std::vector<Line> items;
-	};
-
-	struct Polygon : public Geometry {
-		std::vector<Point> inner;
-		std::vector<Point> outer;
-	};
-
-	struct MultiPolygon : public Geometry {
-		std::vector<Polygon> items;
-	};
-
-	struct Dummy {
-		std::string type = "Dummy";
-	};
-
-	namespace utils {};
-
-
-
-	void test();
-}
-
-#include "types.h"
-#include "utils.h"
-
-
-namespace surfy::geom {
-
+namespace surfy::geom3 {
+	
 	class Shape {
 	public:
 		std::string type;
 		std::string source;
-		unsigned int vertices = 0;
-		double length = 0;
-		double area = 0;
 
 		union Geometry {
 			Point point;
@@ -102,38 +43,7 @@ namespace surfy::geom {
 
 			return os.str();
 		}
-
-		void refresh() {
-			vertices = 0;
-			length = .0;
-			area = .0;
-
-			if (type == "Point") {
-				vertices = 1;
-			} else if (type == "Line") {
-				size_t lineSize = geom.line.coords.size();
-				vertices = lineSize;
-
-			} else if (type == "Polygon") {
-				if(!geom.polygon.outer.empty()){
-					size_t outerSize = geom.polygon.outer.size();
-					geom.polygon.vertices += outerSize;
-					geom.polygon.length += utils::length(geom.polygon.outer, outerSize);
-					geom.polygon.area += utils::area(geom.polygon.outer, outerSize);
-				}
-
-				if(!geom.polygon.inner.empty()){
-					size_t innerSize = geom.polygon.inner.size();
-					geom.polygon.vertices += innerSize;
-					geom.polygon.length += utils::length(geom.polygon.inner, innerSize);
-					geom.polygon.area += utils::area(geom.polygon.inner, innerSize);
-				}
-
-				vertices += geom.polygon.vertices;
-				length += geom.polygon.length;
-				area += geom.polygon.area;
-			}
-		}		
+		
 
 		Shape (const std::string& src) {
 			source = src; // Store source just in case
@@ -152,7 +62,6 @@ namespace surfy::geom {
 				
 				type = "Point";
 				new (&geom.point) Point();
-
 				std::vector<Point> coords = utils::parseCoordsString(body);
 				geom.point = coords[0];
 
@@ -160,13 +69,15 @@ namespace surfy::geom {
 
 				type = "Line";
 				new (&geom.line) Line();
-
 				geom.line.coords = utils::parseCoordsString(body);
 
 			} else if (src.find("POLYGON") != std::string::npos) {
 
 				type = "Polygon";
+				// geom.polygon = Polygon();
 				new (&geom.polygon) Polygon();
+
+				std::cout << "Polygon Body" << body << std::endl;
 
 				int pass = 1;
 				size_t pos = 0;
@@ -177,44 +88,45 @@ namespace surfy::geom {
 						break; // No more polygons found
 					}
 
+					std::cout << "Cutting Body" << std::endl;
 					std::string polyStr = body.substr(start + 1, end - start - 1);
 
+					std::cout << "Set Post: " << pos << " >> " << end + 1 << ", Body Size: " << body.size() << std::endl;
 					pos = end + 1;
 
+					std::cout << "Parse Coords: " << polyStr << std::endl;
 					std::vector<Point> coords = utils::parseCoordsString(polyStr);
 
 					if (pass == 1) {
+						std::cout << "Set Outer: " << coords.size() << std::endl;
 						geom.polygon.outer = coords;
 					} else {
+						std::cout << "??????" << std::endl;
 						geom.polygon.inner = coords;
 					}
 
 					pass++;
 				}
+
+
+				std::cout << "Refresh Polygon, PASS: " << pass << std::endl;
 				
-				// utils::refreshPolygon(geom.polygon);
+				utils::refreshPolygon(geom.polygon);
+
+				std::cout << "Assigning new poly" << std::endl;
+				// geom.polygon = poly;
+
 
 			} else {
+
 				type = "Error";
 			}
 
-			refresh();
+			std::cout << "DONE" << std::endl;
 		}
 		~Shape() {
-			
+			std::cout << "KILL!!!" << std::endl;
 		}
 	};
+
 }
-
-
-
-void surfy::geom::test() {
-	/*Point point;
-	point.x = 10;
-	point.y = 15;
-	surfy::geom::utils::distance(point);
-	*/
-	std::cout << "Hello from MyClass!" << std::endl;
-}
-
-#endif

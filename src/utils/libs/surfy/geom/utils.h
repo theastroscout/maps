@@ -22,12 +22,13 @@ namespace surfy::geom::utils {
 	*/
 
 	std::vector<Point> parseCoordsString(const std::string& str) {
+
 		std::vector<Point> coords;
-		// Use stringstream to parse coordinates
-		std::stringstream ss(str);
 		double x, y;
 		char comma;
 
+		// Use stringstream to parse coordinates
+		std::stringstream ss(str);
 		while (ss >> x >> y) {
 			Point p;
 			p.x = x;
@@ -66,14 +67,16 @@ namespace surfy::geom::utils {
 
 	/*
 
-	Polygon Length
+	Length
 
 	*/
 
-	double polygonLength(const std::vector<Point>& coords, const size_t& size) {
+	double length(const std::vector<Point>& coords, size_t size = 0) {
 		double length = 0;
+		if (size == 0) {
+			size = coords.size();
+		}
 		for (size_t i = 0; i < size; ++i) {
-			std::cout << "i:" << i << " >>>> " << coords[i].x << "," << coords[i].y  << " >>>> " << coords[i+1].x << "," << coords[i+1].y << std::endl;
 			length += distance(coords[i], coords[i+1]);
 		}
 		return length;
@@ -81,44 +84,21 @@ namespace surfy::geom::utils {
 
 	/*
 	
-	Calculate Polygon Area
-	Gauss's area
+	Calculate Area, Gauss's area
 
 	*/
 
-	float polygonArea(const std::vector<Point>& coords, const size_t& size) {
-		double area = 0;
+	float area(const std::vector<Point>& coords, size_t size = 0) {
+		double area = .0;
+		if (size == 0) {
+			size = coords.size();
+		}
 		for (int i = 0; i < size; ++i) {
 			int j = (i + 1) % size;
+			// area += coords[i].x * coords[j].y - coords[j].x * coords[i].y;
 			area += coords[i].x * coords[j].y - coords[j].x * coords[i].y;
 		}
 		return area / 2;
-	}
-
-	/*
-
-	Refresh Polygon Info
-
-	*/
-
-	void refreshPolygon(Polygon& poly) {
-
-		size_t outerSize = poly.outer.size();
-		if(outerSize > 0){
-			poly.vertices += outerSize;
-			std::cout << "LENGTH: " << polygonLength(poly.outer, outerSize - 1) << std::endl;
-			// poly.length += polygonLength(poly.outer, outerSize - 1);
-			// poly.area += polygonArea(poly.outer, outerSize);
-		}
-
-		size_t innerSize = poly.inner.size();
-		if(innerSize > 0){
-			poly.vertices += innerSize;
-			// poly.length += polygonLength(poly.inner, innerSize - 1);
-			// poly.area += polygonArea(poly.inner, innerSize);
-		}
-
-		// std::cout << poly.length << std::endl;
 	}
 }
 
