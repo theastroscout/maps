@@ -9,19 +9,20 @@ sudo apt-get install libboost-all-dev
 
 #include <array>
 #include <sqlite3.h>
-#include "libs/json.h"
+#include "include/json.h"
 using json = nlohmann::ordered_json;
 
 #include <cmath>
 #include <vector>
 
-#include "libs/sqlite.h"
+#include "include/sqlite.h"
 surfy::SQLite db;
 
-#include "libs/print.h"
-using surfy::print;
+#include "include/surfy/geom/geom.h"
+namespace sg = surfy::geom;
 
-#include "libs/surfy/geom/geom.h"
+#include "include/print.h"
+using surfy::print;
 
 
 // Global Config
@@ -483,37 +484,102 @@ int main() {
 
 	*/
 
-	surfy::geom::test();
+	sg::Shape mask = sg::Shape("POLYGON ((0 0, 0 15, 15 15, 15 0))");
+	print("Mask", mask);
+	/*
 
-	
-	surfy::geom::Shape pointShape = surfy::geom::Shape("POINT (-0.035706 51.484804)");
-	print("Type:", pointShape.type);
-	std::string pointWKT = pointShape.wkt();
+	Point
+
+	*/
+
+	print("Create Point");
+	sg::Shape point = sg::Shape("POINT (-0.035706 51.484804)");
+	print("Type:", point.type);
+	print("Coords (x,y):", point.geom.point.x, point.geom.point.y);
+	std::string pointWKT = point.wkt();
 	print(pointWKT, "\n\n");
 
-	surfy::geom::Shape lineShape = surfy::geom::Shape("LINESTRING (-0.035706 51.484804, -0.035706 51.484804)");
-	print("Type:", lineShape.type);
-	std::string lineWKT = lineShape.wkt();
+	/*
+
+	Line
+
+	*/
+
+	print("Create Line");
+	sg::Shape line = sg::Shape("LINESTRING (0 0, 10 10, 30 30)");
+	print("Type:", line.type);
+	print("Closed:", line.geom.line.closed);
+	print("Vertices:", line.vertices, line.geom.line.vertices);
+	print("Length:", line.length, line.geom.line.length);
+	std::string lineWKT = line.wkt();
 	print(lineWKT, "\n\n");
+
+	print("Clip Line");
+	sg::Shape clippedLine = sg::clip(line, mask);
+	print("Clipped Line", clippedLine);
+
+
+	print("\n\n");
+
+	/*
+
+	Closed Line
+
+	*/
+
+	print("Create Closed Line");
+	sg::Shape cLine = sg::Shape("LINESTRING (0 0, 2 2, 3 3, 0 0)");
+	print("Type:", cLine.type);
+	print("Closed:", cLine.geom.line.closed);
+	print("Vertices:", cLine.vertices, cLine.geom.line.vertices);
+	print("Length:", cLine.length, cLine.geom.line.length);
+	std::string cLineWKT = cLine.wkt();
+	print(cLineWKT, "\n\n");
+
+	/*
+
+	MultiLine
+
+	*/
+
+	print("Create MultiLine");
+	sg::Shape mLine = sg::Shape("MULTILINESTRING ((0 0, 2 2, 4 4), (0 0, 3 3, 6 6, 9 9))");
+	print("Type:", mLine.type);
+	print("Vertices:", mLine.vertices, mLine.geom.multiLine.vertices);
+	print("Size:", mLine.size, mLine.geom.multiLine.size);
+	print("Length:", mLine.length, mLine.geom.multiLine.length);
+	std::string mLineWKT = mLine.wkt();
+	print(mLineWKT, "\n\n");
+
+	
+	sg::Shape polyShape3 = sg::Shape("POLYGON ((-0.035706 53.484804, -0.025706 51.484804, -0.0357 52.484804, -0.035706 53.484804))");
+	print("Type 3:", polyShape3.type);
+	print("Vertices 3", polyShape3.geom.polygon.vertices);
+	print("Area 3", polyShape3.geom.polygon.area);
+	std::string polyWKT3 = polyShape3.wkt();
+	print(polyWKT3, "\n\n");
 
 	
 
-	surfy::geom::Shape polyShape = surfy::geom::Shape("POLYGON ((-4.274372 55.858587, -4.273536 55.858584, -4.273530 55.858397, -4.273970 55.858397, -4.273975 55.858190, -4.273627 55.858177, -4.273637 55.858000, -4.274458 55.858009, -4.274426 55.858539, -4.274372 55.858587))");
-	print("Type:", polyShape.type);
-	print("Vertices", polyShape.geom.polygon.vertices);
-	print("Area", polyShape.geom.polygon.area);
-	print("Length", polyShape.geom.polygon.length);
+	sg::Shape polyShape = sg::Shape("POLYGON ((-4.274372 55.858587, -4.273536 55.858584, -4.273530 55.858397, -4.273970 55.858397, -4.273975 55.858190, -4.273627 55.858177, -4.273637 55.858000, -4.274458 55.858009, -4.274426 55.858539, -4.274372 55.858587))");
+	print("Type 1:", polyShape.type);
+	print("Vertices 1", polyShape.geom.polygon.vertices);
+	print("Area 1", polyShape.geom.polygon.area);
 	std::string polyWKT = polyShape.wkt();
 	print(polyWKT, "\n\n");
 
-	surfy::geom::Shape polyShape2 = surfy::geom::Shape("POLYGON ((-0.035706 52.484804, -0.025706 51.484804))");
-	print("Type:", polyShape2.type);
-	print("Area", polyShape2.geom.polygon.area);
-	print("Length", polyShape2.geom.polygon.length);
+	sg::Shape polyShape2 = sg::Shape("POLYGON ((-0.035706 53.484804, -0.025706 51.484804, -0.0357 52.484804, -0.035706 53.484804))");
+	print("Type 2:", polyShape2.type);
+	print("Vertices 2", polyShape2.geom.polygon.vertices);
+	print("Area 2", polyShape2.geom.polygon.area);
 	std::string polyWKT2 = polyShape2.wkt();
 	print(polyWKT2, "\n\n");
 
 
-
+	sg::Shape polyA = sg::Shape("POLYGON ((0 0, 20 0, 20 20, 0 20, 0 0), (20 20, 0 0, 0 10, 10 20 ))");
+	print("Polygon Src", polyA);
+	print("Mask Src", mask);
+	sg::Shape clipped = sg::clip(polyA, mask);
+	print("Clipped", clipped);
 	return 0;
 }
