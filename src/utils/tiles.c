@@ -484,8 +484,8 @@ int main() {
 
 	*/
 
-	sg::Shape mask = sg::Shape("POLYGON ((0 0, 0 15, 15 15, 15 0))");
-	print("Mask", mask);
+	sg::Shape mask = sg::Shape("POLYGON ((0 0, 0 6, 6 6, 6 0, 0 0))");
+	
 	/*
 
 	Point
@@ -506,7 +506,7 @@ int main() {
 	*/
 
 	print("Create Line");
-	sg::Shape line = sg::Shape("LINESTRING (0 0, 10 10, 30 30)");
+	sg::Shape line = sg::Shape("LINESTRING (0 0, 5 5, 11 10, 15 15)");
 	print("Type:", line.type);
 	print("Closed:", line.geom.line.closed);
 	print("Vertices:", line.vertices, line.geom.line.vertices);
@@ -515,11 +515,14 @@ int main() {
 	print(lineWKT, "\n\n");
 
 	print("Clip Line");
+	print("Mask", mask);
 	sg::Shape clippedLine = sg::clip(line, mask);
 	print("Clipped Line", clippedLine);
 
 
 	print("\n\n");
+
+	return 0;
 
 	/*
 
