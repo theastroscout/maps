@@ -99,6 +99,8 @@ namespace surfy::geom {
 			}
 		}
 
+		refresh();
+
 		return result;
 	}
 }
