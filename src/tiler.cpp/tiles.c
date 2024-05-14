@@ -69,7 +69,16 @@ std::vector<int> tilesRange(int zoom, double x1, double y1, double x2, double y2
 	return {west, north, east, south};
 }
 
-json getTiles() {
+struct Tile {
+	int zoom;
+	int x;
+	int y;
+	std::vector<std::string> group_layer;
+};
+
+using Tiles = std::vector<Tile>;
+
+Tiles getTiles() {
 	
 	/*
 
@@ -100,7 +109,8 @@ json getTiles() {
 	std::array<int, 10> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15, 16, 17 };
 	// std::array<int, 1> zoomLevels = { 2 };
 	
-	json tiles = json::array();
+	// json tiles = json::array();
+	Tiles tiles;
 
 	for (int zoom : zoomLevels) {
 
@@ -159,15 +169,15 @@ std::string getTileBox(int zoom, int xtile, int ytile) {
 	return polygon;
 }
 
-void parseTile(surfy::SQLite& dbT, const json& tile) {
+void parseTile(surfy::SQLite& dbT, const Tile& tile) {
 
 	// Get Tile BBox
-	std::string boundsBox = getTileBox(tile[0], tile[1], tile[2]);
+	std::string boundsBox = getTileBox(tile.zoom, tile.x, tile.y);
 	// print("Tile BBox", boundsBox);
 	
 
 	std::string placeholders;
-	int size = tile[3].size();
+	int size = tile.group_layer.size();
 	for (int i = 0; i < size; ++i) {
 		placeholders += "?,";
 	}
@@ -175,42 +185,57 @@ void parseTile(surfy::SQLite& dbT, const json& tile) {
 	
 	std::string query = "SELECT id, oid, group_layer, `group`, layer, data, ST_AsText(coords) AS coords FROM features WHERE group_layer IN ("+placeholders+") and Intersects(bounds, ST_GeomFromText(?));";
 
-	std::vector<std::string> params = tile[3];
-	params.push_back("POLYGON (" + boundsBox + ")");
+	std::string bbox = "POLYGON (" + boundsBox + ")";
+
+	query = "SELECT id, oid, group_layer, `group`, layer, data, ST_AsText(coords) AS coords FROM features WHERE Intersects(bounds, ST_GeomFromText('"+bbox+"'));";
+
+	// std::vector<std::string> params;// = tile[3];
+	// params.push_back("POLYGON (" + boundsBox + ")");
 	
 	// Find all features inside Tile BBox
-	json features = dbT.find(query, params);
+	std::vector<std::vector<std::string>> result;
+	// std::cout << query << std::endl;
+	// bool r = dbT.finder(query, result);
 	
-	
+	// Print the results (optional)
+    
 
-	if (features.empty()) {
+	if (result.empty()) {
 		return;
 	}
 
-	int n = 0;
+	//std::cout << result.size() << std::endl;
 
+	// int n = 0;
+
+	/*	
 	for (const auto& feature : features) {
 		// print(feature);
+		if (!std::count(tile.group_layer.begin(), tile.group_layer.end(), feature["group_layer"])){
+		    continue;
+		}
 		
 		sg::Shape geom = sg::Shape(feature["coords"]);
 		n++;
 	}
+	*/
 
 	// print("Created: ", n);
 
 	// return 1;
 }
 
-void processVector(const json& tiles, int threadId, std::atomic<int>& progress){
+void processVector(const Tiles& tiles, int threadId, std::atomic<int>& progress){
 	surfy::SQLite dbT;
 	// std::string path = "/storage/maps/tiles/london/london." + (std::to_string(threadId)) + ".db";
 	// std::string path = "/storage/maps/tiles/london/london." + (std::to_string(threadId)) + ".db";
 	std::string path = "/storage/maps/tiles/london/london.db";
 	dbT.connect(path.c_str(), true);
-	dbT.query("SELECT load_extension('mod_spatialite');");
-	dbT.query("PRAGMA synchronous = OFF;");
-	dbT.query("PRAGMA page_size = 4096;");
-	dbT.query("PRAGMA journal_mode = MEMORY;");
+	// dbT.query("SELECT load_extension('mod_spatialite');");
+
+	// dbT.query("PRAGMA synchronous = OFF;");
+	// dbT.query("PRAGMA page_size = 4096;");
+	// dbT.query("PRAGMA journal_mode = MEMORY;");
 
 	print("Thread: ", threadId, tiles.size());
 
@@ -234,6 +259,51 @@ void printProgress(std::atomic<int>& progress, size_t totalElements) {
         print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+
+    print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
+}
+
+void getIt(surfy::SQLite& dbT, const int& from, const int& limit) {
+	std::string query = "SELECT id, oid, group_layer, `group`, layer, data, ST_AsText(coords) AS coords FROM features LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(from);
+
+	json result = dbT.find(query);
+	// print(query);
+	// print(result.size());
+}
+
+void processor(const int& start, const int& end, const int& threadID, std::atomic<int>& progress) {
+	
+	surfy::SQLite dbT;
+	std::string path = "/storage/maps/tiles/london/london.db";
+	dbT.connect(path.c_str(), true);
+	dbT.query("SELECT load_extension('mod_spatialite')");
+
+	int limit = 800;
+	for ( int i = start; i < end; i += limit) {
+		if (i + limit >= end) {
+			limit = end - i;
+		}
+
+		getIt(dbT, i, limit);
+		// std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+		progress += limit;
+		// print(i, limit);
+	}
+	/*
+	int bunch = (end - start) / limit;
+	for ( int i = 0; i < bunch; ++i) {
+		int s = start + i * bunch;
+		limit = 1000;
+		if (i == bunch - 1) {
+			limit = end - s;
+		}
+
+		getIt(dbT, s, limit);
+
+		progress += limit;
+	}*/
+	return;
 }
 
 
@@ -255,8 +325,13 @@ int main() {
 	db.connect("/storage/maps/tiles/london/london.db", true);
 	db.query("SELECT load_extension('mod_spatialite')");
 
+	// Create an R*Tree index on the geometry column
+	// db.query("CREATE VIRTUAL TABLE spatial_index USING rtree(id, minx, maxx, miny, maxy);");
+	// db.query("CREATE INDEX idx_spatial_data_bounds ON features(bounds);");
+
 	// Just...
 	print("Config Name: ", config["name"]);
+	// return 0;
 
 	std::string configPath = config["data"];
 	configPath += "/config.json";
@@ -312,14 +387,59 @@ int main() {
 
 	*/
 
-	auto start = std::chrono::high_resolution_clock::now();
+	auto startTime = std::chrono::high_resolution_clock::now();
+
+	unsigned int maxThreads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    std::atomic<int> progress(0);
+
+	int totalRecords = 1511632; // 10164; 
+    int numThreads = 6;
+    int recordsPerThread = totalRecords / numThreads;
+
+    int start;
+    int end;
+    std::vector<std::vector<int>> pool;
+
+	for (int i = 0; i < numThreads; ++i) {
+		start = i * recordsPerThread;
+        end = (i + 1) * recordsPerThread - 1;
+        if (i == numThreads -1 ){
+        	end = totalRecords;
+        }
+
+        std::vector<int> poolItem = {start, end};
+        pool.push_back(poolItem);
+        // print(start, end);
+        // threads.emplace_back(processor, start, end, i, std::ref(progress));
+
+	}
+
+	for (int i = 0; i < numThreads; ++i) {
+		std::vector<int> item = pool[i];
+    	threads.emplace_back(processor, item[0], item[1], i, std::ref(progress));
+    }
+
+    std::thread progressThread(printProgress, std::ref(progress), totalRecords);
+   	progressThread.join();
+
+    // Wait for all threads to finish
+    for (auto& thread : threads) {
+        thread.join();
+    }
+
+    auto endTime = std::chrono::high_resolution_clock::now();
+	auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
+    std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
+
+	return 0;
+}
+/*
+int asd() {
 
 
-	json tiles = getTiles();
-	/*
-	for (const auto& tile : tiles) {
-		// parseTile(tile);
-	}*/
+	Tiles tiles = getTiles();
+	
 
 	
 	unsigned int maxThreads = std::thread::hardware_concurrency();
@@ -334,12 +454,13 @@ int main() {
     std::vector<std::thread> threads;
     std::atomic<int> progress(0);
 
-    json pool = json::array();
+    std::vector<Tiles> pool;
+
     for (int i = 0; i < numThreads; ++i) {
         size_t startIdx = i * elementsPerThread;
         size_t endIdx = (i == numThreads - 1) ? tiles.size() : (i + 1) * elementsPerThread;
         print(startIdx, endIdx);
-        json bucket = json::array();
+        Tiles bucket;
         for (int j = startIdx; j < endIdx; ++j) {
         	bucket.push_back(tiles[j]);
         }
@@ -373,4 +494,4 @@ int main() {
     std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
 
 	return 0;
-}
+}*/

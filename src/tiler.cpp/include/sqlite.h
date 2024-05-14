@@ -150,8 +150,7 @@ namespace surfy {
 
 		*/
 
-		using Callback = std::function<void(const json&)>;
-		json find(const std::string& querySrc, const std::vector<std::string>& params = {}, Callback callback = nullptr, const json& data = {}) {			
+		json find(const std::string querySrc, const std::vector<std::string>& params = {}) {			
 
 			const char* query = querySrc.c_str();
 			
@@ -228,8 +227,8 @@ namespace surfy {
 
 		*/
 
-		using Callback2 = std::function<void(const json&)>;
-		json findSeq(const char* query, Callback2 callback = nullptr, const std::vector<std::string>& params = {}) {
+		using Callback = std::function<void(const json&)>;
+		json findSeq(const char* query, Callback callback = nullptr, const std::vector<std::string>& params = {}) {
 			
 			json result;
 
