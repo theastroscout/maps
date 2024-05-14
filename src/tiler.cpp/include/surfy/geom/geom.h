@@ -12,30 +12,30 @@ namespace surfy::geom {
 		double length = 0;
 		double area = 0;
 		bool empty = true;
-		std::string wkt() const; // Return WKT string
 	};
-
-	std::string Geometry::wkt() const {
-		return "Blimey!";
-	}
 
 	struct Point : public Geometry {
 		double x, y;
+		std::string wkt();
+
 	};
 
 	struct Line : public Geometry {
-		bool closed;
+		bool closed = false;
 		std::vector<Point> coords;
+		std::string wkt();
 	};
 
 	struct MultiLine : public Geometry {
 		unsigned int size = 0;
 		std::vector<Line> items;
+		std::string wkt();
 	};
 
 	struct Polygon : public Geometry {
 		Line inner;
 		Line outer;
+		std::string wkt();
 
 		Polygon() : inner(), outer() {}
 		Polygon(const Polygon& other) : inner(other.inner), outer(other.outer) {}
@@ -44,6 +44,7 @@ namespace surfy::geom {
 	struct MultiPolygon : public Geometry {
 		unsigned int size = 0;
 		std::vector<Polygon> items;
+		std::string wkt();
 	};
 
 	namespace utils {
@@ -63,6 +64,59 @@ namespace surfy::geom {
 		void line(std::ostream& os, const std::vector<Point>& coords);
 		void polygon(std::ostream& os, const Polygon& poly);
 	};
+
+	std::string Point::wkt() {
+		std::stringstream os;
+		os << "POINT (";
+		print::point(os, *this);
+		os << ")";
+		return os.str();
+	}
+
+	std::string Line::wkt() {
+		std::stringstream os;
+		os << "LINESTRING ";
+		print::line(os, coords);
+		return os.str();
+	}
+
+	std::string MultiLine::wkt() {
+		std::stringstream os;
+		os << "MULTILINESTRING (";
+
+		for (int i = 0; i < size; ++i) {
+			Line& line = items[i];
+			print::line(os, line.coords);
+			if (i != size - 1) {
+				os << ",";
+			}
+		}
+
+		os << ")";
+		return os.str();
+	}
+
+	std::string Polygon::wkt() {
+		std::stringstream os;
+		os << "POLYGON ";
+		print::polygon(os, *this);
+		return os.str();
+	}
+
+	std::string MultiPolygon::wkt() {
+		std::stringstream os;
+		
+		os << "MULTIPOLYGON (";
+		for (int i = 0; i < size; ++i) {
+			print::polygon(os, items[i]);
+			if (i != size - 1) {
+				os << ",";
+			}
+		}
+		os << ")";
+
+		return os.str();
+	}
 
 	/*
 
@@ -100,7 +154,7 @@ namespace surfy::geom {
 		*/
 
 		std::string wkt() {
-			std::stringstream os;		
+			std::stringstream os;
 
 			if (type == "Point") {
 
@@ -110,22 +164,38 @@ namespace surfy::geom {
 
 			} else if (type == "Line") {
 
-				os << "LINESTRING";
+				os << "LINESTRING ";
 				print::line(os, geom.line.coords);
 
 			} else if (type == "MultiLine") {
 
 				os << "MULTILINESTRING (";
 
-				for (int i = 0; i < geom.multiLine.size; ++i) {
+				for (int i = 0; i < size; ++i) {
 					Line& line = geom.multiLine.items[i];
 					print::line(os, line.coords);
+					if (i != size - 1) {
+						os << ",";
+					}
 				}
 				os << ")";
 
 			} else if (type == "Polygon") {
+
 				os << "POLYGON ";
 				print::polygon(os, geom.polygon);
+
+			} else if (type == "MultiPolygon") {
+
+				os << "MULTIPOLYGON (";
+				for (int i = 0; i < size; ++i) {
+					print::polygon(os, geom.multiPolygon.items[i]);
+					if (i != size - 1) {
+						os << ",";
+					}
+				}
+				os << ")";
+
 			}
 
 			return os.str();
@@ -168,14 +238,15 @@ namespace surfy::geom {
 					Line& line = geom.multiLine.items[i];
 					size_t lineSize = line.coords.size();
 					line.vertices = lineSize;
-					line.length = utils::length(line.coords, lineSize);
 
 					if (line.vertices != 0) {
 						line.empty = false;
-					}
+						line.length = utils::length(line.coords, lineSize);
+						line.closed = utils::isClosed(line.coords);
 
-					geom.multiLine.vertices += line.vertices;
-					geom.multiLine.length += line.length;
+						geom.multiLine.vertices += line.vertices;
+						geom.multiLine.length += line.length;
+					}
 				}
 
 				// Update Shape
@@ -240,6 +311,76 @@ namespace surfy::geom {
 					empty = false;
 					geom.polygon.empty = false;
 				}
+			} else if (type == "MultiPolygon") {
+				
+				geom.multiPolygon.size = geom.multiPolygon.items.size();
+
+				geom.multiPolygon.vertices = 0;
+				geom.multiPolygon.length = .0;
+				geom.multiPolygon.area = .0;
+
+				for (int i = 0; i < geom.multiPolygon.size; ++i) {
+					Polygon& polygon = geom.multiPolygon.items[i];
+					
+					polygon.vertices = 0;
+					polygon.length = .0;
+					polygon.area = .0;
+
+					if (!polygon.outer.coords.empty()) {
+						size_t outerSize = polygon.outer.coords.size();
+						polygon.outer.vertices = outerSize;
+
+						if (polygon.outer.vertices != 0){
+							polygon.outer.empty = false;
+
+							polygon.outer.closed = utils::isClosed(polygon.outer.coords);
+
+							polygon.outer.length = utils::length(polygon.outer.coords, outerSize);
+							polygon.outer.area = utils::area(polygon.outer.coords, outerSize);
+
+							// Update Polygon
+							polygon.vertices += polygon.outer.vertices;
+							polygon.length += polygon.outer.length;
+							polygon.area += polygon.outer.area;
+						}
+					}
+
+					if (!polygon.inner.coords.empty()) {
+						size_t outerSize = polygon.inner.coords.size();
+						polygon.inner.vertices = outerSize;
+
+						if (polygon.inner.vertices != 0){
+							polygon.inner.empty = false;
+
+							polygon.inner.closed = utils::isClosed(polygon.inner.coords);
+
+							polygon.inner.length = utils::length(polygon.inner.coords, outerSize);
+							polygon.inner.area = utils::area(polygon.inner.coords, outerSize);
+
+							// Update Polygon
+							polygon.vertices += polygon.inner.vertices;
+							polygon.length += polygon.inner.length;
+							polygon.area += polygon.inner.area;
+						}
+					}
+
+					if (polygon.vertices != 0) {
+						geom.multiPolygon.vertices += polygon.vertices;
+						geom.multiPolygon.length += polygon.length;
+						geom.multiPolygon.area += polygon.area;
+					}
+					
+				}
+
+				// Update Shape
+				size = geom.multiPolygon.size;
+				vertices = geom.multiPolygon.vertices;
+				length = geom.multiPolygon.length;
+
+				if (vertices != 0) {
+					empty = false;
+				}
+
 			}
 		}		
 
@@ -287,13 +428,6 @@ namespace surfy::geom {
 					Line line;
 					line.coords = utils::parseCoordsString(lineStr);
 
-					Point front = line.coords.front();
-					Point back = line.coords.back();
-
-					if(front.x == back.x && front.y == back.y) {
-						line.closed = true;
-					}
-					
 					geom.multiLine.items.push_back(line);
 
 					pos = end + 1;
@@ -306,9 +440,9 @@ namespace surfy::geom {
 
 				geom.line.coords = utils::parseCoordsString(body);
 
-			} else if (src.find("MULTIPOLYGON") != std::string::npos) {
+			}  else if (src.find("MULTIPOLYGON") != std::string::npos) {
 				
-				type = "MULTIPOLYGON";
+				type = "MultiPolygon";
 				new (&geom.multiPolygon) MultiPolygon();
 
 				size_t pos = 0;
@@ -319,7 +453,7 @@ namespace surfy::geom {
 						break; // No more polygons found
 					}
 
-					std::string polyStr = body.substr(start, end - start + 2);
+					std::string polyStr = body.substr(start + 1, end - start);
 					pos = end + 1;
 
 					Polygon poly = parser::polygon(polyStr);

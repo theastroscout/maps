@@ -96,6 +96,37 @@ namespace surfy::geom::utils {
 		return area / 2;
 	}
 
+	/*
+
+	Point inside Polygon
+
+	*/
+
+	bool inside(const Point& point, const std::vector<Point>& polygon) {
+		for (const Point& vertex : polygon) {
+			if (vertex.x == point.x && vertex.y == point.y) {
+				return true;
+			}
+		}
+
+		bool inside = false;
+
+		for (int i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++) {
+			bool isAboveI = (polygon[i].y > point.y);
+			bool isAboveJ = (polygon[j].y > point.y);
+			bool yIntersect = (isAboveI != isAboveJ);
+			
+			double slope = (polygon[j].x - polygon[i].x) / (polygon[j].y - polygon[i].y);
+			double intersectX = slope * (point.y - polygon[i].y) + polygon[i].x;
+			bool xIntersect = (point.x <= intersectX); // Include equality
+
+			if (yIntersect && xIntersect) {
+				inside = !inside;
+			}
+		}
+		return inside;
+	}
+
 }
 
 #endif
