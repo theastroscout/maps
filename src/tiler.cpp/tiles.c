@@ -1,9 +1,13 @@
+#include <chrono>
+#include <thread>
+#include <atomic>
+
 #include <iostream>
+#include <fstream>
+#include <vector>
 
 #include "include/json.h"
 using json = nlohmann::ordered_json;
-
-#include <vector>
 
 #include "include/surfy/geom/geom.h"
 namespace sg = surfy::geom;
@@ -11,322 +15,362 @@ namespace sg = surfy::geom;
 #include "include/print.h"
 using surfy::print;
 
+#include "include/sqlite.h"
+surfy::SQLite db;
+
 
 // Global Config
 json config;
 
-void pointTest() {
-	print("\n\n#### Point Test ####\n\n");
+/*
 
-	sg::Shape point = sg::Shape("POINT (2 3)");
-	print("Point print:", point);
+Load JSON
 
-	/*
+*/
 
-	Structure test
+json loadJSON(const std::string& path) {
+	std::ifstream file(path);
 
-	*/
-
-	json data = {
-		{ "wkt", point.wkt() },
-		{ "empty", point.empty },
-		{ "x", point.geom.point.x },
-		{ "y", point.geom.point.y }
-	};
-	print(data);
-	print("\n");
-
-	/*
-
-	Clip test
-
-	*/
-
-	sg::Shape mask = sg::Shape("POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))");
-	print("Mask:", mask);
-	
-	sg::Shape clippedPointOutside = sg::clip(point, mask);
-	print("Clipped Point (Outside Mask)", clippedPointOutside);
-	
-	sg::Shape pointInside = sg::Shape("POINT (.5 .5)");
-	sg::Shape clippedPointInside = sg::clip(pointInside, mask);
-	print("\nPoint (Inside Mask):", pointInside);
-	print("Clipped Point (Inside Mask):", clippedPointInside);
-	print("\n");
-
-	// Simplify Test
-
-	sg::Shape simplePoint = point.simplify(1);
-	print("Simplified Point is the same Point:", simplePoint);
-
-
-}
-
-void lineTest() {
-	print("\n\n#### Line Test ####\n\n");
-
-	sg::Shape line = sg::Shape("LINESTRING (0 0, 0 10, 10 10, 10 0, 0 0)");
-	print("Line print:", line);
-
-	/*
-
-	Structure test
-
-	*/
-
-	json data = {
-		{ "wkt", line.wkt() },
-		{ "empty", line.empty },
-		{ "vertices", line.vertices },
-		{ "length", line.length },
-		{ "coords",
-			{
-				{ "closed", line.geom.line.closed },
-				{ "empty", line.geom.line.empty }
-			}
-		}
-	};
-	print(data);
-	print("\n");
-
-	/*
-
-	Clip test
-
-	*/
-
-	sg::Shape line4clip = sg::Shape("LINESTRING (0 0, 5 5, 11 10, 15 15)");
-	print("Clip line:", line4clip);
-
-	sg::Shape mask = sg::Shape("POLYGON ((0 0, 0 6, 6 6, 6 0, 0 0))");
-	print("Mask:", mask);
-	
-	sg::Shape clippedLine = sg::clip(line4clip, mask);
-	print("Clipped Line:", clippedLine);
-	print("\n");
-
-	/*
-
-	Closed Line Clip
-
-	*/
-
-	sg::Shape line4clip_closed = sg::Shape("LINESTRING (0 0, 0 10, 10 10, 10 0, 0 0)");
-	print("Clip Closed Line:", line4clip_closed);
-
-	sg::Shape clippedClosedLine = sg::clip(line4clip_closed, mask);
-	print("Clipped Closed Line:", clippedClosedLine);
-	print("\n");
-
-	/*
-
-	Simplify test
-
-	*/
-
-	sg::Shape complexLine = sg::Shape("LINESTRING (0 0, 2 2, 3 3, 10 2, 6 6, 7 7, 30 30)");
-	print("Complex Line:", complexLine);
-
-	sg::Shape simpleLine = complexLine.simplify(2);
-	print("Simplified Line:", simpleLine);
-}
-
-void multiLineTest() {
-	print("\n\n#### MultiLine Test ####\n\n");
-
-	sg::Shape multiLine = sg::Shape("MULTILINESTRING ((0 0, 0 10, 10 10, 10 0, 0 0),(0 0, 2 2, 3 3, 10 2, 6 6, 7 7, 30 30),())");
-	print("MultiLine print:", multiLine);
-	
-	/*
-
-	Structure test
-
-	*/
-
-	json items = json::array();
-	for (int i=0; i < multiLine.size; ++i) {
-		sg::Line& line = multiLine.geom.multiLine.items[i];
-		json item = {
-			{ "wkt", line.wkt() },
-			{ "empty", line.empty },
-			{ "closed", line.closed },
-			{ "vertices", line.vertices },
-			{ "length", line.length }
-		};
-		items.push_back(item);
+	if (!file.is_open()) {
+		std::cerr << "Error opening Config file. " << path << std::endl;
+		return 1;
 	}
 
+	std::string jsonString((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-	json data = {
-		{ "wkt", multiLine.wkt() },
-		{ "empty", multiLine.empty },
-		{ "size", multiLine.size }, // Number of lines inside MultiLine
-		{ "vertices", multiLine.vertices },
-		{ "length", multiLine.length },
-		{ "items", items }
-	};
-	print(data);
-
-	/*
-
-	Clip test
-
-	*/
-
-	sg::Shape mask = sg::Shape("POLYGON ((0 0, 0 6, 6 6, 6 0, 0 0))");
-	print("Mask: ", mask);
-	
-	sg::Shape clippedLine = sg::clip(multiLine, mask);
-	print("Clipped Line:", clippedLine);
-	print("\n");
-
-	/*
-
-	Simplify test
-
-	*/
-
-	sg::Shape simpleMultiLine = multiLine.simplify(2);
-	print("Simplified MultiLine:", simpleMultiLine);
-}
-
-void polygonTest() {
-	print("\n\n#### Polygon Test ####\n\n");
-
-	sg::Shape poly = sg::Shape("POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0),(0 0, 0 5, 5 5, 5 0, 0 0))");
-	print("Polygon Print", poly);
-
-	/*
-
-	Structure test
-
-	*/
-
-	json data = {
-		{ "wkt", poly.wkt()} ,
-		{ "empty", poly.empty },
-		{ "vertices", poly.vertices },
-		{ "length", poly.length },
-		{ "area", poly.area },
-		{ "outer",
-			{
-				{ "empty", poly.geom.polygon.outer.empty },
-				{ "closed", poly.geom.polygon.outer.closed },
-				{ "vertices", poly.geom.polygon.outer.vertices },
-				{ "length", poly.geom.polygon.outer.length },
-				{ "area", poly.geom.polygon.outer.area }
-			}
-		},
-		{ "inner",
-			{
-				{ "empty", poly.geom.polygon.inner.empty },
-				{ "closed", poly.geom.polygon.inner.closed },
-				{ "vertices", poly.geom.polygon.inner.vertices },
-				{ "length", poly.geom.polygon.inner.length },
-				{ "area", poly.geom.polygon.inner.area }
-			}
-		}
-	};
-	print(data);
-	print("\n");
-
-	// Clip Test
-
-	sg::Shape mask = sg::Shape("POLYGON ((0 0, 0 6, 6 6, 6 0, 0 0))");
-	print("Mask: ", mask);
-	
-	sg::Shape clippedPolygon = sg::clip(poly, mask);
-	print("Clipped Polygon:", clippedPolygon);
-	print("\n");
-
-	// Simplify Test
-
-	sg::Shape complexPoly = sg::Shape("POLYGON ((-0.0426899 51.5166536, -0.0426874 51.51564, -0.0415785 51.5156202, -0.0416071 51.5158, -0.0416962 51.5159493, -0.0421352 51.5163716, -0.0425499 51.5166216, -0.0426899 51.5166536))");
-	print("Complex Polygon:", complexPoly);
-	sg::Shape simplePoly = complexPoly.simplify(.0001);
-	print("Simplified Polygon:", simplePoly);
-}
-
-void multiPolygonTest() {
-	print("\n\n#### MultiPolygon Test ####\n\n");
-
-	sg::Shape multiPolygon = sg::Shape("MULTIPOLYGON (((40 40, 41 41, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20)),((40 40, 20 45, 45 30, 40 40)),((40 40, 20 45, 45 30, 50 50, 40 40)))");
-
-	print("MultiPolygon Print:", multiPolygon);
-
-	/*
-
-	Structure test
-
-	*/
-
-	json items = json::array();
-
-	for (int i=0; i < multiPolygon.size; ++i) {
-		sg::Polygon& poly = multiPolygon.geom.multiPolygon.items[i];
-		json item = {
-			{ "wkt", poly.wkt() },
-			{ "empty", poly.empty },
-			{ "vertices", poly.vertices },
-			{ "length", poly.length },
-			{ "area", poly.area },
-			{ "outer",
-				{
-					{ "empty", poly.outer.empty },
-					{ "closed", poly.outer.closed },
-					{ "vertices", poly.outer.vertices },
-					{ "length", poly.outer.length },
-					{ "area", poly.outer.area }
-				}
-			},
-			{ "inner",
-				{
-					{ "empty", poly.inner.empty },
-					{ "closed", poly.inner.closed },
-					{ "vertices", poly.inner.vertices },
-					{ "length", poly.inner.length },
-					{ "area", poly.inner.area }
-				}
-			}
-		};
-		items.push_back(item);
+	// Parse the JSON string
+	json jsonData;
+	try {
+		jsonData = json::parse(jsonString);
+	} catch (const std::exception& e) {
+		std::cerr << "Error parsing JSON: " << e.what() << std::endl;
+		return 1;
 	}
 
-	json data = {
-		{ "wkt", multiPolygon.wkt()} ,
-		{ "empty", multiPolygon.empty },
-		{ "vertices", multiPolygon.vertices },
-		{ "length", multiPolygon.length },
-		{ "area", multiPolygon.area },
-		{ "items", items }
+	return jsonData;
+}
+
+std::vector<double> radians(double lng, double lat) {
+	double x = lng / 360.0 + 0.5;
+	double sinlat = std::sin(lat * M_PI / 180.0);
+	double y = 0.5 - 0.25 * std::log((1.0 + sinlat) / (1.0 - sinlat)) / M_PI;
+
+	return {x, y};
+}
+
+std::vector<int> tilesRange(int zoom, double x1, double y1, double x2, double y2) {
+	int Z2 = std::pow(2, zoom);
+
+	int west = static_cast<int>(std::floor(x1 * Z2));
+	int north = static_cast<int>(std::floor(y1 * Z2));
+	int east = static_cast<int>(std::ceil(x2 * Z2));
+	int south = static_cast<int>(std::ceil(y2 * Z2));
+
+	return {west, north, east, south};
+}
+
+json getTiles() {
+	
+	/*
+
+	Get BBox from DB
+
+	*/
+
+	json bboxData = db.findOne("SELECT data FROM config_data WHERE name='bbox'");
+	json bbox = bboxData["data"];
+	print("BBox: ", bbox);
+	
+	/*
+
+	Radians of BBox
+	Collect Tiles From West to East from South to North
+
+	*/
+
+	std::vector<double> westSouth = radians(bbox[0], bbox[3]);
+	std::vector<double> eastNorth = radians(bbox[2], bbox[1]);
+	
+	/*
+
+	Tiles
+
+	*/
+	
+	std::array<int, 10> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15, 16, 17 };
+	// std::array<int, 1> zoomLevels = { 2 };
+	
+	json tiles = json::array();
+
+	for (int zoom : zoomLevels) {
+
+		std::vector<std::string> zoomGroupLayers;
+
+		for (const auto& [groupName, groupData] : config["groups"].items()) {
+			for (const auto& [layerName, layerData] : groupData.items()) {
+				if (layerData["minzoom"] <= zoom) {
+					zoomGroupLayers.push_back(groupName + ':' + layerName);
+				}
+			}
+		}
+
+		if (zoomGroupLayers.empty()) {
+			continue;
+		}
+
+		std::vector<int> bounds = tilesRange(zoom, westSouth[0], westSouth[1], eastNorth[0], eastNorth[1]);
+
+		for (int x = bounds[0]; x < bounds[2]; ++x) {
+			for (int y = bounds[1]; y < bounds[3]; ++y) {
+				tiles.push_back({zoom, x, y, zoomGroupLayers});
+			}
+		}
+		
+	}
+
+	return tiles;
+}
+
+std::string getTileBox(int zoom, int xtile, int ytile) {
+	double Z2 = std::pow(2, zoom);
+
+	double west = xtile / Z2 * 360.0 - 180.0;
+	double northRad = std::atan(std::sinh(M_PI * (1 - 2 * ytile / Z2)));
+	double north = northRad * 180.0 / M_PI;
+
+	double east = (xtile + 1) / Z2 * 360.0 - 180.0;
+	double southRad = std::atan(std::sinh(M_PI * (1 - 2 * (ytile + 1) / Z2)));
+	double south = southRad * 180.0 / M_PI;
+
+	// Stringify automaticaly rounds float to 6 decimals
+	std::vector<double> tile = {
+		west,
+		north,
+		east,
+		south
 	};
 
-	print(data);
-	print("\n");
-
-	// Clip Test
-
-	sg::Shape mask = sg::Shape("POLYGON ((20 20, 20 40, 40 40, 40 20, 20 20))");
-	print("Mask: ", mask);
-	
-	sg::Shape clippedMultiPolygon = sg::clip(multiPolygon, mask);
-	print("Clipped MultiPolygon:", clippedMultiPolygon);
-	print("\n");
-
-	// Simplify Test
-
-	sg::Shape simpleMultiPoly = multiPolygon.simplify(2);
-	print("Simplified MultiPolygon:", simpleMultiPoly);
-
-
+	std::string polygon = "(" +
+		std::to_string(tile[2]) + " " + std::to_string(tile[3]) + ", " +
+		std::to_string(tile[2]) + " " + std::to_string(tile[1]) + ", " +
+		std::to_string(tile[0]) + " " + std::to_string(tile[1]) + ", " +
+		std::to_string(tile[0]) + " " + std::to_string(tile[3]) + ", " +
+		std::to_string(tile[2]) + " " + std::to_string(tile[3]) + ")";
+	return polygon;
 }
+
+void parseTile(surfy::SQLite& dbT, const json& tile) {
+
+	// Get Tile BBox
+	std::string boundsBox = getTileBox(tile[0], tile[1], tile[2]);
+	// print("Tile BBox", boundsBox);
+	
+
+	std::string placeholders;
+	int size = tile[3].size();
+	for (int i = 0; i < size; ++i) {
+		placeholders += "?,";
+	}
+	placeholders.erase(placeholders.size() - 1);
+	
+	std::string query = "SELECT id, oid, group_layer, `group`, layer, data, ST_AsText(coords) AS coords FROM features WHERE group_layer IN ("+placeholders+") and Intersects(bounds, ST_GeomFromText(?));";
+
+	std::vector<std::string> params = tile[3];
+	params.push_back("POLYGON (" + boundsBox + ")");
+	
+	// Find all features inside Tile BBox
+	json features = dbT.find(query, params);
+	
+	
+
+	if (features.empty()) {
+		return;
+	}
+
+	int n = 0;
+
+	for (const auto& feature : features) {
+		// print(feature);
+		
+		sg::Shape geom = sg::Shape(feature["coords"]);
+		n++;
+	}
+
+	// print("Created: ", n);
+
+	// return 1;
+}
+
+void processVector(const json& tiles, int threadId, std::atomic<int>& progress){
+	surfy::SQLite dbT;
+	// std::string path = "/storage/maps/tiles/london/london." + (std::to_string(threadId)) + ".db";
+	// std::string path = "/storage/maps/tiles/london/london." + (std::to_string(threadId)) + ".db";
+	std::string path = "/storage/maps/tiles/london/london.db";
+	dbT.connect(path.c_str(), true);
+	dbT.query("SELECT load_extension('mod_spatialite');");
+	dbT.query("PRAGMA synchronous = OFF;");
+	dbT.query("PRAGMA page_size = 4096;");
+	dbT.query("PRAGMA journal_mode = MEMORY;");
+
+	print("Thread: ", threadId, tiles.size());
+
+	for (size_t i = 0; i < tiles.size(); ++i) {
+        // Your processing logic here
+        // std::cout << "Thread " << threadId << ": Processing element " << tiles[i] << std::endl;
+        ++progress;
+        parseTile(dbT, tiles[i]);
+    }
+
+    print(">>>>> Complete", threadId, tiles.size());
+
+    
+
+    // progress += tiles.size();
+}
+
+void printProgress(std::atomic<int>& progress, size_t totalElements) {
+    while (progress < totalElements) {
+        // std::cout << "Progress: " << (progress * 100 / totalElements) << "%" << << std::endl;
+        print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
 
 int main() {
 
-	// pointTest();
-	// lineTest();
-	// multiLineTest();
-	// polygonTest();
-	multiPolygonTest();
+	/*
+
+	Config
+
+	*/
+
+	std::string config_name = "london";
+
+	config = loadJSON("../tiler/configs/" + config_name + ".json");
+	json filters = loadJSON("../tiler/config.json");
+	config.update(filters);
+
+	// Initialise DB
+	db.connect("/storage/maps/tiles/london/london.db", true);
+	db.query("SELECT load_extension('mod_spatialite')");
+
+	// Just...
+	print("Config Name: ", config["name"]);
+
+	std::string configPath = config["data"];
+	configPath += "/config.json";
+	print("Config Path: " + configPath);
+
+	// Groups and Layers Index
+	config["group_index"] = {};
+
+	json tilesDict;
+
+	int groupID = 0;
+	for (auto& [groupName, groupData] : config["groups"].items()) {
+
+		int layerID = 0;
+		json layers;
+
+		for (auto& [layerName, layerData] : groupData.items()) {
+
+			layers[layerName] = {
+				{"name", layerName},
+				{"data", layerData["data"]}
+			};
+		}
+
+		config["group_index"][groupName] = {
+			{"id", groupID},
+			{"layers", layers}
+		};
+		groupID++;
+
+		json dictItem = {
+			{"id", groupID},
+			{"name", groupName},
+			{"layers", layers}
+		};
+
+		tilesDict.push_back(dictItem);
+	}
+
+	// Save JSON to file
+	std::ofstream outputFile(configPath);
+	if (outputFile.is_open()) {
+		outputFile << json(tilesDict).dump(1, '\t'); // Dump the JSON object to the file
+		outputFile.close();
+		print("New Tiles Dictionary saved to file: " + configPath);
+	} else {
+		print("Unable to open Tiles Dictionary: " + configPath);
+	}
+
+	/*
+	
+	Tiles
+
+	*/
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+
+	json tiles = getTiles();
+	/*
+	for (const auto& tile : tiles) {
+		// parseTile(tile);
+	}*/
+
+	
+	unsigned int maxThreads = std::thread::hardware_concurrency();
+	// print("maxThreads", maxThreads);
+
+	const int numThreads = 6;
+	size_t elementsPerThread = tiles.size() / numThreads;
+	print("Pull Size:", elementsPerThread);
+	
+
+	// Create threads and assign work to each thread
+    std::vector<std::thread> threads;
+    std::atomic<int> progress(0);
+
+    json pool = json::array();
+    for (int i = 0; i < numThreads; ++i) {
+        size_t startIdx = i * elementsPerThread;
+        size_t endIdx = (i == numThreads - 1) ? tiles.size() : (i + 1) * elementsPerThread;
+        print(startIdx, endIdx);
+        json bucket = json::array();
+        for (int j = startIdx; j < endIdx; ++j) {
+        	bucket.push_back(tiles[j]);
+        }
+
+        print("Bucket info: ", i, startIdx, endIdx, bucket.size());
+        pool.push_back(bucket);
+
+        
+        // json subVector(tiles.begin() + startIdx, tiles.begin() + endIdx);
+
+        // threads.emplace_back(processVector, std::ref(myVector), i, std::ref(progress));
+    }
+
+    for (int i = 0; i < numThreads; ++i) {
+    	threads.emplace_back(processVector, std::ref(pool[i]), i, std::ref(progress));
+    }
+
+    // Create a thread to print progress
+    std::thread progressThread(printProgress, std::ref(progress), tiles.size());
+
+    // Wait for all threads to finish
+    for (auto& thread : threads) {
+        thread.join();
+    }
+   	progressThread.join();
+
+    // print(vecSize * sizeof(int))
+
+	auto end = std::chrono::high_resolution_clock::now();
+	auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
+
 	return 0;
 }
