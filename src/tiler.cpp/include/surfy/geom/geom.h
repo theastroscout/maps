@@ -47,6 +47,7 @@ namespace surfy::geom {
 	};
 
 	namespace utils {
+		bool isClosed(const std::vector<Point>& coords);
 		double distance(const Point& p1, const Point& p2);
 		std::vector<Point> parseCoordsString(const std::string& str);
 		double length(const std::vector<Point>& coords, size_t size);
@@ -144,6 +145,7 @@ namespace surfy::geom {
 
 			if (type == "Point") {
 				vertices = 1;
+				empty = false;
 			} else if (type == "Line") {
 				size_t lineSize = geom.line.coords.size();
 				geom.line.vertices = lineSize;
@@ -153,6 +155,7 @@ namespace surfy::geom {
 				vertices = geom.line.vertices;
 				length = geom.line.length;
 				if (vertices != 0) {
+					geom.line.closed = utils::isClosed(geom.line.coords);
 					geom.line.empty = false;
 					empty = false;
 				}
@@ -193,34 +196,39 @@ namespace surfy::geom {
 				if (!geom.polygon.outer.coords.empty()) {
 					size_t outerSize = geom.polygon.outer.coords.size();
 					geom.polygon.outer.vertices = outerSize;
-					geom.polygon.outer.length = utils::length(geom.polygon.outer.coords, outerSize);
-					geom.polygon.outer.area = utils::area(geom.polygon.outer.coords, outerSize);
 
 					if (geom.polygon.outer.vertices != 0){
 						geom.polygon.outer.empty = false;
-					}
 
-					// Update Polygon
-					geom.polygon.vertices += geom.polygon.outer.vertices;
-					geom.polygon.length += geom.polygon.outer.length;
-					geom.polygon.area += geom.polygon.outer.area;
+						geom.polygon.outer.closed = utils::isClosed(geom.polygon.outer.coords);
+
+						geom.polygon.outer.length = utils::length(geom.polygon.outer.coords, outerSize);
+						geom.polygon.outer.area = utils::area(geom.polygon.outer.coords, outerSize);
+
+						// Update Polygon
+						geom.polygon.vertices += geom.polygon.outer.vertices;
+						geom.polygon.length += geom.polygon.outer.length;
+						geom.polygon.area += geom.polygon.outer.area;
+					}
 				}
 
 				if (!geom.polygon.inner.coords.empty()) {
 					size_t innerSize = geom.polygon.inner.coords.size();
 					geom.polygon.inner.vertices = innerSize;
-					geom.polygon.inner.length = utils::length(geom.polygon.inner.coords, innerSize);
-					geom.polygon.inner.area = utils::area(geom.polygon.inner.coords, innerSize);
 
 					if (geom.polygon.inner.vertices != 0) {
 						geom.polygon.inner.empty = false;
+
+						geom.polygon.inner.closed = utils::isClosed(geom.polygon.inner.coords);
+
+						geom.polygon.inner.length = utils::length(geom.polygon.inner.coords, innerSize);
+						geom.polygon.inner.area = utils::area(geom.polygon.inner.coords, innerSize);
+
+						// Update Polygon
+						geom.polygon.vertices += geom.polygon.inner.vertices;
+						geom.polygon.length += geom.polygon.inner.length;
+						geom.polygon.area += geom.polygon.inner.area;
 					}
-
-
-					// Update Polygon
-					geom.polygon.vertices += geom.polygon.inner.vertices;
-					geom.polygon.length += geom.polygon.inner.length;
-					geom.polygon.area += geom.polygon.inner.area;
 				}
 
 				// Update Shape
@@ -298,13 +306,6 @@ namespace surfy::geom {
 
 				geom.line.coords = utils::parseCoordsString(body);
 
-				Point front = geom.line.coords.front();
-				Point back = geom.line.coords.back();
-
-				if(front.x == back.x && front.y == back.y) {
-					geom.line.closed = true;
-				}
-
 			} else if (src.find("MULTIPOLYGON") != std::string::npos) {
 				
 				type = "MULTIPOLYGON";
@@ -329,31 +330,8 @@ namespace surfy::geom {
 			} else if (src.find("POLYGON") != std::string::npos) {
 
 				type = "Polygon";
-				new (&geom.polygon) Polygon();
-
-				int pass = 1;
-				size_t pos = 0;
-				while (pos < body.size()) {
-					size_t start = body.find("(", pos);
-					size_t end = body.find(")", start);
-					if (start == std::string::npos || end == std::string::npos) {
-						break; // No more polygons found
-					}
-
-					std::string polyStr = body.substr(start + 1, end - start - 1);
-
-					pos = end + 1;
-
-					std::vector<Point> coords = utils::parseCoordsString(polyStr);
-
-					if (pass == 1) {
-						geom.polygon.outer.coords = coords;
-					} else {
-						geom.polygon.inner.coords = coords;
-					}
-
-					pass++;
-				}
+				Polygon poly = parser::polygon(body);
+				new (&geom.polygon) Polygon(poly);
 
 			}
 

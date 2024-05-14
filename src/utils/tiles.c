@@ -555,7 +555,6 @@ int main() {
 	sg::Shape simplePoly = complexPoly.simplify(.0001);
 	print("Simplified Polygon", simplePoly);
 
-	return 0;
 
 	/*
 
@@ -602,5 +601,10 @@ int main() {
 	print("Mask Src", mask);
 	sg::Shape clipped = sg::clip(polyA, mask);
 	print("Clipped", clipped);
+
+	print("\n\n");
+
+	sg::Shape multiPolygon = sg::Shape("MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40),(30 20, 20 15, 20 25, 30 20)),((40 40, 20 45, 45 30, 40 40)),((40 40, 20 45, 45 30, 40 40)))");
+
 	return 0;
 }
