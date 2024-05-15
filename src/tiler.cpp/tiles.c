@@ -198,7 +198,7 @@ void parseTile(surfy::SQLite& dbT, const Tile& tile) {
 	// bool r = dbT.finder(query, result);
 	
 	// Print the results (optional)
-    
+	
 
 	if (result.empty()) {
 		return;
@@ -212,7 +212,7 @@ void parseTile(surfy::SQLite& dbT, const Tile& tile) {
 	for (const auto& feature : features) {
 		// print(feature);
 		if (!std::count(tile.group_layer.begin(), tile.group_layer.end(), feature["group_layer"])){
-		    continue;
+			continue;
 		}
 		
 		sg::Shape geom = sg::Shape(feature["coords"]);
@@ -227,9 +227,9 @@ void parseTile(surfy::SQLite& dbT, const Tile& tile) {
 
 void processVector(const Tiles& tiles, int threadId, std::atomic<int>& progress){
 	surfy::SQLite dbT;
-	// std::string path = "/storage/maps/tiles/london/london." + (std::to_string(threadId)) + ".db";
-	// std::string path = "/storage/maps/tiles/london/london." + (std::to_string(threadId)) + ".db";
-	std::string path = "/storage/maps/tiles/london/london.db";
+	// std::string path = "/storage/maps/tiles/isle-of-dogs/isle-of-dogs." + (std::to_string(threadId)) + ".db";
+	// std::string path = "/storage/maps/tiles/isle-of-dogs/isle-of-dogs." + (std::to_string(threadId)) + ".db";
+	std::string path = "/storage/maps/tiles/isle-of-dogs/isle-of-dogs.db";
 	dbT.connect(path.c_str(), true);
 	// dbT.query("SELECT load_extension('mod_spatialite');");
 
@@ -240,27 +240,27 @@ void processVector(const Tiles& tiles, int threadId, std::atomic<int>& progress)
 	print("Thread: ", threadId, tiles.size());
 
 	for (size_t i = 0; i < tiles.size(); ++i) {
-        // Your processing logic here
-        // std::cout << "Thread " << threadId << ": Processing element " << tiles[i] << std::endl;
-        ++progress;
-        parseTile(dbT, tiles[i]);
-    }
+		// Your processing logic here
+		// std::cout << "Thread " << threadId << ": Processing element " << tiles[i] << std::endl;
+		++progress;
+		parseTile(dbT, tiles[i]);
+	}
 
-    print(">>>>> Complete", threadId, tiles.size());
+	print(">>>>> Complete", threadId, tiles.size());
 
-    
+	
 
-    // progress += tiles.size();
+	// progress += tiles.size();
 }
 
 void printProgress(std::atomic<int>& progress, size_t totalElements) {
-    while (progress < totalElements) {
-        // std::cout << "Progress: " << (progress * 100 / totalElements) << "%" << << std::endl;
-        print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+	while (progress < totalElements) {
+		// std::cout << "Progress: " << (progress * 100 / totalElements) << "%" << << std::endl;
+		print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 
-    print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
+	print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
 }
 
 void getIt(surfy::SQLite& dbT, const int& from, const int& limit) {
@@ -274,35 +274,23 @@ void getIt(surfy::SQLite& dbT, const int& from, const int& limit) {
 void processor(const int& start, const int& end, const int& threadID, std::atomic<int>& progress) {
 	
 	surfy::SQLite dbT;
-	std::string path = "/storage/maps/tiles/london/london.db";
+	std::string path = "/storage/maps/tiles/isle-of-dogs/isle-of-dogs.db";
 	dbT.connect(path.c_str(), true);
 	dbT.query("SELECT load_extension('mod_spatialite')");
 
-	int limit = 800;
-	for ( int i = start; i < end; i += limit) {
-		if (i + limit >= end) {
-			limit = end - i;
-		}
+	// Split the request into chunks of 1000 records
+	int chunkSize = 100;
+	for (int i = start; i < end; i += chunkSize) {
+		int remainingRecords = end - i;
+		int currentChunkSize = (i + chunkSize > end) ? (end - i) : chunkSize;
 
-		getIt(dbT, i, limit);
-		// std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-		progress += limit;
-		// print(i, limit);
+		getIt(dbT, i, currentChunkSize);
+		progress += currentChunkSize;
 	}
-	/*
-	int bunch = (end - start) / limit;
-	for ( int i = 0; i < bunch; ++i) {
-		int s = start + i * bunch;
-		limit = 1000;
-		if (i == bunch - 1) {
-			limit = end - s;
-		}
 
-		getIt(dbT, s, limit);
+	print("Threwad Done #", threadID);
 
-		progress += limit;
-	}*/
+	
 	return;
 }
 
@@ -315,23 +303,18 @@ int main() {
 
 	*/
 
-	std::string config_name = "london";
+	std::string config_name = "isle-of-dogs";
 
 	config = loadJSON("../tiler/configs/" + config_name + ".json");
 	json filters = loadJSON("../tiler/config.json");
 	config.update(filters);
 
 	// Initialise DB
-	db.connect("/storage/maps/tiles/london/london.db", true);
+	db.connect("/storage/maps/tiles/isle-of-dogs/isle-of-dogs.db", true);
 	db.query("SELECT load_extension('mod_spatialite')");
-
-	// Create an R*Tree index on the geometry column
-	// db.query("CREATE VIRTUAL TABLE spatial_index USING rtree(id, minx, maxx, miny, maxy);");
-	// db.query("CREATE INDEX idx_spatial_data_bounds ON features(bounds);");
 
 	// Just...
 	print("Config Name: ", config["name"]);
-	// return 0;
 
 	std::string configPath = config["data"];
 	configPath += "/config.json";
@@ -390,47 +373,44 @@ int main() {
 	auto startTime = std::chrono::high_resolution_clock::now();
 
 	unsigned int maxThreads = std::thread::hardware_concurrency();
-    std::vector<std::thread> threads;
-    std::atomic<int> progress(0);
+	std::vector<std::thread> threads;
+	std::atomic<int> progress(0);
 
-	int totalRecords = 1511632; // 10164; 
-    int numThreads = 6;
-    int recordsPerThread = totalRecords / numThreads;
+	json featuresCount = db.findOne("SELECT COUNT(1) as count FROM features");
+	int totalRecords = featuresCount["count"];
+	int numThreads = 4;
+	int recordsPerThread = totalRecords / numThreads;
 
-    int start;
-    int end;
-    std::vector<std::vector<int>> pool;
+	int start;
+	int end;
+	std::vector<std::vector<int>> pool;
 
 	for (int i = 0; i < numThreads; ++i) {
 		start = i * recordsPerThread;
-        end = (i + 1) * recordsPerThread - 1;
-        if (i == numThreads -1 ){
-        	end = totalRecords;
-        }
+		end = (i + 1) * recordsPerThread - 0;
+		if (i == numThreads - 1 ){
+			end = totalRecords;
+		}
 
-        std::vector<int> poolItem = {start, end};
-        pool.push_back(poolItem);
-        // print(start, end);
-        // threads.emplace_back(processor, start, end, i, std::ref(progress));
+		std::vector<int> poolItem = {start, end};
+		pool.push_back(poolItem);
+		print("Bucket", poolItem);
+		threads.emplace_back(processor, pool[i][0], pool[i][1], i, std::ref(progress));
 
 	}
 
-	for (int i = 0; i < numThreads; ++i) {
-		std::vector<int> item = pool[i];
-    	threads.emplace_back(processor, item[0], item[1], i, std::ref(progress));
-    }
+	// Progress
+	std::thread progressThread(printProgress, std::ref(progress), totalRecords);
 
-    std::thread progressThread(printProgress, std::ref(progress), totalRecords);
-   	progressThread.join();
+	// Wait for all threads to finish
+	progressThread.join();
+	for (auto& thread : threads) {
+		thread.join();
+	}
 
-    // Wait for all threads to finish
-    for (auto& thread : threads) {
-        thread.join();
-    }
-
-    auto endTime = std::chrono::high_resolution_clock::now();
+	auto endTime = std::chrono::high_resolution_clock::now();
 	auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
-    std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
+	std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
 
 	return 0;
 }
@@ -451,47 +431,47 @@ int asd() {
 	
 
 	// Create threads and assign work to each thread
-    std::vector<std::thread> threads;
-    std::atomic<int> progress(0);
+	std::vector<std::thread> threads;
+	std::atomic<int> progress(0);
 
-    std::vector<Tiles> pool;
+	std::vector<Tiles> pool;
 
-    for (int i = 0; i < numThreads; ++i) {
-        size_t startIdx = i * elementsPerThread;
-        size_t endIdx = (i == numThreads - 1) ? tiles.size() : (i + 1) * elementsPerThread;
-        print(startIdx, endIdx);
-        Tiles bucket;
-        for (int j = startIdx; j < endIdx; ++j) {
-        	bucket.push_back(tiles[j]);
-        }
+	for (int i = 0; i < numThreads; ++i) {
+		size_t startIdx = i * elementsPerThread;
+		size_t endIdx = (i == numThreads - 1) ? tiles.size() : (i + 1) * elementsPerThread;
+		print(startIdx, endIdx);
+		Tiles bucket;
+		for (int j = startIdx; j < endIdx; ++j) {
+			bucket.push_back(tiles[j]);
+		}
 
-        print("Bucket info: ", i, startIdx, endIdx, bucket.size());
-        pool.push_back(bucket);
+		print("Bucket info: ", i, startIdx, endIdx, bucket.size());
+		pool.push_back(bucket);
 
-        
-        // json subVector(tiles.begin() + startIdx, tiles.begin() + endIdx);
+		
+		// json subVector(tiles.begin() + startIdx, tiles.begin() + endIdx);
 
-        // threads.emplace_back(processVector, std::ref(myVector), i, std::ref(progress));
-    }
+		// threads.emplace_back(processVector, std::ref(myVector), i, std::ref(progress));
+	}
 
-    for (int i = 0; i < numThreads; ++i) {
-    	threads.emplace_back(processVector, std::ref(pool[i]), i, std::ref(progress));
-    }
+	for (int i = 0; i < numThreads; ++i) {
+		threads.emplace_back(processVector, std::ref(pool[i]), i, std::ref(progress));
+	}
 
-    // Create a thread to print progress
-    std::thread progressThread(printProgress, std::ref(progress), tiles.size());
+	// Create a thread to print progress
+	std::thread progressThread(printProgress, std::ref(progress), tiles.size());
 
-    // Wait for all threads to finish
-    for (auto& thread : threads) {
-        thread.join();
-    }
-   	progressThread.join();
+	// Wait for all threads to finish
+	for (auto& thread : threads) {
+		thread.join();
+	}
+	progressThread.join();
 
-    // print(vecSize * sizeof(int))
+	// print(vecSize * sizeof(int))
 
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-    std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
+	std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
 
 	return 0;
 }*/
