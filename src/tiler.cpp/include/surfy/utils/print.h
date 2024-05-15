@@ -1,13 +1,7 @@
-#ifndef SURFY_PRINT_HPP
-#define SURFY_PRINT_HPP
+#ifndef SURFY_UTILS_PRINT_HPP
+#define SURFY_UTILS_PRINT_HPP
 
-#include <iostream>
-#include <string>
-#include "json.h"
-
-
-namespace surfy {
-	using json = nlohmann::ordered_json;
+namespace surfy::utils {
 
 	// Overload for printing JSON objects
 	inline void print(const json& arg) {

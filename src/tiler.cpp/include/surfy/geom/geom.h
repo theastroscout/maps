@@ -1,5 +1,5 @@
-#ifndef GEOM_HPP
-#define GEOM_HPP
+#ifndef SURFY_GEOM_HPP
+#define SURFY_GEOM_HPP
 #pragma once
 #include <iostream>
 #include <string>
