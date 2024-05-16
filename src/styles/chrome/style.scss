@@ -8,7 +8,7 @@ $host: 'https://sandbox.maps.surfy.one';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$host}/tiles/london;
+	--tiles: #{$host}/tiles/canary;
 	--sprites: #{$host}'/styles/chrome/sprites.svg';
 
 	--dict: '';
@@ -433,7 +433,7 @@ $water: #e9ebed;
 			*/
 
 			> g.bounds {
-				display: none;
+				pointer-events: none;
 			}
 		}
 	}

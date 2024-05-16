@@ -91,7 +91,11 @@ namespace surfy::geom {
 			result.type = "Line";
 			new (&result.geom.line) Line(); // Initialise Geometry::Line
 
-			simplify::douglasPeucker(geom.line.coords, intolerance, result.geom.line.coords);
+			if (result.geom.line.coords.size() > 2) {
+				simplify::douglasPeucker(geom.line.coords, intolerance, result.geom.line.coords);
+			} else {
+				result.geom.line.coords = geom.line.coords;
+			}
 
 		} else if (type == "MultiLine") {
 
@@ -113,6 +117,7 @@ namespace surfy::geom {
 			new (&result.geom.polygon) Polygon(); // Initialise Geometry::Polygon
 
 			if (!geom.polygon.outer.coords.empty()) {
+				std::cout << "SIMPLIFIED!!!" << std::endl;
 				simplify::douglasPeucker(geom.polygon.outer.coords, intolerance, result.geom.polygon.outer.coords);
 			}
 

@@ -10,6 +10,11 @@ For multithreading is better to run new instance for each thread
 #include <sqlite3.h>
 #include <iostream>
 
+#ifndef SURFY_HPP
+#include "../json.h"
+using json = nlohmann::ordered_json;
+#endif
+
 namespace surfy {
 
 	class SQLite {
@@ -81,17 +86,17 @@ namespace surfy {
 
 		*/
 
-		json findOne(const char* query, const std::vector<std::string>& params = {}) {
+		json findOne(const std::string& query, const std::vector<std::string>& params = {}) {
 			
 			json result;
 
 			sqlite3_stmt* stmt;
-			int rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+			int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
 			if (rc != SQLITE_OK) {
 				sqlite3_finalize(stmt);
-				result["status"] = false;
+				result["_status"] = false;
 				std::string errorMessage = sqlite3_errmsg(db);
-				result["msg"] = "Preparation failed: " + errorMessage;
+				result["_msg"] = "Preparation failed: " + errorMessage;
 				return result;
 			}
 
@@ -104,21 +109,27 @@ namespace surfy {
 					rc = sqlite3_bind_text(stmt, column, val.c_str(), -1, SQLITE_TRANSIENT);
 
 					if (rc != SQLITE_OK) {
+						
 						sqlite3_finalize(stmt);
-						result["status"] = false;
+						result["_status"] = false;
 						std::string errorMessage = sqlite3_errmsg(db);
-						result["msg"] = "Error binding text: " + errorMessage + '\n' + std::to_string(column) + ":" + val;
+						result["_msg"] = "Error binding text: " + errorMessage + '\n' + std::to_string(column) + ":" + val;
+						
 						return result;
 					}
 
 					
 					rc = sqlite3_step(stmt);
 					if (rc != SQLITE_DONE && rc != SQLITE_ROW) {
-			            std::cerr << "Failed to execute statement: " << sqlite3_errmsg(db) << std::endl;
-			            sqlite3_finalize(stmt);
-			            sqlite3_close(db);
-			            return false;
+			            
+			            sqlite3_finalize(stmt);			            
+			            result["_status"] = false;
+			            std::string errorMessage = sqlite3_errmsg(db);
+						result["_msg"] = "Failed to execute statement: " + errorMessage;
+
+			           	return result;
 			        }
+
 					sqlite3_reset(stmt);
 				}
 			}
@@ -130,12 +141,13 @@ namespace surfy {
 			if (rc == SQLITE_DONE) {
 				// Empty result set
 				sqlite3_finalize(stmt);
-				result["status"] = false;
-				result["msg"] = "Query returned no results.";
+				result["_status"] = false;
+				result["_msg"] = "Query returned no results.";
 				return result;
 			}
 
 			result = getData(stmt);
+			result["_status"] = true;
 
 			sqlite3_finalize(stmt);
 			return result;
@@ -160,10 +172,10 @@ namespace surfy {
 			int rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
 			if (rc != SQLITE_OK) {
 				sqlite3_finalize(stmt);
-				result["status"] = false;
+				result["_status"] = false;
 				std::string errorMessage = sqlite3_errmsg(db);
-				result["msg"] = "Preparation failed: " + errorMessage;
-				result["query"] = query;
+				result["_msg"] = "Preparation failed: " + errorMessage;
+				result["_query"] = query;
 
 				return result;
 			}
@@ -178,9 +190,9 @@ namespace surfy {
 
 					if (rc != SQLITE_OK) {
 						sqlite3_finalize(stmt);
-						result["status"] = false;
+						result["_status"] = false;
 						std::string errorMessage = sqlite3_errmsg(db);
-						result["msg"] = "Error binding text: " + errorMessage + '\n' + std::to_string(column) + ":" + val;
+						result["_msg"] = "Error binding text: " + errorMessage + '\n' + std::to_string(column) + ":" + val;
 						return result;
 					}
 
@@ -199,11 +211,11 @@ namespace surfy {
 			// Go
 
 			result = {
-				{ "status", true },
-				{ "query", query }
+				{ "_status", true },
+				{ "_query", query }
 			};
 
-			std::vector<json> items;
+			std::vector<json> rows;
 
 			rc = sqlite3_step(stmt);
 			
@@ -217,90 +229,23 @@ namespace surfy {
 
 				json row = getData(stmt);
 				if (callback) {
+					row["_status"] = true;
 					callback(row);
 				} else {
-					items.push_back(row);
+					rows.push_back(row);
 				}
 
 				// Next Row
 				rc = sqlite3_step(stmt);
 			}
 
-			sqlite3_finalize(stmt);
-			return result;
-		}
-
-		/*
-
-		Find Sequence
-		Put each result to Callback
-
-		*/
-
-		// using Callback = std::function<void(const json&)>;
-		json findSeq(const char* query, Callback callback = nullptr, const std::vector<std::string>& params = {}) {
-			
-			json result;
-
-			sqlite3_stmt* stmt;
-			int rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
-			if (rc != SQLITE_OK) {
-				sqlite3_finalize(stmt);
-				result["status"] = false;
-				std::string errorMessage = sqlite3_errmsg(db);
-				result["msg"] = "Preparation failed: " + errorMessage;
-				return result;
+			if (!callback) {
+				result["rows"] = rows;
 			}
-
-			// Apply Params
-			if (!params.empty()) {
-				for (int i = 0; i < params.size(); ++i) {
-					int column = i + 1;
-					const std::string val = params[i];
-					if (sqlite3_bind_text(stmt, column, val.c_str(), -1, SQLITE_STATIC) != SQLITE_OK) {
-						sqlite3_finalize(stmt);
-						result["status"] = false;
-						std::string errorMessage = sqlite3_errmsg(db);
-						result["msg"] = "Error binding text: " + errorMessage + "\n" + std::to_string(column) + ":" + val;
-						return result;
-					}
-				}
-			}
-
-			// Go
-
-			rc = sqlite3_step(stmt);
-			
-			if (rc == SQLITE_DONE) {
-				// Empty result set
-				sqlite3_finalize(stmt);
-				result["status"] = false;
-				result["msg"] = "Query returned no results.";
-				return result;
-			}
-
-			if (rc != SQLITE_ROW) {
-				sqlite3_finalize(stmt);
-				result["status"] = false;
-				result["msg"] = "Something's wrong. It shouldn't be like that.";
-				return result;
-			}
-
-			while (rc == SQLITE_ROW) {
-
-				json row = getData(stmt);
-				callback(row);
-
-				// Next Row
-				rc = sqlite3_step(stmt);
-			}
-
-			result["status"] = true;
 
 			sqlite3_finalize(stmt);
 			return result;
 		}
-
 
 		/*
 

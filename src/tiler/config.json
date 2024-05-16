@@ -17,15 +17,15 @@
 				"data": [],
 				"compress": {
 					"10": {
-						"tolerance": 0.00005,
+						"simplify": 0.00005,
 						"drop": 0.000001
 					},
 					"12": {
-						"tolerance": 0.000005,
+						"simplify": 0.000005,
 						"drop": 0.00000001
 					},
 					"14": {
-						"tolerance": 0.000005,
+						"simplify": 0.000005,
 						"drop": 0.00000001
 					}
 				}
@@ -44,31 +44,31 @@
 				],
 				"compress": {
 					"8": {
-						"tolerance": 0.0005,
+						"simplify": 0.0005,
 						"drop": 0.00001
 					},
 					"10": {
-						"tolerance": 0.0005,
+						"simplify": 0.0005,
 						"drop": 0.00001
 					},
 					"12": {
-						"tolerance": 0.000008,
+						"simplify": 0.000008,
 						"drop": 0.000001
 					},
 					"14": {
-						"tolerance": 0.000008,
+						"simplify": 0.000008,
 						"drop": 0.000001
 					},
 					"15": {
-						"tolerance": 0.000008,
+						"simplify": 0.000008,
 						"drop": 0.000001
 					},
 					"16": {
-						"tolerance": 0.000005,
+						"simplify": 0.000005,
 						"drop": 0.0000001
 					},
 					"17": {
-						"tolerance": 0.0000001,
+						"simplify": 0.0000001,
 						"drop": 0.000000001
 					}
 				}
@@ -84,19 +84,19 @@
 				],
 				"compress": {
 					"12": {
-						"tolerance": 0.000005,
+						"simplify": 0.000005,
 						"drop": 0.00000001
 					},
 					"14": {
-						"tolerance": 0.000005,
+						"simplify": 0.000005,
 						"drop": 0.00000001
 					},
 					"15": {
-						"tolerance": 0.000005,
+						"simplify": 0.000005,
 						"drop": 0.00000001
 					},
 					"16": {
-						"tolerance": 0.000005,
+						"simplify": 0.000005,
 						"drop": 0.00000001
 					}
 				}
@@ -112,27 +112,27 @@
 				],
 				"compress": {
 					"10": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0001
 					},
 					"12": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.000001
 					},
 					"14": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000008
 					},
 					"15": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.00000008
 					},
 					"16": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.00000001
 					},
 					"17": {
-						"tolerance": 0.0000001,
+						"simplify": 0.0000001,
 						"drop": 0.000000001
 					}
 				}
@@ -146,7 +146,7 @@
 				"minzoom": 17,
 				"compress": {
 					"17": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					}
 				}
@@ -162,15 +162,15 @@
 				],
 				"compress": {
 					"14": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0001
 					},
 					"15": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					},
 					"16": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					}
 				}
@@ -186,13 +186,13 @@
 				],
 				"compress": {
 					"14": {
-						"tolerance": 0.00001
+						"simplify": 0.00001
 					},
 					"15": {
-						"tolerance": 0.00001
+						"simplify": 0.00001
 					},
 					"16": {
-						"tolerance": 0.000001
+						"simplify": 0.000001
 					}
 				}
 			},
@@ -207,13 +207,13 @@
 				],
 				"compress": {
 					"14": {
-						"tolerance": 0.00001
+						"simplify": 0.00001
 					},
 					"15": {
-						"tolerance": 0.00001
+						"simplify": 0.00001
 					},
 					"16": {
-						"tolerance": 0.000001
+						"simplify": 0.000001
 					}
 				}
 			}
@@ -231,15 +231,15 @@
 				],
 				"compress": {
 					"14": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					},
 					"15": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					},
 					"16": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					}
 				}
@@ -255,27 +255,27 @@
 				],
 				"compress": {
 					"8": {
-						"tolerance": 0.001,
+						"simplify": 0.001,
 						"drop": 0.001
 					},
 					"10": {
-						"tolerance": 0.001,
+						"simplify": 0.001,
 						"drop": 0.0001
 					},
 					"12": {
-						"tolerance": 0.0001,
+						"simplify": 0.0001,
 						"drop": 0.00001
 					},
 					"14": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					},
 					"15": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					},
 					"16": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					}
 				}
@@ -291,19 +291,19 @@
 				],
 				"compress": {
 					"14": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					},
 					"15": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.00001
 					},
 					"16": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.00001
 					},
 					"17": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0000001
 					}
 				}
@@ -319,15 +319,15 @@
 				],
 				"compress": {
 					"15": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.005
 					},
 					"16": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.0001
 					},
 					"17": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.000001
 					}
 				}
@@ -343,7 +343,7 @@
 				],
 				"compress": {
 					"17": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.000001
 					}
 				}
@@ -362,7 +362,7 @@
 				],
 				"compress": {
 					"14": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.000000005
 					}
 				}
@@ -378,15 +378,15 @@
 				],
 				"compress": {
 					"14": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.00000008
 					},
 					"15": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.00000005
 					},
 					"16": {
-						"tolerance": 0.00001,
+						"simplify": 0.00001,
 						"drop": 0.00000002
 					}
 				}

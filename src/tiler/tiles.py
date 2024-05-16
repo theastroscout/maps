@@ -153,34 +153,7 @@ class Tiles:
 				bunch.append([tile] + options)
 
 
-		print("Bunch length:",len(bunch))
 
-		# for i in range(1000):
-		bb = bunch[8]
-		group_layers = bb[1]
-		tile = bb[0]
-		print("mercantile bounds ",mercantile.bounds(tile))
-		tile_bounds = mercantile.bounds(tile)
-		tile_bounds = box(tile_bounds.west, tile_bounds.south, tile_bounds.east, tile_bounds.north)
-		print("WKT BOUNDS",tile_bounds.wkt)
-		group_layers_param = ', '.join('?' for _ in group_layers)
-		query = f'''SELECT id, oid, `group`, layer, data,
-		Hex(ST_AsBinary(coords)) as coords
-		FROM features WHERE group_layer IN ({group_layers_param})
-		and Intersects(coords, ST_GeomFromText(?))'''
-		
-		params = group_layers + [tile_bounds.wkt]
-		print("Query Params", query, params)
-		
-		tile_gdf = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='coords', params=tuple(params))
-		tt = tile_gdf.iloc[1]
-		print("First Element From Data Frame", tt)
-		print(tt.coords)
-		print(tt.coords.simplify(tolerance=0.0001, preserve_topology=True))
-
-		exit()
-
-		return False
 
 		'''
 

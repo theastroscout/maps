@@ -12,6 +12,20 @@ namespace surfy::utils {
 		std::cout << arg.dump(1, '\t') << std::endl;
 	}
 
+	template<typename T, size_t N, typename... Args>
+	inline void print(const std::array<T, N>& arg, const Args&... args) {
+		for (T element : arg) {
+		    std::cout << element << " ";
+		}
+
+		if constexpr(sizeof...(args) > 0) {
+			std::cout << " ";
+			print(args...);
+		} else {
+			std::cout << std::endl;
+		}
+	}
+
 	template<typename T, typename... Args>
 	inline void print(const std::vector<T>& arg, const Args&... args) {
 		json j = arg;

@@ -218,6 +218,47 @@ class Utils {
 			return start === end ? start : (end - start) * Math.pow(base, 10 * (t - 1)) + start;
 		}
 	}
+
+	/*
+
+	Get Tile Bounds
+
+	*/
+
+	getTileBounds = tile => {
+		const [zoom, xtile, ytile] = tile;
+		const Z2 = Math.pow(2, zoom);
+
+		/*
+
+		X
+
+		*/
+
+		const x = xtile / Z2;
+		const lng = (x - 0.5) * 360;
+
+		const x2 = (xtile + 1) / Z2;
+		const lng2 = (x2 - 0.5) * 360;
+
+
+		/*
+
+		Y
+
+		*/
+
+		const y = ytile / Z2;
+		const sinlat = Math.sin((2 * Math.atan(Math.exp(2 * Math.PI * (0.5 - y)))) - Math.PI / 2);
+		const lat = Math.asin(sinlat) * (180 / Math.PI);
+
+		const y2 = (ytile+1) / Z2;
+		const sinlat2 = Math.sin((2 * Math.atan(Math.exp(2 * Math.PI * (0.5 - y2)))) - Math.PI / 2);
+		const lat2 = Math.asin(sinlat2) * (180 / Math.PI);
+
+		return [lng, lat, lng2, lat2];
+		
+	}
 }
 
 export default Utils;

@@ -16,21 +16,20 @@ using surfy::utils::print;
 #include "include/surfy/geom/geom.h"
 namespace sg = surfy::geom;
 
+#include "include/surfy/geo/geo.h"
+
 #include "include/surfy/sqlite/sqlite.h"
 surfy::SQLite db;
 
 
 // Global Config
 json config;
-json layersConfig = {};
-
-/*
-
-["areas:boundaries","areas:landuse","nature:water","nature:service","nature:green","service:railways","service:bridgePaths","service:bridges","service:tunnels","roads:tunnels","roads:motorways","roads:highways","roads:streets","roads:service","buildings:facilities","buildings:houses","buildings:aero","labels:stations","labels:districts","labels:cities","labels:countries","labels:marine"]
-
-*/
-
-std::vector<json> layersIndex;
+std::array<int, 10> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15, 16, 17 };
+std::vector<json> layersConfig = {
+	{
+		{ "name", "undefined" }
+	}
+};
 
 
 /*
@@ -61,23 +60,119 @@ config["group_index"]: {
 */
 
 void featureHandler(const json& feature) {
-	sg::Shape shape(feature["coords"]);
-	json layerConfig = layersIndex[feature["layer_idx"]];
-}
 
-void process(surfy::SQLite& dbT, const int& from, const int& limit) {
-	std::string query = "SELECT id, oid, group_layer, layer_idx, `group`, layer, data, coords FROM features_norm LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(from);
 	/*
-	json result = dbT.find(query);
 
-	for (int i = 0, l = result.size(); i < l; ++i) {
-		json row = result[i];
-		// sg::Shape shape(row["coords"]);
-		// json layerConfig = layersIndex[row["layer_idx"]];
+	For any polygon min Simplifier is .00001
 
-	}*/
+	*/
 
-	dbT.find(query, {}, featureHandler);
+	sg::Shape shape(feature["coords"], true);
+	const json& layerConfig = layersConfig[feature["layer_idx"]];
+
+	std::vector<double> westSouth;
+	std::vector<double> eastNorth;
+
+	print(feature);
+	print("Shaped Feature", shape);
+
+	if (shape.type == "Polygon") {
+		westSouth = surfy::geo::normalize(shape.bbox[0], shape.bbox[3]);
+		eastNorth = surfy::geo::normalize(shape.bbox[2], shape.bbox[1]);
+
+		for (int zoom : zoomLevels) {
+			if (zoom >= layerConfig["minzoom"]) {
+				const std::string zoomStr = std::to_string(zoom);
+				std::array<int, 4> bounds = surfy::geo::tiles(zoom, westSouth[0], westSouth[1], eastNorth[0], eastNorth[1]);
+				
+				 // Number of Tiles for one Zoom, if more than 1, need to clip.
+				bool clip = ((bounds[2] - bounds[0]) * (bounds[3] - bounds[1]) > 1);
+
+				for (int x = bounds[0]; x < bounds[2]; ++x) {
+					for (int y = bounds[1]; y < bounds[3]; ++y) {
+						print(zoom, x, y, clip);
+
+						/*
+
+						Compressor
+
+						*/
+
+						sg::Shape newShape = shape;
+
+						if (layerConfig.contains("compress") && layerConfig["compress"].contains(zoomStr)) {
+							const json& compressor = layerConfig["compress"][zoomStr];
+
+							if (compressor.contains("simplify")) {
+								sg::Shape simplified = newShape.simplify(compressor["simplify"]);
+								print("newShape",newShape);
+								print("simplified",simplified);
+								print("Shape", shape);
+								print("\n\n");
+							}
+
+							if (compressor.contains("drop") && shape.area < compressor["drop"]) {
+								continue;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (shape.type == "Line" ) {
+		print(feature);
+		print(layerConfig);
+
+		westSouth = surfy::geo::normalize(shape.bbox[0], shape.bbox[3]);
+		eastNorth = surfy::geo::normalize(shape.bbox[2], shape.bbox[1]);
+
+		print(shape.bbox);
+		print(westSouth, eastNorth);
+
+		
+		for (int zoom : zoomLevels) {
+			if (zoom >= layerConfig["minzoom"]) {
+				const std::string zoomStr = std::to_string(zoom);
+				std::array<int, 4> bounds = surfy::geo::tiles(zoom, westSouth[0], westSouth[1], eastNorth[0], eastNorth[1]);
+				
+				for (int x = bounds[0]; x < bounds[2]; ++x) {
+					for (int y = bounds[1]; y < bounds[3]; ++y) {
+
+						sg::Shape newShape;
+						if (layerConfig.contains("compress") && layerConfig["compress"].contains(zoomStr)) {
+							const json& compressor = layerConfig["compress"][zoomStr];
+
+							print(compressor);
+
+							if (compressor.contains("simplify")) {
+								
+								if (shape.type == "Line" && shape.geom.line.vertices > 2) {
+									print("Simplify", shape.geom.line.vertices);
+								}
+							}
+
+							if (compressor.contains("drop")) {
+								if (shape.type == "Line" || shape.type == "MultiLine") {
+									if (shape.length < compressor["drop"]) {
+										print("Drop Line");
+										continue;
+									}
+								} else if(shape.area < compressor["drop"]) {
+									continue;
+								}
+							}
+						}
+
+					}
+				}
+			}
+		}
+		
+	}
+
+	exit(1);
 }
 
 class Parser {
@@ -114,15 +209,13 @@ public:
 			pool.push_back(bucket);
 		}
 
-		print("Pool", pool, pool.size());
+		print("Pool size: " + std::to_string(pool.size()));
 
 		for (int threadID = 0; threadID < numThreads; ++threadID) {
 			threads.emplace_back([this, threadID] {
 				processor(threadID, std::ref(pool), std::ref(progress));
 			});
 		}
-
-		print("Pool", pool.size());
 
 		for (auto& thread : threads) {
 			thread.join();
@@ -134,7 +227,7 @@ public:
 
 	void processor(const int& threadID, Pool& pool, std::atomic<int>& progress) {
 		surfy::SQLite dbT;
-		std::string path = "/storage/maps/tiles/isle-of-dogs/isle-of-dogs.play.db";
+		std::string path = "/storage/maps/tiles/isle-of-dogs.v2/isle-of-dogs.play.db";
 		dbT.connect(path.c_str(), true);
 		dbT.query("SELECT load_extension('mod_spatialite')");
 
@@ -159,60 +252,16 @@ public:
 
 			for (int i = start; i < end; i += chunkSize) {
 				from = i;
-				int remainingRecords = end - from;
 				limit = (from + chunkSize > end) ? (end - from) : chunkSize;
-				// print(i, limit);
 
-				process(dbT, from, limit);
+				std::string query = "SELECT id, oid, group_layer, layer_idx, `group`, layer, data, coords, bounds FROM features_norm LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(from);
+				dbT.find(query, {}, featureHandler);
 			}
 
-			print("Thread Done #", threadID, from + limit);
+			// print("Thread Done #" + std::to_string(threadID), from + limit);
 		}
 	}
 };
-
-/*
-void printProgress(std::atomic<int>& progress, size_t totalElements) {
-	while (progress < totalElements) {
-		// std::cout << "Progress: " << (progress * 100 / totalElements) << "%" << << std::endl;
-		print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-
-	print("Progress:", std::to_string(progress * 100 / totalElements) + "%", progress, totalElements);
-}
-
-void getIt(surfy::SQLite& dbT, const int& from, const int& limit) {
-	std::string query = "SELECT id, oid, group_layer, `group`, layer, data, ST_AsText(coords) AS coords FROM features LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(from);
-
-	json result = dbT.find(query);
-	// print(query);
-	// print(result.size());
-}
-
-void processor(const int& start, const int& end, const int& threadID, std::atomic<int>& progress) {
-	
-	surfy::SQLite dbT;
-	std::string path = "/storage/maps/tiles/isle-of-dogs/isle-of-dogs.play.db";
-	dbT.connect(path.c_str(), true);
-	dbT.query("SELECT load_extension('mod_spatialite')");
-
-	// Split the request into chunks of 1000 records
-	int chunkSize = 100;
-	for (int i = start; i < end; i += chunkSize) {
-		int remainingRecords = end - i;
-		int currentChunkSize = (i + chunkSize > end) ? (end - i) : chunkSize;
-
-		getIt(dbT, i, currentChunkSize);
-		progress += currentChunkSize;
-	}
-
-	print("Threwad Done #", threadID);
-
-	
-	return;
-}
-*/
 
 
 int main() {
@@ -230,8 +279,7 @@ int main() {
 	config.update(filters);
 
 	// Initialise DB
-	db.connect("/storage/maps/tiles/isle-of-dogs/isle-of-dogs.play.db", true);
-	// db.query("SELECT load_extension('mod_spatialite')");
+	db.connect("/storage/maps/tiles/isle-of-dogs.v2/isle-of-dogs.play.db", true);
 
 	// Just...
 	print("Config Name: ", config["name"]);
@@ -240,136 +288,62 @@ int main() {
 	configPath += "/config.json";
 	print("Config Path: " + configPath);
 
-	// Groups and Layers Index
-	config["group_index"] = {};
+	json tilesConfig = json::array({ { "name", "undefined" } });
 
-	json tilesDict;
-
-	json layer = {
-		{ "name", "undefined" }
-	};
-	layersIndex.push_back(layer);
-
-	int groupID = 0;
+	int layerID = 0;
 	for (auto& [groupName, groupData] : config["groups"].items()) {
 
-		int layerID = 0;
-		json layers;
+		for (auto& [layerName, layerData] : groupData.items()) {	
 
-		for (auto& [layerName, layerData] : groupData.items()) {
-
-			json layer = {
-				{"name", layerName},
-				{"data", layerData["data"]},
-				{"minzoom", layerData["minzoom"]}
+			json layerConfig = {
+				{ "id", layerID },
+				{ "group", groupName },
+				{ "layer", layerName },
+				{ "minzoom", layerData["minzoom"] },
+				{ "data", layerData["data"] },
+				{ "compress", layerData["compress"] }
 			};
 
-			layers[layerName] = layer;
+			layersConfig.push_back(layerConfig);
 
-			if (layerData.contains("maxzoom")) {
-				layers["layerName"]["maxzoom"] = layerData["maxzoom"];
-			}
+			tilesConfig.push_back({
+				{ "group", groupName },
+				{ "layer", layerName },
+				{ "data", layerData["data"] }
+			});
 
-			layersConfig[groupName + ":" + layerName] = layer;
-			layersIndex.push_back(layer);
+			layerID++;
 		}
-
-		config["group_index"][groupName] = {
-			{"id", groupID},
-			{"layers", layers}
-		};
-		groupID++;
-
-		json dictItem = {
-			{"id", groupID},
-			{"name", groupName},
-			{"layers", layers}
-		};
-
-		tilesDict.push_back(dictItem);
 	}
 
-	// print(layersIndex);
+	
 
-	// Save JSON to file
-	surfy::utils::json::save(configPath, tilesDict);
+	// Save Tiles Confgi to file
+	surfy::utils::json::save(configPath, tilesConfig);
 
+	json bboxData = db.findOne("SELECT data FROM config WHERE name='bbox'");
+	json bbox = bboxData["data"];
+	print("BBox: ", bbox);
+
+
+	std::string query = "SELECT id, oid, group_layer, layer_idx, `group`, layer, data, coords, bounds FROM features_norm WHERE layer='houses' LIMIT 1";
+	json result = db.findOne(query);
+	if (result["_status"] == true) {
+		featureHandler(result);
+	}
+
+	return 1;
 
 	json featuresCount = db.findOne("SELECT COUNT(1) as count FROM features");
 	
 	auto startTime = std::chrono::high_resolution_clock::now();
 	
 	// Go
-	Parser parser(featuresCount["count"], 1000, 500, 4);
+	Parser parser(featuresCount["count"], 1000, 1000, 4);
 
 	auto endTime = std::chrono::high_resolution_clock::now();
 	auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
 	std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
-
-	/*
-	int totalRecords = (int) featuresCount["count"];
-	int numThreads = 4;
-	int chunk = 1000;
-
-	print("Total:", totalRecords);*/
-	/*
-	Pool pool;
-	for (int i = 0; i < totalRecords; i += chunk) {
-		int start = i;
-		int end = std::min(i + chunk, totalRecords);
-
-		Bucket bucket = {start, end};
-		pool.push_back(bucket);
-		print("Bucket", bucket);
-	}
-
-	run();*/
 
 	return 0;
 }
-
-/*
-	auto startTime = std::chrono::high_resolution_clock::now();
-
-	unsigned int maxThreads = std::thread::hardware_concurrency();
-	std::vector<std::thread> threads;
-	std::atomic<int> progress(0);
-
-	json featuresCount = db.findOne("SELECT COUNT(1) as count FROM features");
-	int totalRecords = featuresCount["count"];
-	int numThreads = 4;
-	int recordsPerThread = totalRecords / numThreads;
-
-	int start;
-	int end;
-	std::vector<std::vector<int>> pool;
-
-	for (int i = 0; i < numThreads; ++i) {
-		start = i * recordsPerThread;
-		end = (i + 1) * recordsPerThread - 0;
-		if (i == numThreads - 1 ){
-			end = totalRecords;
-		}
-
-		std::vector<int> poolItem = {start, end};
-		pool.push_back(poolItem);
-		print("Bucket", poolItem);
-		threads.emplace_back(processor, pool[i][0], pool[i][1], i, std::ref(progress));
-
-	}
-
-	// Progress
-	std::thread progressThread(printProgress, std::ref(progress), totalRecords);
-
-	// Wait for all threads to finish
-	progressThread.join();
-	for (auto& thread : threads) {
-		thread.join();
-	}
-
-	auto endTime = std::chrono::high_resolution_clock::now();
-	auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
-	std::cout << "Execution time: " << duration_seconds.count() << " seconds" << std::endl;
-
-	return 0;
-*/

@@ -41,7 +41,7 @@ class Tiles {
 			// Hide Zoom Collection
 			if(this.storage.tiles[this.currentZoomID]){
 				this.storage.tiles[this.currentZoomID].hide = true;
-				this.storage.tiles[this.currentZoomID].container.remove();
+				// this.storage.tiles[this.currentZoomID].container.remove();
 			}
 
 			// Show Zoom Collection
@@ -143,12 +143,10 @@ class Tiles {
 
 					Draw Bounding Box
 
-					
-
-					const bounds = this.getBounds([zoomID,x,y]);
-					const border = this.map.draw.bounds(bounds, url, this.storage.tiles[zoomID].groups.bounds.container);
-
 					*/
+
+					const bounds = this.map.utils.getTileBounds([zoomID,x,y]);
+					const border = this.map.draw.bounds(bounds, url, this.storage.tiles[zoomID].groups.bounds.container);
 
 				} else {
 					/*
