@@ -3,6 +3,10 @@
 
 namespace surfy::utils {
 
+	std::mutex print_mutex;
+
+	bool printLocked = false;
+
 	// Overload for printing JSON objects
 	inline void print(const json& arg) {
 		std::cout << arg.dump(1, '\t') << std::endl;
@@ -22,6 +26,12 @@ namespace surfy::utils {
 	
 	template<typename T, typename... Args>
 	inline void print(const T& arg, const Args&... args) {
+		
+		if (!printLocked){
+			printLocked = true;
+			std::unique_lock<std::mutex> lock(print_mutex);
+		}
+
 		std::cout << arg;
 		
 		if constexpr(sizeof...(args) > 0) {
@@ -30,6 +40,8 @@ namespace surfy::utils {
 		} else {
 			std::cout << std::endl;
 		}
+		
+		printLocked = false;
 	}
 	
 }

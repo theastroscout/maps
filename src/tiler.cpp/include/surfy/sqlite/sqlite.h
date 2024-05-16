@@ -148,7 +148,9 @@ namespace surfy {
 
 		*/
 
-		json find(const std::string querySrc, const std::vector<std::string>& params = {}) {			
+		// template<typename FindCallback>
+		using Callback = std::function<void(const json&)>;
+		json find(const std::string querySrc, const std::vector<std::string>& params = {}, Callback callback = nullptr) {			
 
 			const char* query = querySrc.c_str();
 			
@@ -196,7 +198,13 @@ namespace surfy {
 
 			// Go
 
-			result = json::array();
+			result = {
+				{ "status", true },
+				{ "query", query }
+			};
+
+			std::vector<json> items;
+
 			rc = sqlite3_step(stmt);
 			
 			if (rc == SQLITE_DONE) {
@@ -208,7 +216,11 @@ namespace surfy {
 			while (rc == SQLITE_ROW) {
 
 				json row = getData(stmt);
-				result.push_back(row);
+				if (callback) {
+					callback(row);
+				} else {
+					items.push_back(row);
+				}
 
 				// Next Row
 				rc = sqlite3_step(stmt);
@@ -225,7 +237,7 @@ namespace surfy {
 
 		*/
 
-		using Callback = std::function<void(const json&)>;
+		// using Callback = std::function<void(const json&)>;
 		json findSeq(const char* query, Callback callback = nullptr, const std::vector<std::string>& params = {}) {
 			
 			json result;
