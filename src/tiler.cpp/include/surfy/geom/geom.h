@@ -526,7 +526,7 @@ namespace surfy::geom {
 			refresh();
 		}
 
-		Shape simplify(const double& intolerance);
+		void simplify(const double& intolerance);
 
 		void optimize() {
 			std::cout << "OPTI" << std::endl;
@@ -538,6 +538,13 @@ namespace surfy::geom {
 		}*/
 
 		Shape(const Shape& other) {
+			type = other.type;
+			source = other.source;
+			vertices = other.vertices;
+			size = other.size;
+			length = other.length;
+			area = other.area;
+			empty = other.empty;
 			std::memcpy(&geom, &other.geom, sizeof(Geometry));
 		}
 

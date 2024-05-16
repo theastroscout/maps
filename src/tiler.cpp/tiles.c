@@ -31,6 +31,22 @@ std::vector<json> layersConfig = {
 	}
 };
 
+struct Row {
+	int oid;
+	int geomType;
+	int layerID;
+	std::string data;
+	std::string coords;
+
+	std::string toString() {
+		return std::to_string(oid) + "\t" +
+			   std::to_string(geomType) + "\t" +
+			   std::to_string(layerID) + "\t" +
+			   data + "\t" +
+			   coords;
+	}
+};
+
 
 /*
 
@@ -104,17 +120,25 @@ void featureHandler(const json& feature) {
 							const json& compressor = layerConfig["compress"][zoomStr];
 
 							if (compressor.contains("simplify")) {
-								sg::Shape simplified = newShape.simplify(compressor["simplify"]);
-								print("newShape",newShape);
-								print("simplified",simplified);
-								print("Shape", shape);
-								print("\n\n");
+								newShape.simplify(compressor["simplify"]);
 							}
 
 							if (compressor.contains("drop") && shape.area < compressor["drop"]) {
 								continue;
 							}
 						}
+
+						print(newShape);
+						Row line({
+							feature["oid"],
+							1,
+							feature["layer_idx"],
+							"",
+							newShape.wkt()
+						});
+						print("\n\n");
+						print(line.toString());
+						print("\n\n");
 					}
 				}
 			}
