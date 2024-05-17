@@ -26,8 +26,13 @@ namespace surfy::utils {
 		}
 	}
 
+
+	template<typename T>
+	constexpr bool isValidType = std::is_same_v<T, int> || std::is_same_v<T, double> || std::is_same_v<T, char> || std::is_same_v<T, std::string> || std::is_same_v<T, float>;
+
 	template<typename T, typename... Args>
-	inline void print(const std::vector<T>& arg, const Args&... args) {
+	inline std::enable_if_t<isValidType<T>, void> print(const std::vector<T>& arg, const Args&... args) {
+	// inline void print(const std::vector<T>& arg, const Args&... args) {
 		json j = arg;
 		std::cout << j.dump();
 		if constexpr(sizeof...(args) > 0) {

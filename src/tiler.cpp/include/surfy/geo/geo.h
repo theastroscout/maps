@@ -3,6 +3,8 @@
 
 namespace surfy::geo {
 
+	using surfy::geom::Coords;
+
 	struct Tile {
 		int zoom;
 		int x;
@@ -48,7 +50,7 @@ namespace surfy::geo {
 
 	*/
 
-	std::string tileBBox(int zoom, int xtile, int ytile) {
+	Coords tileBBox(int zoom, int xtile, int ytile) {
 		double Z2 = std::pow(2, zoom);
 
 		double west = xtile / Z2 * 360.0 - 180.0;
@@ -67,6 +69,16 @@ namespace surfy::geo {
 			south
 		};
 
+		Coords coords = {
+			{ tile[0], tile[3] },
+			{ tile[2], tile[3] },
+			{ tile[2], tile[1] },
+			{ tile[0], tile[1] },
+			{ tile[0], tile[3] }
+		};
+
+		return coords;
+		/*
 		std::string polygon = "(" +
 			std::to_string(tile[2]) + " " + std::to_string(tile[3]) + ", " +
 			std::to_string(tile[2]) + " " + std::to_string(tile[1]) + ", " +
@@ -74,6 +86,7 @@ namespace surfy::geo {
 			std::to_string(tile[0]) + " " + std::to_string(tile[3]) + ", " +
 			std::to_string(tile[2]) + " " + std::to_string(tile[3]) + ")";
 		return polygon;
+		*/
 	}
 }
 

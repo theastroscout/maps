@@ -90,7 +90,7 @@ namespace surfy::geom {
 		} else if (type == "MultiLine") {
 
 			for (int i = 0; i < size; ++i) {
-				Line& line = geom.multiLine.items[i];
+				types::Line& line = geom.multiLine.items[i];
 				if (!line.empty) {
 					Coords coords;
 					simplify::douglasPeucker(line.coords, intolerance, coords);
@@ -115,7 +115,7 @@ namespace surfy::geom {
 		} else if (type == "MultiPolygon") {
 
 			for (int i = 0; i < size; ++i) {
-				Polygon& poly = geom.multiPolygon.items[i];
+				types::Polygon& poly = geom.multiPolygon.items[i];
 				
 				if (!poly.outer.empty) {
 					Coords coords;

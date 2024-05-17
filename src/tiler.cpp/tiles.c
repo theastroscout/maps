@@ -107,6 +107,17 @@ void featureHandler(const json& feature) {
 				for (int x = bounds[0]; x < bounds[2]; ++x) {
 					for (int y = bounds[1]; y < bounds[3]; ++y) {
 						print(zoom, x, y, clip);
+						
+						sg::Shape newShape = shape;
+
+						if (clip) {
+							sg::Coords mask = surfy::geo::tileBBox(zoom, x, y);
+							print("Mask", mask);
+							print("Before:", newShape);
+							newShape.clip(mask);
+							print("Clipped:", newShape);
+							exit(0);
+						}
 
 						/*
 
@@ -114,7 +125,7 @@ void featureHandler(const json& feature) {
 
 						*/
 
-						sg::Shape newShape = shape;
+						
 
 						if (layerConfig.contains("compress") && layerConfig["compress"].contains(zoomStr)) {
 							const json& compressor = layerConfig["compress"][zoomStr];
@@ -128,13 +139,12 @@ void featureHandler(const json& feature) {
 							}
 						}
 
-						print(newShape);
 						Row line({
 							feature["oid"],
-							1,
+							shape.typeID,
 							feature["layer_idx"],
 							"",
-							newShape.wkt()
+							newShape.compressed()
 						});
 						print("\n\n");
 						print(line.toString());
@@ -143,57 +153,6 @@ void featureHandler(const json& feature) {
 				}
 			}
 		}
-	}
-
-	if (shape.type == "Line" ) {
-		print(feature);
-		print(layerConfig);
-
-		westSouth = surfy::geo::normalize(shape.bbox[0], shape.bbox[3]);
-		eastNorth = surfy::geo::normalize(shape.bbox[2], shape.bbox[1]);
-
-		print(shape.bbox);
-		print(westSouth, eastNorth);
-
-		
-		for (int zoom : zoomLevels) {
-			if (zoom >= layerConfig["minzoom"]) {
-				const std::string zoomStr = std::to_string(zoom);
-				std::array<int, 4> bounds = surfy::geo::tiles(zoom, westSouth[0], westSouth[1], eastNorth[0], eastNorth[1]);
-				
-				for (int x = bounds[0]; x < bounds[2]; ++x) {
-					for (int y = bounds[1]; y < bounds[3]; ++y) {
-
-						sg::Shape newShape;
-						if (layerConfig.contains("compress") && layerConfig["compress"].contains(zoomStr)) {
-							const json& compressor = layerConfig["compress"][zoomStr];
-
-							print(compressor);
-
-							if (compressor.contains("simplify")) {
-								
-								if (shape.type == "Line" && shape.geom.line.vertices > 2) {
-									print("Simplify", shape.geom.line.vertices);
-								}
-							}
-
-							if (compressor.contains("drop")) {
-								if (shape.type == "Line" || shape.type == "MultiLine") {
-									if (shape.length < compressor["drop"]) {
-										print("Drop Line");
-										continue;
-									}
-								} else if(shape.area < compressor["drop"]) {
-									continue;
-								}
-							}
-						}
-
-					}
-				}
-			}
-		}
-		
 	}
 
 	exit(1);
@@ -289,6 +248,18 @@ public:
 
 
 int main() {
+
+	// sg::Shape poly("POLYGON ((-.00002 -.00002, .00000 .000010, .000010 .000010, .000010 .00000, -.00002 -.00002),(.00000 .00000, .00000 .00005, .00005 .00005, .00005 .00000, .00000 .00000))");
+	// sg::Shape mask("POLYGON ((-.00003 -.00003, .00000 .00006, .00006 .00006, .00006 .00000, -.00003 -.00003))");
+
+	sg::Shape poly("POLYGON((-0.03064 51.511674, -0.030637 51.511662, -0.030627 51.511651, -0.030612 51.511643, -0.0306 51.511639, -0.030587 51.511637, -0.030585 51.511563, -0.029978 51.511567, -0.029979 51.511603, -0.029979 51.511618, -0.029954 51.511618, -0.029956 51.511736, -0.029982 51.511735, -0.029982 51.511751, -0.029983 51.51179, -0.030527 51.511786, -0.030589 51.511786, -0.030588 51.511711, -0.030604 51.511708, -0.030618 51.511703, -0.03063 51.511695, -0.030638 51.511685, -0.03064 51.511674))");
+	sg::Shape mask("POLYGON((-0.032958984 51.510452, -0.030212402 51.510452, -0.030212402 51.512161, -0.032958984 51.512161))");
+	print("\nMask: ", mask.geom.polygon.outer.coords);
+	print("\nSrc Poly: ", poly);
+	poly.clip(mask.geom.polygon.outer.coords);
+	print("\nClipped: ", poly);
+
+	exit(0);
 
 	/*
 
