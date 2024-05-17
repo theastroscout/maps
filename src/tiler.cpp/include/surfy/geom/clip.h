@@ -86,6 +86,8 @@ namespace surfy::geom {
 
 		*/
 
+		/*
+
 		Coords polygon(const Coords& subjectPolygon, const Coords& clipPolygon) {
 			Coords outputList = subjectPolygon;
 
@@ -201,6 +203,60 @@ namespace surfy::geom {
 			return output;
 		}
 
+		*/
+
+		Point intersect(Point s, Point e, Point cp1, Point cp2) {
+			double A1 = e.y - s.y;
+			double B1 = s.x - e.x;
+			double C1 = A1 * s.x + B1 * s.y;
+
+			double A2 = cp2.y - cp1.y;
+			double B2 = cp1.x - cp2.x;
+			double C2 = A2 * cp1.x + B2 * cp1.y;
+
+			double det = A1 * B2 - A2 * B1;
+
+			if (det == 0) {
+				return {0, 0}; // Lines are parallel, no intersection
+			}
+
+			double x = (B2 * C1 - B1 * C2) / det;
+			double y = (A1 * C2 - A2 * C1) / det;
+			return {x, y};
+		}
+
+		bool inside(Point p, Point cp1, Point cp2) {
+			return (cp2.x - cp1.x) * (p.y - cp1.y) >= (cp2.y - cp1.y) * (p.x - cp1.x);
+		}
+
+		Coords sutherlandHodgman(const Coords& subject, const Coords& clip) {
+			Coords output = subject;
+
+			for (size_t i = 0; i < clip.size(); ++i) {
+				Coords input = output;
+				output.clear();
+
+				Point cp1 = clip[i];
+				Point cp2 = clip[(i + 1) % clip.size()];
+
+				for (size_t j = 0; j < input.size(); ++j) {
+					Point s = input[j];
+					Point e = input[(j + 1) % input.size()];
+
+					if (inside(e, cp1, cp2)) {
+						if (!inside(s, cp1, cp2)) {
+							output.push_back(intersect(s, e, cp1, cp2));
+						}
+						output.push_back(e);
+					} else if (inside(s, cp1, cp2)) {
+						output.push_back(intersect(s, e, cp1, cp2));
+					}
+				}
+			}
+
+			return output;
+		}
+
 
 
 	}
@@ -236,16 +292,13 @@ namespace surfy::geom {
 		} else if (type == "Polygon") {
 
 			if (!geom.polygon.outer.empty) {
-				std::cout << "\n\n>> Outer Before: " << geom.polygon.outer.coords << std::endl;
-				// geom.polygon.outer.coords = clippers::polygon(geom.polygon.outer.coords, mask);
 				Coords coords = clippers::sutherlandHodgman(geom.polygon.outer.coords, mask);
-				std::cout << "\n\n>> Outer After Just Coords: " << coords << std::endl;
 				geom.polygon.outer.coords = coords;
-				// std::cout << "\n\n>> Outer After: " << geom.polygon.outer.coords << std::endl;
 			}
 
 			if (!geom.polygon.inner.empty) {
-				geom.polygon.inner.coords = clippers::polygon(geom.polygon.inner.coords, mask);
+				Coords coords = clippers::sutherlandHodgman(geom.polygon.inner.coords, mask);
+				geom.polygon.inner.coords = coords;
 			}
 
 		} else if (type == "MultiPolygon") {
@@ -254,11 +307,13 @@ namespace surfy::geom {
 				types::Polygon& poly = geom.multiPolygon.items[i];
 				
 				if (!poly.outer.empty) {
-					poly.outer.coords = clippers::polygon(poly.outer.coords, mask);
+					Coords coords = clippers::sutherlandHodgman(poly.outer.coords, mask);
+					poly.outer.coords = coords;
 				}
 				
 				if (!poly.inner.empty) {
-					poly.inner.coords = clippers::polygon(poly.inner.coords, mask);
+					Coords coords = clippers::sutherlandHodgman(poly.inner.coords, mask);
+					poly.inner.coords = coords;
 				}
 			}
 

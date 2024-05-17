@@ -582,7 +582,21 @@ namespace surfy::geom {
 			length = other.length;
 			area = other.area;
 			empty = other.empty;
-			std::memcpy(&geom, &other.geom, sizeof(Geometry));
+			// std::memcpy(&geom, &other.geom, sizeof(Geometry));
+			if (type == "Point") {
+				new (&geom.point) types::Point(other.geom.point);
+			} else if (type == "Line") {
+				new (&geom.line) types::Line(other.geom.line);
+			} else if (type == "MultiLine") {
+				new (&geom.multiLine) types::MultiLine(other.geom.multiLine);
+			} else if (type == "Polygon") {
+				new (&geom.polygon) types::Polygon(other.geom.polygon);
+			} else if (type == "MultiPolygon") {
+				new (&geom.multiPolygon) types::MultiPolygon(other.geom.multiPolygon);
+			} else {
+				new (&geom.point) types::Point();
+			}
+			
 		}
 
 		~Shape() {
