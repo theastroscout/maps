@@ -6,6 +6,9 @@
 #include <fstream>
 #include <vector>
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 #include "include/json.h"
 using json = nlohmann::ordered_json;
 
@@ -141,15 +144,23 @@ void featureHandler(const json& feature) {
 							newShape.compressed()
 						});
 						print("\n\n");
-						print(line.toString());
+						std::string path = config["data"].get<std::string>() + "/" + std::to_string(zoom) + "/" + std::to_string(x);
+						print("Path:", path);
+						fs::create_directories(path);
+						print("Line:", line.toString());
 						print("\n\n");
+
+						std::string tilePath = path + "/" + std::to_string(y);
+
+						std::ofstream tileFile;
+						tileFile.open(tilePath);
+						tileFile << line.toString() + "\n";
+						tileFile.close();
 					}
 				}
 			}
 		}
 	}
-
-	exit(1);
 }
 
 class Parser {
@@ -204,8 +215,7 @@ public:
 
 	void processor(const int& threadID, Pool& pool, std::atomic<int>& progress) {
 		surfy::SQLite dbT;
-		std::string path = "/storage/maps/tiles/isle-of-dogs.v2/isle-of-dogs.play.db";
-		dbT.connect(path.c_str(), true);
+		dbT.connect(config["db_file"].get<std::string>(), true);
 		dbT.query("SELECT load_extension('mod_spatialite')");
 
 
@@ -243,38 +253,42 @@ public:
 
 int main() {
 
-	// sg::Shape poly("POLYGON ((-.00002 -.00002, .00000 .000010, .000010 .000010, .000010 .00000, -.00002 -.00002),(.00000 .00000, .00000 .00005, .00005 .00005, .00005 .00000, .00000 .00000))");
-	// sg::Shape mask("POLYGON ((-.00003 -.00003, .00000 .00006, .00006 .00006, .00006 .00000, -.00003 -.00003))");
-	/*
-	sg::Shape poly("POLYGON((-0.03064 51.511674, -0.030637 51.511662, -0.030627 51.511651, -0.030612 51.511643, -0.0306 51.511639, -0.030587 51.511637, -0.030585 51.511563, -0.029978 51.511567, -0.029979 51.511603, -0.029979 51.511618, -0.029954 51.511618, -0.029956 51.511736, -0.029982 51.511735, -0.029982 51.511751, -0.029983 51.51179, -0.030527 51.511786, -0.030589 51.511786, -0.030588 51.511711, -0.030604 51.511708, -0.030618 51.511703, -0.03063 51.511695, -0.030638 51.511685, -0.03064 51.511674))");
-	sg::Shape mask("POLYGON((-0.032958984 51.510452, -0.030212402 51.510452, -0.030212402 51.512161, -0.032958984 51.512161))");
-	print("\nMask: ", mask.geom.polygon.outer.coords);
-	print("\nSrc Poly: ", poly);
-	poly.clip(mask.geom.polygon.outer.coords);
-	print("\nClipped: ", poly);
-
-	exit(0);
-	*/
-
 	/*
 
 	Config
 
 	*/
 
-	std::string config_name = "isle-of-dogs";
+	std::string config_name = "isle-of-dogs.v2";
 
 	config = surfy::utils::json::load("../tiler/configs/" + config_name + ".json");
 	json filters = surfy::utils::json::load("../tiler/config.json");
 	config.update(filters);
 
 	// Initialise DB
-	db.connect("/storage/maps/tiles/isle-of-dogs.v2/isle-of-dogs.play.db", true);
+	db.connect(config["db_file"].get<std::string>(), true);
 
 	// Just...
 	print("Config Name: ", config["name"]);
-
 	std::string configPath = config["data"];
+
+	/*
+
+	Wipe tiles directory
+
+	*/
+	
+	for (const auto& entry : fs::directory_iterator(config["data"].get<std::string>())) {
+		fs::remove_all(entry.path());
+	}
+
+	/*
+
+	Create Config Map
+
+	*/
+
+	
 	configPath += "/config.json";
 	print("Config Path: " + configPath);
 
@@ -320,6 +334,17 @@ int main() {
 	json result = db.findOne(query);
 	if (result["_status"] == true) {
 		featureHandler(result);
+	}
+
+	print("????");
+
+	query = "SELECT id, oid, group_layer, layer_idx, `group`, layer, data, coords, bounds FROM features_norm WHERE layer='houses' LIMIT 1 OFFSET 1";
+	result = db.findOne(query);
+	if (result["_status"] == true) {
+		featureHandler(result);
+		print(2);
+	} else {
+		print(3);
 	}
 
 	return 1;

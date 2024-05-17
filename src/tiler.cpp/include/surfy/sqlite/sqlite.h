@@ -30,8 +30,9 @@ namespace surfy {
 			sqlite3_close(db);
 		}
 
-		bool connect(const char* dbName, bool extensions = false) {
-			int rc = sqlite3_open(dbName, &db);
+		bool connect(const std::string& dbName, bool extensions = false) {
+
+			int rc = sqlite3_open(dbName.c_str(), &db);
 			if (rc) {
 				std::cerr << "@surfy::SQLite:: Can't open database: " << sqlite3_errmsg(db) << std::endl;
 				sqlite3_close(db);

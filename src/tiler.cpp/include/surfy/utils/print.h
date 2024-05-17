@@ -26,7 +26,7 @@ namespace surfy::utils {
 		}
 	}
 
-
+	// Include only basic types
 	template<typename T>
 	constexpr bool isValidType = std::is_same_v<T, int> || std::is_same_v<T, double> || std::is_same_v<T, char> || std::is_same_v<T, std::string> || std::is_same_v<T, float>;
 
