@@ -395,12 +395,10 @@ namespace surfy::geom {
 						polygon.area += polygon.outer.area;
 
 						BBox outerBBox = utils::bbox(polygon.outer.coords);
-						surfy::utils::print("outerBBox", outerBBox);
 						bbox[0] = std::min(bbox[0], outerBBox[0]);
 						bbox[1] = std::min(bbox[1], outerBBox[1]);
 						bbox[2] = std::max(bbox[2], outerBBox[2]);
 						bbox[3] = std::max(bbox[3], outerBBox[3]);
-						surfy::utils::print("BBox", bbox);
 					}
 
 					if (!polygon.inner.coords.empty()) {

@@ -338,44 +338,40 @@ void featureHandler(const json& feature) {
 
 				bool clip = ((tiles[2] - tiles[0]) * (tiles[3] - tiles[1]) > 1);
 
+				sg::Shape zoomShape = shape;
+
+				/*
+
+				Compress accordingly zoom level
+
+				*/
+
+				if (layer.contains("compress") && layer["compress"].contains(zoomStr)) {
+					const json& compressor = layer["compress"][zoomStr];
+
+					if (compressor.contains("simplify")) {
+						zoomShape.simplify(compressor["simplify"]);
+					}
+
+					if (compressor.contains("drop") && zoomShape.area < compressor["drop"]) {
+						continue;
+					}
+				}
+
 				for (int x = tiles[0]; x < tiles[2]; ++x) {
 					for (int y = tiles[1]; y < tiles[3]; ++y) {
 
-						sg::Shape newShape = shape;
+						
+						sg::Shape tileShape = zoomShape;
 
-						if (shape.type == "Polygon") {
-							
-							if (layer.contains("compress") && layer["compress"].contains(zoomStr)) {
-								const json& compressor = layer["compress"][zoomStr];
 
-								if (compressor.contains("simplify")) {
-									newShape.simplify(compressor["simplify"]);
-								}
-
-								if (compressor.contains("drop") && newShape.area < compressor["drop"]) {
-									continue;
-								}
-							}
-
-							if (clip) {
-								sg::Coords mask = surfy::geo::tileBBox(zoom, x, y);
-								newShape.clip(mask);
-							}
-
-							row.geom = newShape.compressed();
-							print("Store Polygon:", zoom, x, y, "Data:", row.toString());
-
-						} else {
-
-							/*
-
-							MultiPolygon
-
-							*/
-
-							row.geom = newShape.compressed();
-							print("Store MultiPolygon:", zoom, x, y, "Data:", row.toString());
+						if (clip) {
+							sg::Coords mask = surfy::geo::tileBBox(zoom, x, y);
+							tileShape.clip(mask);
 						}
+
+						row.geom = tileShape.compressed();
+						print("Store:", shape.type, zoom, x, y, "Data:", row.toString());
 						
 					}
 				}
