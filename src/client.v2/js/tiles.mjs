@@ -4,14 +4,7 @@ Surfy° Maps. Tiles
 
 */
 
-const geometryTypes = [
-	"Dummy",
-	"Point",
-	"Line",
-	"MultiLine",
-	"Polygon",
-	"MultiPolygon"
-];
+const geometryTypes = ['Point','LineString','MultiLineString','Polygon','MultiPolygon'];
 
 class Tiles {
 
@@ -225,100 +218,34 @@ class Tiles {
 
 	*/
 
-	parsePoint = input => {
-		return input.split(" ").map(e => parseInt(e, 10) / 1e6);
-	}
-
-	parseLine = input => {
-		let coords = [];
-		const matches = input.match(/(\d+) (\d+)/g);
-		if (matches) {
-			matches.forEach(match => {
-				coords.push(this.parsePoint(match));
-			});
-		}
-
-		return coords;
-	}
-
-	parsePolygon = input => {
-		let coords = [];
-		const matches = input.match(/\([^()]+\)/g);
-		if (matches) {
-			matches.forEach(match => {
-				let ring = this.parseLine(match);
-				if(ring.length){
-					coords.push(ring);
-				}
-			});
-		}
-
-		return coords;
-	}
-
-	coords = (id, geomType, input) => {
-		
-		if (geomType === "Point") {
-			
-			return this.parsePoint(input);
-
-		} else if (geomType === "Line") {
-			
-			return this.parseLine(input);
-
-		} else if (geomType === "Polygon") {
-			
-			return this.parsePolygon(input);
-
-		} else if (geomType === "MultiPolygon"){
-			
-			let coords = [];
-			const matches = input.match(/\(\([^()]+\)(?:,\([^()]+\))*\)/g);
-			matches.forEach(match => {
-				coords.push(this.parsePolygon(match));
-			});
-			return coords;
-
-		} else {
-			console.log("Input", geomType, input);
-		}
-
-		return [];
-	}
-
 	parse = (zoomID, url) => {
 		let zoomObj = this.storage.tiles[zoomID];
 		let tile = zoomObj.items[url];
-		
 		let features = tile.src.split('\n');
 			features.pop(); // Remove Last Empty Line
 
 		let processed = {};
 
 		for(let item of features){
-
 			let chunks = item.split('\t');
+			let coords = JSON.parse(chunks.pop());
 
-			const fID = parseInt(chunks.shift(), 10);
+
+			const fID = chunks.shift();
+			
+			const geomID = parseInt(chunks.shift(), 10);
+			const geomType = geometryTypes[geomID];
+			
+			const groupID = parseInt(chunks.shift(), 10);
+			const group = this.map.style.config[groupID];
+
+			const layerID = parseInt(chunks.shift(), 10);
+			const layer = group.layers[layerID];
 
 			if(this.storage.features[zoomID][fID]){
 				// Skip feature if it exists
 				continue;
 			}
-			
-			const geomID = parseInt(chunks.shift(), 10);
-			const geomType = geometryTypes[geomID];
-			
-			const layerID = parseInt(chunks.shift(), 10);
-
-			const coords = this.coords(fID, geomType, chunks.pop());
-			
-			const layerConfig = this.map.style.config[layerID];
-			const group = layerConfig.group;
-			const layer = layerConfig.layer;
-			
-
-			continue;
 
 			/*
 
@@ -328,13 +255,13 @@ class Tiles {
 
 			let data = {};
 			if(chunks.length){
-				
+				const layerConfig = this.map.style.config[groupID].layers[layerID];
 				for(let [idx, r] of Object.entries(layerConfig.data)){
 					let v = chunks[idx];
 					if(typeof r.type === 'object'){
 						v = r.type[v];
 					}
-					data[r.key] = v;
+					data[r.field] = v;
 				}
 			}
 			
@@ -646,7 +573,7 @@ class Tiles {
 			this.storage.tiles[zoomID].items[url].src = data;
 
 			if(data !== '0'){
-				this.parse(zoomID, url);				
+				this.parse(zoomID, url);
 			} else {
 				this.storage.tiles[zoomID].items[url] = false;
 			}

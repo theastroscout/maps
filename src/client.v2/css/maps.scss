@@ -1,0 +1,70 @@
+/*
+
+Surfy° Maps
+
+*/
+
+.SurfyMaps {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+}
+
+.SurfyMaps > .container {
+	width: 100%;
+	height: 100%;
+	transform: translate3d(0,0,0);
+	user-select: none;
+	// pointer-events: none; // Uncomment for production
+
+	> .custom {
+		.block {
+			cursor: pointer;
+			.body {
+				fill: white;
+				transition: fill .6s;
+			}
+
+			&.hover .body {
+				fill: red;
+				transition: fill .1s;
+			}
+		}
+	}
+}
+
+/*
+
+Overlay
+
+*/
+
+.SurfyMaps > .overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+
+	pointer-events: none;
+
+	> .m {
+		position: absolute;
+		pointer-events: auto;
+
+		&._default {
+			transform: translate3d(-50%, -50%, 0);
+
+			width: 7px;
+			height: 7px;
+
+			border-radius: 50%;
+			border: 2px solid black;
+
+			cursor: pointer;
+			user-select: none;
+		}
+	}
+}

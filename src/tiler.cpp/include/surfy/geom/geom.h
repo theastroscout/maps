@@ -151,6 +151,7 @@ namespace surfy::geom {
 		double area = .0;
 		bool empty = true;
 		BBox bbox = {360, 180, -360, -180};
+		bool optimized;
 
 
 		union Geometry {
@@ -404,15 +405,15 @@ namespace surfy::geom {
 					}
 
 					if (!polygon.inner.coords.empty()) {
-						size_t outerSize = polygon.inner.coords.size();
-						polygon.inner.vertices = outerSize;
+						size_t innerSize = polygon.inner.coords.size();
+						polygon.inner.vertices = innerSize;
 
 						polygon.inner.empty = false;
 
 						polygon.inner.closed = utils::isClosed(polygon.inner.coords);
 
-						polygon.inner.length = utils::length(polygon.inner.coords, outerSize);
-						polygon.inner.area = utils::area(polygon.inner.coords, outerSize);
+						polygon.inner.length = utils::length(polygon.inner.coords, innerSize);
+						polygon.inner.area = utils::area(polygon.inner.coords, innerSize);
 
 						// Update Polygon
 						polygon.vertices += polygon.inner.vertices;
@@ -430,6 +431,11 @@ namespace surfy::geom {
 						geom.multiPolygon.vertices += polygon.vertices;
 						geom.multiPolygon.length += polygon.length;
 						geom.multiPolygon.area += polygon.area;
+					} else {
+						// Remove Empty Polygon
+						geom.multiPolygon.items.erase(geom.multiPolygon.items.begin() + i);
+						--geom.multiPolygon.size;
+						--i;
 					}
 					
 				}
@@ -440,6 +446,19 @@ namespace surfy::geom {
 				length = geom.multiPolygon.length;
 				area = geom.multiPolygon.area;
 
+				if (optimized && size == 1){
+					typeID = 4;
+					type = "Polygon";
+					types::Polygon onlyPoly = geom.multiPolygon.items[0];
+					new (&geom.polygon) types::Polygon();
+					geom.polygon = onlyPoly;
+
+					geom.polygon.vertices = vertices;
+					geom.polygon.length = length;
+					geom.polygon.area = area;
+					geom.polygon.empty = false;
+				}
+
 				if (vertices != 0) {
 					empty = false;
 				}
@@ -447,8 +466,7 @@ namespace surfy::geom {
 			}
 		}		
 
-		Shape(const std::string& src = "", const bool optimized = false) {
-			source = src; // Store source just in case
+		Shape(const std::string& src = "", const bool optimized = false): optimized(optimized), source(src) {
 
 			if (src.empty()) {
 				// Dummy Geometry
@@ -477,7 +495,7 @@ namespace surfy::geom {
 
 			} else if (src.find("MULTILINESTRING") != std::string::npos) {
 
-				typeID = 2;
+				typeID = 3;
 				type = "MultiLine";
 				new (&geom.multiLine) types::MultiLine();
 
@@ -501,7 +519,7 @@ namespace surfy::geom {
 
 			} else if (src.find("LINESTRING") != std::string::npos) {
 
-				typeID = 3;
+				typeID = 2;
 				type = "Line";
 				new (&geom.line) types::Line();
 
@@ -595,6 +613,8 @@ namespace surfy::geom {
 		}*/
 
 		Shape(const Shape& other) {
+			typeID = other.typeID;
+			optimized = other.optimized;
 			type = other.type;
 			source = other.source;
 			vertices = other.vertices;

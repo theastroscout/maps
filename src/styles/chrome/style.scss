@@ -8,7 +8,7 @@ $host: 'https://sandbox.maps.surfy.one';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$host}/tiles/canary;
+	--tiles: #{$host}/tiles/isle-of-dogs.v2;
 	--sprites: #{$host}'/styles/chrome/sprites.svg';
 
 	--dict: '';
