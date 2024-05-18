@@ -69,8 +69,8 @@ def getFeature(self, o, type_name):
 			if 'data' in spec:
 				for tag in spec['data']:
 					# name_spec = spec['data'][name]
-					field_name = tag['field']
-					data[field_name] = o.tags.get(field_name)
+					key_name = tag['key']
+					data[key_name] = o.tags.get(key_name)
 							
 			
 			return Feature(o.id, group, layer, data, None)
@@ -86,28 +86,29 @@ def addFeature(self, feature):
 
 	data = {
 		'oid': feature.oid,
+		'layer_id': self.config['layer_index'][feature.group + ':' + feature.layer],
+		'group_layer': feature.group + ':' + feature.layer,
 		'group': feature.group,
 		'layer': feature.layer,
-		'group_layer': feature.group + ':' + feature.layer,
 		'data': json.dumps(feature.data),
-		'coords': feature.coords.wkt,
-		'bounds': feature.coords.wkt
+		'coords': feature.coords.wkt
 	}
 
 	# print(data)
 
-	
+	'''
 	if feature.coords.geom_type != 'Point':
 		bbox = feature.coords.bounds
 		bounds = f'POLYGON(({bbox[0]} {bbox[1]}, {bbox[2]} {bbox[1]}, {bbox[2]} {bbox[3]}, {bbox[0]} {bbox[3]}, {bbox[0]} {bbox[1]}))'
 		data['bounds'] = bounds
+	'''
 
 	self.config['bbox'][0] = min(self.config['bbox'][0], feature.coords.bounds[0])
 	self.config['bbox'][1] = min(self.config['bbox'][1], feature.coords.bounds[1])
 	self.config['bbox'][2] = max(self.config['bbox'][2], feature.coords.bounds[2])
 	self.config['bbox'][3] = max(self.config['bbox'][3], feature.coords.bounds[3])
 	
-	self.db.cursor.execute('INSERT INTO features (`oid`,`group`,`layer`,`group_layer`,`data`,`coords`,`bounds`) VALUES (?, ?, ?, ?, ?, ST_GeomFromText(?), ST_GeomFromText(?))', tuple(data.values()) )
+	self.db.cursor.execute('INSERT INTO features (`oid`,`layer_id`,`group_layer`,`group`,`layer`,`data`,`coords`) VALUES (?, ?, ?, ?, ?, ?, ?)', tuple(data.values()) )
 	
 	self.db.conn.commit()
 

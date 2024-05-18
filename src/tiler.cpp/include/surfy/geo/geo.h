@@ -13,7 +13,7 @@ namespace surfy::geo {
 
 	using Tiles = std::vector<Tile>;
 
-	std::vector<double> normalize(double lng, double lat) {
+	std::array<double, 2> normalize(const double& lng, const double& lat) {
 		double x = lng / 360.0 + 0.5;
 		double sinlat = std::sin(lat * M_PI / 180.0);
 		double y = 0.5 - 0.25 * std::log((1.0 + sinlat) / (1.0 - sinlat)) / M_PI;
@@ -33,7 +33,16 @@ namespace surfy::geo {
 
 	*/
 
-	std::array<int, 4> tiles(int zoom, double x1, double y1, double x2, double y2) {
+	std::array<int, 2> tile(const int& zoom, const double& x, const double& y) {
+		int Z2 = std::pow(2, zoom);
+
+		int tileX = static_cast<int>(std::floor(x * Z2));
+		int tileY = static_cast<int>(std::floor(y * Z2));
+
+		return { tileX, tileY };
+	}
+
+	std::array<int, 4> tiles(const int& zoom, const double& x1, const double& y1, const double& x2, const double& y2) {
 		int Z2 = std::pow(2, zoom);
 
 		int west = static_cast<int>(std::floor(x1 * Z2));
@@ -50,7 +59,7 @@ namespace surfy::geo {
 
 	*/
 
-	Coords tileBBox(int zoom, int xtile, int ytile) {
+	Coords tileBBox(const int& zoom, const int& xtile, const int& ytile) {
 		double Z2 = std::pow(2, zoom);
 
 		double west = xtile / Z2 * 360.0 - 180.0;

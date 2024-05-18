@@ -345,13 +345,13 @@ def create_tile(data):
 				'''
 
 					tag: {
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 
 				'''
 
-				tag_name = tag['field']
+				tag_name = tag['key']
 				tag_type = tag['type']
 
 				if tag_name in feature.data:

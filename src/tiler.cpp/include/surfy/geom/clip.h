@@ -86,125 +86,6 @@ namespace surfy::geom {
 
 		*/
 
-		/*
-
-		Coords polygon(const Coords& subjectPolygon, const Coords& clipPolygon) {
-			Coords outputList = subjectPolygon;
-
-			for (int i = 0; i < clipPolygon.size(); i++) {
-				int k = (i + 1) % clipPolygon.size();
-				Coords inputList = outputList;
-				outputList.clear();
-
-				Point S = clipPolygon[i];
-				Point E = clipPolygon[k];
-
-				for (int j = 0; j < inputList.size(); j++) {
-					Point P = inputList[j];
-					Point Q = inputList[(j + 1) % inputList.size()];
-
-					double ix = P.x, iy = P.y, jx = Q.x, jy = Q.y;
-
-					double p1 = (S.x - E.x) * (iy - S.y) - (S.y - E.y) * (ix - S.x);
-					double p2 = (S.x - E.x) * (jy - S.y) - (S.y - E.y) * (jx - S.x);
-
-					if (p1 >= 0 && p2 >= 0) {
-						outputList.push_back(Q);
-					} else if (p1 < 0 && p2 >= 0) {
-						double x = ix + (jx - ix) * (S.y - iy) / (jy - iy);
-						double y = S.y;
-						outputList.push_back({x, y});
-					} else if (p1 >= 0 && p2 < 0) {
-						double x = ix + (jx - ix) * (S.y - iy) / (jy - iy);
-						double y = S.y;
-						outputList.push_back({x, y});
-						outputList.push_back(Q);
-					}
-				}
-			}
-
-			return outputList;
-		}
-
-		Coords polygon2(const Coords& input, const Coords& mask) {
-
-			Coords output = input;
-			
-			for (int i = 0; i < mask.size(); ++i) {
-				Coords input = output;
-				output.clear();
-				
-				const Point& a = mask[i];
-				const Point& b = mask[(i + 1) % mask.size()];
-				std::cout << a.x << ", " << a.y << std::endl;
-				std::cout << b.x << ", " << b.y << std::endl;
-				std::cout << "\n\n" << std::endl;
-
-				for (int j = 0; j < input.size(); ++j) {
-					const Point& p1 = input[j];
-					const Point& p2 = input[(j + 1) % input.size()];
-
-					double p1Side = (a.x - b.x) * (p1.y - a.y) - (a.y - b.y) * (p1.x - a.x);
-					double p2Side = (a.x - b.x) * (p2.y - a.y) - (a.y - b.y) * (p2.x - a.x);
-
-					// std::cout << "PushBack 1: " << p1Side << ", " << p2Side << std::endl;
-
-					if (p1Side >= 0) {
-						output.push_back(p1);
-					}
-
-					if (p1Side * p2Side < 0) {
-						// std::cout << "PushBack 2" << std::endl;
-						Point intersect;
-						intersect.x = (p1.x * p2Side - p2.x * p1Side) / (p2Side - p1Side);
-						intersect.y = (p1.y * p2Side - p2.y * p1Side) / (p2Side - p1Side);
-						output.push_back(intersect);
-					}
-				}
-			}
-
-			return output;
-		}
-
-		double intersection(const Point& a, const Point& b, const Point& c) {
-			return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-		}
-
-		// Sutherland-Hodgman algorithm for polygon clipping
-		Coords sutherlandHodgman(const Coords& subjectPolygon, const Coords& clipPolygon) {
-			Coords output = subjectPolygon;
-			for (size_t i = 0; i < clipPolygon.size(); ++i) {
-				Coords input = output;
-				output.clear();
-				const size_t numVertices = input.size();
-				const Point clipEdgeStart = clipPolygon[i];
-				const Point clipEdgeEnd = clipPolygon[(i + 1) % clipPolygon.size()];
-				for (size_t j = 0; j < numVertices; ++j) {
-					const Point vertex1 = input[j];
-					const Point vertex2 = input[(j + 1) % numVertices];
-					if (intersection(clipEdgeStart, clipEdgeEnd, vertex2) >= 0) {
-						if (intersection(clipEdgeStart, clipEdgeEnd, vertex1) < 0) {
-							const double t = intersection(clipEdgeStart, clipEdgeEnd, vertex2) /
-											  (intersection(clipEdgeStart, clipEdgeEnd, vertex2) -
-											   intersection(clipEdgeStart, clipEdgeEnd, vertex1));
-							output.push_back(Point{vertex2.x + t * (vertex1.x - vertex2.x),
-												   vertex2.y + t * (vertex1.y - vertex2.y)});
-						}
-						output.push_back(vertex2);
-					} else if (intersection(clipEdgeStart, clipEdgeEnd, vertex1) >= 0) {
-						const double t = intersection(clipEdgeStart, clipEdgeEnd, vertex2) /
-										  (intersection(clipEdgeStart, clipEdgeEnd, vertex2) -
-										   intersection(clipEdgeStart, clipEdgeEnd, vertex1));
-						output.push_back(Point{vertex2.x + t * (vertex1.x - vertex2.x),
-											   vertex2.y + t * (vertex1.y - vertex2.y)});
-					}
-				}
-			}
-			return output;
-		}
-
-		*/
-
 		Point intersect(Point s, Point e, Point cp1, Point cp2) {
 			double A1 = e.y - s.y;
 			double B1 = s.x - e.x;
@@ -256,8 +137,6 @@ namespace surfy::geom {
 
 			return output;
 		}
-
-
 
 	}
 

@@ -6,6 +6,8 @@
 #include <fstream>
 #include <vector>
 
+#include <regex>
+
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -24,29 +26,26 @@ namespace sg = surfy::geom;
 #include "include/surfy/sqlite/sqlite.h"
 surfy::SQLite db;
 
+std::regex bracket_pattern("\\s*\\(.*?\\)\\s*");
 
 // Global Config
 json config;
 std::array<int, 10> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15, 16, 17 };
-std::vector<json> layersConfig = {
-	{
-		{ "name", "undefined" }
-	}
-};
+std::vector<json> layersConfig = json::array();
 
 struct Row {
 	int oid;
 	int geomType;
 	int layerID;
 	std::string data;
-	std::string coords;
+	std::string geom;
 
 	std::string toString() {
 		return std::to_string(oid) + "\t" +
 			   std::to_string(geomType) + "\t" +
 			   std::to_string(layerID) + "\t" +
 			   data + "\t" +
-			   coords;
+			   geom;
 	}
 };
 
@@ -78,22 +77,40 @@ config["group_index"]: {
 
 */
 
-void featureHandler(const json& feature) {
+void writeOrAppendToFile(const std::string& filePath, const std::string& line) {
+	std::fstream file;
+	if (std::filesystem::exists(filePath)) {
+		// File exists, open in append mode
+		file.open(filePath, std::ios::out | std::ios::app);
+		if (!file.is_open()) {
+			std::cerr << "Error opening file for appending: " << filePath << std::endl;
+			return;
+		}
+		file << line << std::endl;
+	} else {
+		// File does not exist, create and write the first line
+		file.open(filePath, std::ios::out);
+		if (!file.is_open()) {
+			std::cerr << "Error creating file: " << filePath << std::endl;
+			return;
+		}
+		file << line << std::endl;
+	}
+	file.close();
+}
 
-	/*
+/*
 
-	For any polygon min Simplifier is .00001
-
-	*/
+void featureHandler_work(const json& feature) {
 
 	sg::Shape shape(feature["coords"], true);
 	const json& layerConfig = layersConfig[feature["layer_idx"]];
 
-	std::vector<double> westSouth;
-	std::vector<double> eastNorth;
+	std::array<double, 2> westSouth;
+	std::array<double, 2> eastNorth;
 
-	print(feature);
-	print("Shaped Feature", shape);
+	// print(feature);
+	// print("Shaped Feature", shape);
 
 	if (shape.type == "Polygon") {
 		westSouth = surfy::geo::normalize(shape.bbox[0], shape.bbox[3]);
@@ -109,7 +126,7 @@ void featureHandler(const json& feature) {
 
 				for (int x = bounds[0]; x < bounds[2]; ++x) {
 					for (int y = bounds[1]; y < bounds[3]; ++y) {
-						print(zoom, x, y, clip);
+						// print(zoom, x, y, clip);
 						
 						sg::Shape newShape = shape;
 
@@ -117,12 +134,7 @@ void featureHandler(const json& feature) {
 							sg::Coords mask = surfy::geo::tileBBox(zoom, x, y);
 							newShape.clip(mask);
 						}
-
-						/*
-
-						Compressor
-
-						*/						
+					
 
 						if (layerConfig.contains("compress") && layerConfig["compress"].contains(zoomStr)) {
 							const json& compressor = layerConfig["compress"][zoomStr];
@@ -131,7 +143,7 @@ void featureHandler(const json& feature) {
 								newShape.simplify(compressor["simplify"]);
 							}
 
-							if (compressor.contains("drop") && shape.area < compressor["drop"]) {
+							if (compressor.contains("drop") && newShape.area < compressor["drop"]) {
 								continue;
 							}
 						}
@@ -143,19 +155,228 @@ void featureHandler(const json& feature) {
 							"",
 							newShape.compressed()
 						});
-						print("\n\n");
+
 						std::string path = config["data"].get<std::string>() + "/" + std::to_string(zoom) + "/" + std::to_string(x);
-						print("Path:", path);
 						fs::create_directories(path);
-						print("Line:", line.toString());
-						print("\n\n");
 
 						std::string tilePath = path + "/" + std::to_string(y);
 
-						std::ofstream tileFile;
-						tileFile.open(tilePath);
-						tileFile << line.toString() + "\n";
-						tileFile.close();
+						writeOrAppendToFile(tilePath, line.toString());
+						
+					}
+				}
+			}
+		}
+	}
+}
+*/
+/*
+void parsePolygon(const sg::Shape& shape, const int& zoom, const int& x, const int& y, bool& clip, const json& layerConfig, const json& feature) {
+
+	const std::string zoomStr = std::to_string(zoom);
+	sg::Shape newShape = shape;
+
+	if (clip) {
+		sg::Coords mask = surfy::geo::tileBBox(zoom, x, y);
+		newShape.clip(mask);
+	}
+					
+
+	if (layerConfig.contains("compress") && layerConfig["compress"].contains(zoomStr)) {
+		const json& compressor = layerConfig["compress"][zoomStr];
+
+		if (compressor.contains("simplify")) {
+			newShape.simplify(compressor["simplify"]);
+		}
+
+		if (compressor.contains("drop") && newShape.area < compressor["drop"]) {
+			return;
+		}
+	}
+
+	Row line({
+		feature["oid"],
+		shape.typeID,
+		feature["layer_idx"],
+		"",
+		newShape.compressed()
+	});
+
+	std::string path = config["data"].get<std::string>() + "/" + std::to_string(zoom) + "/" + std::to_string(x);
+	fs::create_directories(path);
+
+	std::string tilePath = path + "/" + std::to_string(y);
+
+	writeOrAppendToFile(tilePath, line.toString());
+}
+*/
+
+std::string featureData(const json& feature, const json& layerConfig) {
+	std::string data;
+
+	if (layerConfig.contains("data") && feature.contains("data")) {
+		bool first = true;
+		for (const auto& item : layerConfig["data"]) {
+			if (!first) {
+				data += '\t';
+			}
+
+			std::string k = item["key"];
+			
+			if (feature["data"].contains(k)) {
+				
+				std::string v = feature["data"][k];
+
+				if (item["type"].is_string()) {
+
+					if (item["type"] == "*") {
+						v = std::regex_replace(v, bracket_pattern, "");
+						data += v;
+					} else if (item["type"] == "bool") {
+						data += "1";
+					}
+
+				} else if (item["type"].is_array()) {
+
+					for (int i = 0, l = item["type"].size(); i < l; ++i) {
+						if (item["type"][i]["name"] == v) {
+							data += std::to_string(i);
+							break;
+						}
+					}
+				}
+			}
+
+			first = false;
+		}
+	}
+
+	return data;
+}
+
+void polygon(sg::types::Polygon& polygon, const json& layerConfig) {
+	/*
+	if (layerConfig.contains("compress") && layerConfig["compress"].contains(zoomStr)) {
+		const json& compressor = layerConfig["compress"][zoomStr];
+
+		if (compressor.contains("simplify")) {
+			newShape.simplify(compressor["simplify"]);
+		}
+
+		if (compressor.contains("drop") && newShape.area < compressor["drop"]) {
+			return;
+		}
+	}*/
+}
+
+void featureHandler(const json& feature) {
+
+	/*
+
+	For any polygon default Simplifier is .00001
+
+	*/
+
+	sg::Shape shape(feature["coords"], true);
+	const json& layer = layersConfig[feature["layer_id"]];
+
+	std::array<double, 2> westSouth;
+	std::array<double, 2> eastNorth;
+
+	std::string data = featureData(feature, layer);
+
+	print(feature);
+	print(shape.type);
+
+	/*
+
+	Prepare a Row to write to the file
+
+	*/
+
+	Row row({
+		feature["id"],
+		shape.typeID,
+		feature["layer_id"],
+		data
+	});
+
+	if (shape.type == "Point") {
+
+		westSouth = surfy::geo::normalize(shape.geom.point.x, shape.geom.point.y);
+
+		row.geom = shape.compressed();
+
+		std::string stringLine = row.toString();
+
+		for (int zoom : zoomLevels) {
+			if (zoom >= layer["minzoom"]) {
+				std::array<int, 2> tile = surfy::geo::tile(zoom, westSouth[0], westSouth[1]);
+				print("Store Point:", zoom, tile[0], tile[1], "Data:", stringLine);
+			}
+		}
+
+	} else if (shape.type == "Polygon" || shape.type == "MultiPolygon") {
+		westSouth = surfy::geo::normalize(shape.bbox[0], shape.bbox[3]);
+		eastNorth = surfy::geo::normalize(shape.bbox[2], shape.bbox[1]);
+
+
+		for (int zoom : zoomLevels) {
+			
+			if (zoom >= layer["minzoom"]) {
+
+				const std::string zoomStr = std::to_string(zoom);
+
+				// Get all tiles
+				std::array<int, 4> tiles = surfy::geo::tiles(zoom, westSouth[0], westSouth[1], eastNorth[0], eastNorth[1]);
+				
+				/*
+
+				Number of Tiles for one Zoom, if more than 1, we need to clip.
+
+				*/
+
+				bool clip = ((tiles[2] - tiles[0]) * (tiles[3] - tiles[1]) > 1);
+
+				for (int x = tiles[0]; x < tiles[2]; ++x) {
+					for (int y = tiles[1]; y < tiles[3]; ++y) {
+
+						sg::Shape newShape = shape;
+
+						if (shape.type == "Polygon") {
+							
+							if (layer.contains("compress") && layer["compress"].contains(zoomStr)) {
+								const json& compressor = layer["compress"][zoomStr];
+
+								if (compressor.contains("simplify")) {
+									newShape.simplify(compressor["simplify"]);
+								}
+
+								if (compressor.contains("drop") && newShape.area < compressor["drop"]) {
+									continue;
+								}
+							}
+
+							if (clip) {
+								sg::Coords mask = surfy::geo::tileBBox(zoom, x, y);
+								newShape.clip(mask);
+							}
+
+							row.geom = newShape.compressed();
+							print("Store Polygon:", zoom, x, y, "Data:", row.toString());
+
+						} else {
+
+							/*
+
+							MultiPolygon
+
+							*/
+
+							row.geom = newShape.compressed();
+							print("Store MultiPolygon:", zoom, x, y, "Data:", row.toString());
+						}
+						
 					}
 				}
 			}
@@ -241,7 +462,7 @@ public:
 				from = i;
 				limit = (from + chunkSize > end) ? (end - from) : chunkSize;
 
-				std::string query = "SELECT id, oid, group_layer, layer_idx, `group`, layer, data, coords, bounds FROM features_norm LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(from);
+				std::string query = "SELECT id, oid, layer_id, group_layer, `group`, layer, data, coords FROM features LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(from);
 				dbT.find(query, {}, featureHandler);
 			}
 
@@ -292,7 +513,8 @@ int main() {
 	configPath += "/config.json";
 	print("Config Path: " + configPath);
 
-	json tilesConfig = json::array({ { "name", "undefined" } });
+	// json tilesConfig = json::array({ { "name", "undefined" } });
+	json tilesConfig = json::array();
 
 	int layerID = 0;
 	for (auto& [groupName, groupData] : config["groups"].items()) {
@@ -302,19 +524,33 @@ int main() {
 			json layerConfig = {
 				{ "id", layerID },
 				{ "group", groupName },
-				{ "layer", layerName },
-				{ "minzoom", layerData["minzoom"] },
-				{ "data", layerData["data"] },
-				{ "compress", layerData["compress"] }
+				{ "layer", layerName }
 			};
+
+			if (layerData.contains("minzoom")) {
+				layerConfig["minzoom"] = layerData["minzoom"];
+			}
+
+			if (layerData.contains("data")) {
+				layerConfig["data"] = layerData["data"];
+			}
+
+			if (layerData.contains("compress")) {
+				layerConfig["compress"] = layerData["compress"];
+			}
 
 			layersConfig.push_back(layerConfig);
 
-			tilesConfig.push_back({
+			json tileConfig = {
 				{ "group", groupName },
-				{ "layer", layerName },
-				{ "data", layerData["data"] }
-			});
+				{ "layer", layerName }
+			};
+
+			if (layerData.contains("data")) {
+				tileConfig["data"] = layerData["data"];
+			}
+
+			tilesConfig.push_back(tileConfig);
 
 			layerID++;
 		}
@@ -329,25 +565,25 @@ int main() {
 	json bbox = bboxData["data"];
 	print("BBox: ", bbox);
 
+	
+	/*
 
-	std::string query = "SELECT id, oid, group_layer, layer_idx, `group`, layer, data, coords, bounds FROM features_norm WHERE layer='houses' LIMIT 1";
+	Test Isle of Dogs
+	29 - Point
+	2052 - House Polygon
+	11189 - House MultiPolygon
+
+	*/
+
+	std::string query = "SELECT id, oid, layer_id, group_layer, `group`, layer, data, coords FROM features WHERE id=11189";
 	json result = db.findOne(query);
+	
 	if (result["_status"] == true) {
 		featureHandler(result);
 	}
+	
+	return 0;
 
-	print("????");
-
-	query = "SELECT id, oid, group_layer, layer_idx, `group`, layer, data, coords, bounds FROM features_norm WHERE layer='houses' LIMIT 1 OFFSET 1";
-	result = db.findOne(query);
-	if (result["_status"] == true) {
-		featureHandler(result);
-		print(2);
-	} else {
-		print(3);
-	}
-
-	return 1;
 
 	json featuresCount = db.findOne("SELECT COUNT(1) as count FROM features");
 	

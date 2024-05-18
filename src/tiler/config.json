@@ -2,6 +2,10 @@
 	"name": "Surfy° Maps",
 	"groups": {
 
+		"unclassified": {
+			"dummy": {}
+		},
+
 		"areas": {
 			"boundaries": {
 				"minzoom": 8,
@@ -38,7 +42,7 @@
 				"minzoom": 10,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -78,7 +82,7 @@
 				"minzoom": 12,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -106,7 +110,7 @@
 				"minzoom": 10,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -156,7 +160,7 @@
 				"minzoom": 16,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -180,7 +184,7 @@
 				"minzoom": 15,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -201,7 +205,7 @@
 				"minzoom": 15,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -225,7 +229,7 @@
 				"minzoom": 16,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -249,7 +253,7 @@
 				"minzoom": 14,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -285,7 +289,7 @@
 				"minzoom": 14,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -313,7 +317,7 @@
 				"minzoom": 15,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -337,7 +341,7 @@
 				"minzoom": 17,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -356,7 +360,7 @@
 				"minzoom": 12,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -372,7 +376,7 @@
 				"minzoom": 14,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				],
@@ -407,11 +411,11 @@
 				"minzoom": 15,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					},
 					{
-						"field": "network",
+						"key": "network",
 						"type": [
 							{
 								"name": "Default",
@@ -446,7 +450,7 @@
 				"minzoom": 14,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				]
@@ -456,11 +460,11 @@
 				"minzoom": 8,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					},
 					{
-						"field": "capital",
+						"key": "capital",
 						"type": "bool"
 					}
 				]
@@ -477,7 +481,7 @@
 				"minzoom": 2,
 				"data": [
 					{
-						"field": "name",
+						"key": "name",
 						"type": "*"
 					}
 				]

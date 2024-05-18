@@ -45,31 +45,46 @@ class Parse:
 		# Create DB
 		conn = sqlite3.connect(self.config['db_file'])
 		conn.enable_load_extension(True)
-		conn.execute("SELECT load_extension('mod_spatialite')")
+		# conn.execute("SELECT load_extension('mod_spatialite')")
 		cursor = conn.cursor()
-		cursor.execute('SELECT InitSpatialMetadata(1)')
+		# cursor.execute('SELECT InitSpatialMetadata(1)')
 		cursor.execute('''
 			CREATE TABLE features (
 				`id` INTEGER PRIMARY KEY,
 				`oid` INTEGER,
+				`layer_id` INTEGER,
+				`group_layer` TEXT,
 				`group` TEXT,
 				`layer` TEXT,
-				`group_layer` TEXT,
 				`data` TEXT,
-				`coords` GEOMETRY,
-				`bounds` GEOMETRY
+				`coords` TEXT
 			)
 		''')
-		cursor.execute('CREATE INDEX idx_geom ON features(bounds);')
+		# cursor.execute('CREATE INDEX idx_geom ON features(bounds);')
 
 		cursor.execute('''
-			CREATE TABLE config_data (
+			CREATE TABLE config (
 				`id` INTEGER PRIMARY KEY,
 				`name` TEXT,
 				`data` TEXT
 			)
 		''')
 		conn.commit()
+
+		'''
+
+		Layers Index
+
+		'''
+
+		self.config['layer_index'] = {};
+		layer_id = 0 # Layer ID
+		for group_name, group in self.config["groups"].items():
+
+			for layer_name, layer in group.items():
+				self.config['layer_index'][group_name + ":" + layer_name] = layer_id;
+				layer_id += 1;
+
 
 		# DB Object
 		self.db = DB(conn, cursor)
@@ -97,7 +112,7 @@ class Parse:
 
 
 		print('Bounding Box:', self.config['bbox'])
-		self.db.cursor.execute('INSERT INTO config_data (`name`,`data`) VALUES (?, ?)', ('bbox', json.dumps(self.config['bbox'])) )
+		self.db.cursor.execute('INSERT INTO config (`name`,`data`) VALUES (?, ?)', ('bbox', json.dumps(self.config['bbox'])) )
 		# self.db.cursor.execute('ANALYZE;')
 		self.db.conn.commit()
 
@@ -118,8 +133,9 @@ class Parse:
 if __name__ == '__main__':
 	start_time = time.time()
 
-	config_name = 'canary'
-	# config_name = 'isle-of-dogs'
+	# config_name = 'canary'
+	# config_name = 'isle-of-dogs';
+	config_name = 'isle-of-dogs.v2';
 	# config_name = 'london'
 	
 	settings = json.load(open('./configs/{}.json'.format(config_name), 'r'))
