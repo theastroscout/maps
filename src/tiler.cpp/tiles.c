@@ -99,6 +99,18 @@ void writeOrAppendToFile(const std::string& filePath, const std::string& line) {
 	file.close();
 }
 
+void write(const std::string& filePath, const std::string& line) {
+	std::ofstream file(filePath, std::ios::app);
+
+	if (!file.is_open()) {
+		std::cerr << "Error opening file for appending: " << filePath << std::endl;
+		return;
+	}
+
+	file << line << std::endl;
+	file.close();
+}
+
 /*
 
 void featureHandler_work(const json& feature) {
@@ -224,7 +236,11 @@ std::string featureData(const json& feature, const json& layerConfig) {
 			std::string k = item["key"];
 			
 			if (feature["data"].contains(k)) {
-				
+					
+				if(feature["data"][k].is_null()) {
+					continue;
+				}
+
 				std::string v = feature["data"][k];
 
 				if (item["type"].is_string()) {
@@ -283,10 +299,13 @@ void featureHandler(const json& feature) {
 	std::array<double, 2> westSouth;
 	std::array<double, 2> eastNorth;
 
+	// print(feature);
+	// print(layer);
+
+	// print("Before Data");
 	std::string data = featureData(feature, layer);
 
-	print(feature);
-	print(shape.type);
+	// print(shape.type);
 
 	/*
 
@@ -307,19 +326,23 @@ void featureHandler(const json& feature) {
 
 		row.geom = shape.compressed();
 
-		std::string stringLine = row.toString();
+		std::string pointLine = row.toString();
 
 		for (int zoom : zoomLevels) {
 			if (zoom >= layer["minzoom"]) {
 				std::array<int, 2> tile = surfy::geo::tile(zoom, westSouth[0], westSouth[1]);
-				print("Store Point:", zoom, tile[0], tile[1], "Data:", stringLine);
+				// print("Store Point:", zoom, tile[0], tile[1], "Data:", pointLine);
+
+				std::string path = config["data"].get<std::string>() + "/" + std::to_string(zoom) + "/" + std::to_string(tile[0]);
+				fs::create_directories(path);
+				std::string tilePath = path + "/" + std::to_string(tile[1]);
+				write(tilePath, pointLine);
 			}
 		}
 
-	} else if (shape.type == "Polygon" || shape.type == "MultiPolygon") {
+	} else if (shape.type == "Polygon" || shape.type == "MultiPolygon" || shape.type == "Line" || shape.type == "Line") {
 		westSouth = surfy::geo::normalize(shape.bbox[0], shape.bbox[3]);
 		eastNorth = surfy::geo::normalize(shape.bbox[2], shape.bbox[1]);
-
 
 		for (int zoom : zoomLevels) {
 			
@@ -353,17 +376,24 @@ void featureHandler(const json& feature) {
 						zoomShape.simplify(compressor["simplify"]);
 					}
 
-					if (compressor.contains("drop") && zoomShape.area < compressor["drop"]) {
-						continue;
+					if (compressor.contains("drop")) {
+						if (zoomShape.type == "Line" && zoomShape.length < compressor["drop"]) {
+							continue;
+						} else if((zoomShape.type == "Polygon" || zoomShape.type == "MultiPolygon") && zoomShape.area < compressor["drop"]) {
+							continue;
+						}
 					}
 				}
 
+				
+
 				for (int x = tiles[0]; x < tiles[2]; ++x) {
+					std::string path = config["data"].get<std::string>() + "/" + zoomStr + "/" + std::to_string(x);
+					fs::create_directories(path);
+
 					for (int y = tiles[1]; y < tiles[3]; ++y) {
 
-						
 						sg::Shape tileShape = zoomShape;
-
 
 						if (clip) {
 							sg::Coords mask = surfy::geo::tileBBox(zoom, x, y);
@@ -371,7 +401,10 @@ void featureHandler(const json& feature) {
 						}
 
 						row.geom = tileShape.compressed();
-						print("Store:", shape.type, zoom, x, y, "Data:", row.toString());
+						// print("Store:", shape.type, zoom, x, y, "Data:", row.toString());
+
+						std::string tilePath = path + "/" + std::to_string(y);
+						write(tilePath, row.toString());
 						
 					}
 				}
@@ -568,10 +601,11 @@ int main() {
 	29 - Point
 	2052 - House Polygon
 	11189 - House MultiPolygon
+	30 - Road LineString
 
-	*/
+	
 
-	std::string query = "SELECT id, oid, layer_id, group_layer, `group`, layer, data, coords FROM features WHERE id=11189";
+	std::string query = "SELECT id, oid, layer_id, group_layer, `group`, layer, data, coords FROM features WHERE id=30";
 	json result = db.findOne(query);
 	
 	if (result["_status"] == true) {
@@ -579,6 +613,7 @@ int main() {
 	}
 	
 	return 0;
+	*/
 
 
 	json featuresCount = db.findOne("SELECT COUNT(1) as count FROM features");

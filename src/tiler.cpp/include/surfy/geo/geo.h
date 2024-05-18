@@ -47,6 +47,9 @@ namespace surfy::geo {
 
 		int west = static_cast<int>(std::floor(x1 * Z2));
 		int north = static_cast<int>(std::floor(y1 * Z2));
+
+		// Maybe we need to use floor instead of ceil, should be tested.
+		
 		int east = static_cast<int>(std::ceil(x2 * Z2));
 		int south = static_cast<int>(std::ceil(y2 * Z2));
 

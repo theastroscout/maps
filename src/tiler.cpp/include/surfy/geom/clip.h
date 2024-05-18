@@ -9,11 +9,25 @@ namespace surfy::geom {
 	namespace clippers {
 
 		/*
-
-		Finds Intersection of two Segments
+	
+		Ray-Casting
+		Check if point is inside our mask
 
 		*/
 
+		bool insidePolygon(const Point& p, const Coords& poly) {
+			int n = poly.size();
+			bool result = false;
+			for (int i = 0, j = n - 1; i < n; j = i++) {
+				if (((poly[i].y > p.y) != (poly[j].y > p.y)) &&
+					(p.x < (poly[j].x - poly[i].x) * (p.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)) {
+					result = !result;
+				}
+			}
+			return result;
+		}
+
+		// Find the intersection point of two line segments
 		bool segmentIntersection(const Point& p1, const Point& p2, const Point& p3, const Point& p4, Point& intersection) {
 			double x1 = p1.x, y1 = p1.y;
 			double x2 = p2.x, y2 = p2.y;
@@ -39,103 +53,101 @@ namespace surfy::geom {
 
 		/*
 
-		Clip Line by Mask
+		Clip a line by mask (polygon)
+		Cyrus-Beck algorithm
 
 		*/
 
 		Coords line(const Coords& line, const Coords& mask) {
 			Coords clipped;
 			size_t maskSize = mask.size();
-			for (int i = 0, l = line.size(); i < l; ++i) {
+			for (size_t i = 0; i < line.size(); ++i) {
 				Point p = line[i];
-				bool isInside = utils::inside(p, mask);
+				bool isInside = insidePolygon(p, mask);
 
 				if (isInside) {
 					clipped.push_back(p);
-				} else if (i > 0) {
-					Point intersection;
-					Point p1 = line[i];
-					Point p2 = line[i - 1];
-
-					for (int m=0, l = maskSize - 1; m < l; ++m) {
-						Point p3 = mask[m];
-						Point p4 = mask[m + 1];
-						bool intersected = segmentIntersection(p1, p2, p3, p4, intersection);
-						if (intersected) {
-							clipped.push_back(intersection);
-							break;
+					if (i > 0 && !insidePolygon(line[i - 1], mask)) {
+						Point intersection;
+						for (size_t m = 0; m < maskSize - 1; ++m) {
+							if (segmentIntersection(line[i - 1], p, mask[m], mask[m + 1], intersection)) {
+								clipped.insert(clipped.end() - 1, intersection);
+							}
 						}
 					}
-
+				} else if (i > 0 && insidePolygon(line[i - 1], mask)) {
+					Point intersection;
+					for (size_t m = 0; m < maskSize - 1; ++m) {
+						if (segmentIntersection(line[i - 1], p, mask[m], mask[m + 1], intersection)) {
+							clipped.push_back(intersection);
+						}
+					}
 				}
 			}
-			
 			return clipped;
 		}
 
+		// Find intersection of two segments (lines);
+		Point intersect(const Point& p1, const Point& p2, const Point& q1, const Point& q2) {
+			double a1 = p2.y - p1.y;
+			double b1 = p1.x - p2.x;
+			double c1 = a1 * p1.x + b1 * p1.y;
+
+			double a2 = q2.y - q1.y;
+			double b2 = q1.x - q2.x;
+			double c2 = a2 * q1.x + b2 * q1.y;
+
+			double determinant = a1 * b2 - a2 * b1;
+
+			if (determinant == 0) {
+				return {0, 0}; // Lines are parallel
+			} else {
+				double x = (b2 * c1 - b1 * c2) / determinant;
+				double y = (a1 * c2 - a2 * c1) / determinant;
+				return {x, y};
+			}
+		}
+
 		/*
-
-
-		
-		Clipping Polygon by Mask
-		Sutherland-Hodgman algorithm
-
-		Mask Polygon should be sorted couterclockwise
-
-
+	
+		Cross Product
+		Returns true if the point is on the left side of the line segment, false otherwise.
 
 		*/
 
-		Point intersect(Point s, Point e, Point cp1, Point cp2) {
-			double A1 = e.y - s.y;
-			double B1 = s.x - e.x;
-			double C1 = A1 * s.x + B1 * s.y;
-
-			double A2 = cp2.y - cp1.y;
-			double B2 = cp1.x - cp2.x;
-			double C2 = A2 * cp1.x + B2 * cp1.y;
-
-			double det = A1 * B2 - A2 * B1;
-
-			if (det == 0) {
-				return {0, 0}; // Lines are parallel, no intersection
-			}
-
-			double x = (B2 * C1 - B1 * C2) / det;
-			double y = (A1 * C2 - A2 * C1) / det;
-			return {x, y};
+		bool crossProduct(const Point& p, const Point& p1, const Point& p2) {
+			return (p2.x - p1.x) * (p.y - p1.y) - (p2.y - p1.y) * (p.x - p1.x) >= 0;
 		}
 
-		bool inside(Point p, Point cp1, Point cp2) {
-			return (cp2.x - cp1.x) * (p.y - cp1.y) >= (cp2.y - cp1.y) * (p.x - cp1.x);
-		}
+		// Sutherland-Hodgman polygon clipping algorithm
+		Coords sutherlandHodgman(const Coords& subjectPolygon, const Coords& clipPolygon) {
+			Coords outputList = subjectPolygon;
+			int clipPolygonSize = clipPolygon.size();
 
-		Coords sutherlandHodgman(const Coords& subject, const Coords& clip) {
-			Coords output = subject;
+			for (int i = 0; i < clipPolygonSize; i++) {
+				Coords inputList = outputList;
+				outputList.clear();
 
-			for (size_t i = 0; i < clip.size(); ++i) {
-				Coords input = output;
-				output.clear();
+				Point A = clipPolygon[i];
+				Point B = clipPolygon[(i + 1) % clipPolygonSize];
 
-				Point cp1 = clip[i];
-				Point cp2 = clip[(i + 1) % clip.size()];
+				int inputListSize = inputList.size();
+				for (int j = 0; j < inputListSize; j++) {
+					Point P = inputList[j];
+					Point Q = inputList[(j + 1) % inputListSize];
 
-				for (size_t j = 0; j < input.size(); ++j) {
-					Point s = input[j];
-					Point e = input[(j + 1) % input.size()];
-
-					if (inside(e, cp1, cp2)) {
-						if (!inside(s, cp1, cp2)) {
-							output.push_back(intersect(s, e, cp1, cp2));
+					if (crossProduct(Q, A, B)) {
+						if (!crossProduct(P, A, B)) {
+							outputList.push_back(intersect(P, Q, A, B));
 						}
-						output.push_back(e);
-					} else if (inside(s, cp1, cp2)) {
-						output.push_back(intersect(s, e, cp1, cp2));
+						outputList.push_back(Q);
+					} else if (crossProduct(P, A, B)) {
+						outputList.push_back(intersect(P, Q, A, B));
 					}
 				}
 			}
 
-			return output;
+			return outputList;
 		}
 
 	}

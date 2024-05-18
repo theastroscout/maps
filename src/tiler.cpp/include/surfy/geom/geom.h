@@ -224,6 +224,8 @@ namespace surfy::geom {
 			std::stringstream os;
 			if (type == "Point") {
 				print::point(os, geom.point, true);
+			} else if (type == "Line") {
+				print::line(os, geom.line.coords, true);
 			} else if (type == "Polygon") {
 				print::polygon(os, geom.polygon, true);
 			} else if (type == "MultiPolygon") {
