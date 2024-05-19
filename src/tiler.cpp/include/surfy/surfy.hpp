@@ -2,7 +2,7 @@
 #define SURFY_HPP
 
 #include <mutex>
-#include "../json.h"
+#include "../json.hpp"
 
 namespace surfy {
 	using json = nlohmann::ordered_json;

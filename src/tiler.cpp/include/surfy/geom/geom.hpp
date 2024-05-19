@@ -348,7 +348,7 @@ namespace surfy::geom {
 					// Update Polygon
 					geom.polygon.vertices += geom.polygon.inner.vertices;
 					geom.polygon.length += geom.polygon.inner.length;
-					geom.polygon.area += geom.polygon.inner.area;
+					geom.polygon.area -= geom.polygon.inner.area; // Inner Polygon subsctruct Outer Polygon
 
 					BBox innerBBox = utils::bbox(geom.polygon.inner.coords);
 					bbox[0] = std::min(bbox[0], innerBBox[0]);
@@ -418,7 +418,7 @@ namespace surfy::geom {
 						// Update Polygon
 						polygon.vertices += polygon.inner.vertices;
 						polygon.length += polygon.inner.length;
-						polygon.area += polygon.inner.area;
+						polygon.area -= polygon.inner.area;
 						
 						BBox innerBBox = utils::bbox(polygon.inner.coords);
 						bbox[0] = std::min(bbox[0], innerBBox[0]);
@@ -645,10 +645,10 @@ namespace surfy::geom {
 	};
 }
 
-#include "print.h"
-#include "utils.h"
-#include "parser.h"
-#include "clip.h"
-#include "simplify.h"
+#include "print.hpp"
+#include "utils.hpp"
+#include "parser.hpp"
+#include "clip.hpp"
+#include "simplify.hpp"
 
 #endif

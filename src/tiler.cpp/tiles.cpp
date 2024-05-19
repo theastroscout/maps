@@ -11,19 +11,19 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "include/json.h"
+#include "include/json.hpp"
 using json = nlohmann::ordered_json;
 
-#include "include/surfy/surfy.h"
-#include "include/surfy/utils/utils.h"
+#include "include/surfy/surfy.hpp"
+#include "include/surfy/utils/utils.hpp"
 using surfy::utils::print;
 
-#include "include/surfy/geom/geom.h"
+#include "include/surfy/geom/geom.hpp"
 namespace sg = surfy::geom;
 
-#include "include/surfy/geo/geo.h"
+#include "include/surfy/geo/geo.hpp"
 
-#include "include/surfy/sqlite/sqlite.h"
+#include "include/surfy/sqlite/sqlite.hpp"
 surfy::SQLite db;
 
 std::regex bracket_pattern("\\s*\\(.*?\\)\\s*");
@@ -31,6 +31,7 @@ std::regex bracket_pattern("\\s*\\(.*?\\)\\s*");
 // Global Config
 json config;
 std::array<int, 10> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15, 16, 17 };
+// std::array<int, 8> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15};
 std::vector<json> layersConfig = json::array();
 
 struct Row {
@@ -170,8 +171,6 @@ void featureHandler(const json& feature) {
 
 	*/
 
-
-
 	sg::Shape shape(feature["coords"], true);
 	const json& layer = layersConfig[feature["layer_id"]];
 
@@ -241,7 +240,7 @@ void featureHandler(const json& feature) {
 
 				*/
 
-				bool clip = ((tiles[2] - tiles[0]) * (tiles[3] - tiles[1]) > 1);
+				bool clip = ((tiles[2] - tiles[0]) * (tiles[3] - tiles[1]) > 1 && feature["layer"] != "houses");
 
 				sg::Shape zoomShape = shape;
 
@@ -261,8 +260,32 @@ void featureHandler(const json& feature) {
 					if (compressor.contains("drop")) {
 						if (zoomShape.type == "Line" && zoomShape.length < compressor["drop"]) {
 							continue;
-						} else if((zoomShape.type == "Polygon" || zoomShape.type == "MultiPolygon") && zoomShape.area < compressor["drop"]) {
+						} else if(zoomShape.type == "Polygon" && zoomShape.area < compressor["drop"]) {
 							continue;
+						} else if(zoomShape.type == "MultiPolygon"){
+							for (int i = 0; i < zoomShape.size; ++i) {
+								sg::types::Polygon& poly = zoomShape.geom.multiPolygon.items[i];
+								if (poly.area < compressor["drop"]) {
+									zoomShape.geom.multiPolygon.items.erase(zoomShape.geom.multiPolygon.items.begin() + i);
+									--zoomShape.size;
+									--zoomShape.geom.multiPolygon.size;
+									--i;
+								}
+							}
+
+							if (zoomShape.size == 0) {
+								continue;
+							} else if (zoomShape.size == 1) {
+								zoomShape.typeID = 4;
+								zoomShape.type = "Polygon";
+								sg::types::Polygon onlyPoly = zoomShape.geom.multiPolygon.items[0];
+								new (&zoomShape.geom.polygon) sg::types::Polygon();
+								zoomShape.geom.polygon = onlyPoly;
+								zoomShape.refresh();
+							}
+
+						} else if (feature["layer"] == "green") {
+							// print("Green", zoom, zoomShape.area);
 						}
 					}
 				}
@@ -286,15 +309,14 @@ void featureHandler(const json& feature) {
 							continue;
 						}
 
-						// print("Store:", tileShape.typeID, row.geomType);
 						row.geomType = tileShape.typeID;
 						row.geom = tileShape.compressed();
 
-/*
+						/*
 						print("\n\n",tileShape);
 						print("\n\n",row.geom);
 						print("\n\n",row.toString());
-							*/
+						*/
 						
 						std::string tilePath = path + "/" + std::to_string(y);
 						write(tilePath, row.toString());
@@ -342,6 +364,9 @@ public:
 
 		print("Pool size: " + std::to_string(pool.size()));
 
+		std::thread progressThread(printProgress, std::ref(progress), total);
+		
+
 		for (int threadID = 0; threadID < numThreads; ++threadID) {
 			threads.emplace_back([this, threadID] {
 				processor(threadID, std::ref(pool), std::ref(progress));
@@ -353,7 +378,16 @@ public:
 			print("Process finished");
 		}
 
+		progressThread.join();
+
 		print("All Processes are finished", pool.size());
+	}
+
+	static void printProgress(std::atomic<int>& progress, const size_t& total) {
+		while (progress < total) {
+			std::cout << "Progress: " << (progress * 100 / total) << "% " << progress << ":" << total << std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
 	}
 
 	void processor(const int& threadID, Pool& pool, std::atomic<int>& progress) {
@@ -384,8 +418,11 @@ public:
 				from = i;
 				limit = (from + chunkSize > end) ? (end - from) : chunkSize;
 
-				std::string query = "SELECT id, oid, layer_id, group_layer, `group`, layer, data, coords FROM features LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(from);
+				std::string filter;
+				// filter += "WHERE layer='houses'";
+				std::string query = "SELECT id, oid, layer_id, group_layer, `group`, layer, data, coords FROM features "+filter+" LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(from);
 				dbT.find(query, {}, featureHandler);
+				progress += limit;
 			}
 
 			// print("Thread Done #" + std::to_string(threadID), from + limit);
@@ -402,7 +439,8 @@ int main() {
 
 	*/
 
-	std::string config_name = "isle-of-dogs.v2";
+	// std::string config_name = "isle-of-dogs.v2";
+	std::string config_name = "london";
 
 	config = surfy::utils::json::load("../tiler/configs/" + config_name + ".json");
 	json filters = surfy::utils::json::load("../tiler/config.json");
@@ -513,12 +551,14 @@ int main() {
 	
 
 
-	json featuresCount = db.findOne("SELECT COUNT(1) as count FROM features");
+	std::string filter;
+	// filter += "WHERE layer='houses'";
+	json featuresCount = db.findOne("SELECT COUNT(1) as count FROM features " + filter);
 	
 	auto startTime = std::chrono::high_resolution_clock::now();
 	
 	// Go
-	Parser parser(featuresCount["count"], 1000, 1000, 4);
+	Parser parser(featuresCount["count"], 10000, 5000, 6);
 
 	auto endTime = std::chrono::high_resolution_clock::now();
 	auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);

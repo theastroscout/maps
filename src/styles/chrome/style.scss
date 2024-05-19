@@ -8,7 +8,8 @@ $host: 'https://sandbox.maps.surfy.one';
 
 .SurfyMaps {
 	--name: 'Surfy°Maps.Chrome';
-	--tiles: #{$host}/tiles/isle-of-dogs.v2;
+	// --tiles: #{$host}/tiles/isle-of-dogs.v2;
+	--tiles: #{$host}/tiles/london;
 	--sprites: #{$host}'/styles/chrome/sprites.svg';
 
 	--dict: '';
@@ -279,6 +280,7 @@ $water: #e9ebed;
 					
 					fill-rule: evenodd;
 					fill: #f7f7f7;
+					// fill: #a04848;
 					stroke: #d9d9d9;
 					stroke-width: 0.5px;
 					vector-effect: non-scaling-stroke;

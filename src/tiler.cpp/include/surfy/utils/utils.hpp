@@ -3,7 +3,7 @@
 
 namespace surfy::utils { }
 
-#include "print.h"
-#include "json.h"
+#include "print.hpp"
+#include "json.hpp"
 
 #endif
