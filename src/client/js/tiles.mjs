@@ -48,7 +48,7 @@ class Tiles {
 			// Hide Zoom Collection
 			if(this.storage.tiles[this.currentZoomID]){
 				this.storage.tiles[this.currentZoomID].hide = true;
-				// this.storage.tiles[this.currentZoomID].container.remove();
+				this.storage.tiles[this.currentZoomID].container.remove();
 			}
 
 			// Show Zoom Collection
@@ -152,10 +152,13 @@ class Tiles {
 
 					*/
 
-					const bounds = this.map.utils.getTileBounds([zoomID,x,y]);
-					const border = this.map.draw.bounds(bounds, url, this.storage.tiles[zoomID].groups.bounds.container);
+					if(this.map.style?.groups.bounds){
+						const bounds = this.map.utils.getTileBounds([zoomID,x,y]);
+						const border = this.map.draw.bounds(bounds, url, this.storage.tiles[zoomID].groups.bounds.container);
+					}
 
 				} else {
+					
 					/*
 
 					Show Tile
@@ -231,7 +234,7 @@ class Tiles {
 
 	parseLine = input => {
 		let coords = [];
-		const matches = input.match(/(\d+) (\d+)/g);
+		const matches = input.match(/-?(\d+) -?(\d+)/g);
 		if (matches) {
 			matches.forEach(match => {
 				coords.push(this.parsePoint(match));
@@ -245,6 +248,7 @@ class Tiles {
 		let coords = [];
 		const matches = input.match(/\([^()]+\)/g);
 		if (matches) {
+			
 			matches.forEach(match => {
 				let ring = this.parseLine(match);
 				if(ring.length){
@@ -291,11 +295,14 @@ class Tiles {
 		let tile = zoomObj.items[url];
 		
 		let features = tile.src.split('\n');
-			features.pop(); // Remove Last Empty Line
+			// features.pop(); // Remove Last Empty Line
 
 		let processed = {};
 
 		for(let item of features){
+			if(!item){
+				continue;
+			}
 
 			let chunks = item.split('\t');
 
@@ -311,14 +318,16 @@ class Tiles {
 			
 			const layerID = parseInt(chunks.shift(), 10);
 
-			const coords = this.coords(fID, geomType, chunks.pop());
+			const coordsSrc = chunks.pop();
+			const coords = this.coords(fID, geomType, coordsSrc);
 			
 			const layerConfig = this.map.style.config[layerID];
+
 			const group = layerConfig.group;
 			const layer = layerConfig.layer;
 			
 
-			continue;
+			// continue;
 
 			/*
 
@@ -336,6 +345,7 @@ class Tiles {
 					}
 					data[r.key] = v;
 				}
+
 			}
 			
 
@@ -348,11 +358,12 @@ class Tiles {
 			let feature = {
 				id: fID,
 				type: geomType,
-				group: group.name,
-				layer: layer.name,
+				group: group,
+				layer: layer,
 				coords: coords,
 				data: data,
-				tileURL: url
+				tileURL: url,
+				coordsSrc: coordsSrc
 			};
 
 			

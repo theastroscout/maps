@@ -64,7 +64,7 @@ class Draw {
 					this.polygon(feature);
 					break;
 
-				case 'LineString':
+				case 'Line':
 					this.line(feature);
 					break;
 			}
@@ -82,44 +82,25 @@ class Draw {
 	*/
 
 	polygon = feature => {
-
 		let elmts = [];
-		let minX = Infinity;
-		let minY = Infinity;
-		let maxX = -Infinity;
-		let maxY = -Infinity;
 
-		let coords = feature.type === 'Polygon' ? [feature.coords] : feature.coords;
-
-
+		const polygons = feature.type === 'Polygon' ? [feature.coords] : feature.coords;
 		
 		let points = [];
+		for (const poly of polygons) {
+			for (const ring of poly) {
+				points.push('M');
+				for(let i = 0, l=ring.length; i < l; ++i) {
+					const p = this.map.utils.xy(ring[i]);
 
-		for(let poly of coords){
-			
-			points.push('M');
-			for(let i = 0, l=poly.length; i < l; ++i) {
-				const p = this.map.utils.xy([poly[i][0]/1000000,poly[i][1]/1000000]);
+					if(i == 1){
+						points.push('L')
+					}
 
-				if(i == 1){
-					points.push('L')
-				}
-				points.push(p.join(','));
-
-				/*
-
-				Bounds
-
-				*/
-
-				minX = Math.min(minX, p[0]);
-				minY = Math.min(minY, p[1]);
-				maxX = Math.max(maxX, p[0]);
-				maxY = Math.max(maxY, p[1]);
+					points.push(p.join(','));
+				}				
+				points.push('z');
 			}
-
-			points.push('z');
-			
 		}
 
 		const path = document.createElementNS(this.map.svgNS, 'path');
@@ -130,7 +111,6 @@ class Draw {
 		elmts.push(path);
 
 		feature.elmts = elmts;
-		feature.bounds = [minX, minY, maxX, maxY];
 	}
 
 	/*
@@ -141,34 +121,17 @@ class Draw {
 
 	line = feature => {
 		let elmts = [];
-		let minX = Infinity;
-		let minY = Infinity;
-		let maxX = -Infinity;
-		let maxY = -Infinity;
 
 		let points = ['M'];
 
 		for(let i = 0, l=feature.coords.length; i < l; ++i) {
-			const coords = feature.coords[i];
-			const p = this.map.utils.xy([coords[0]/1000000,coords[1]/1000000]);
+			const p = this.map.utils.xy(feature.coords[i]);
 			
 			if(i === 1){
 				points.push('L');
 			}
 
 			points.push(p.join(','));
-
-			/*
-
-			Bounds
-
-			*/
-
-			minX = Math.min(minX, p[0]);
-			minY = Math.min(minY, p[1]);
-			maxX = Math.max(maxX, p[0]);
-			maxY = Math.max(maxY, p[1]);
-
 		}
 
 		const path = document.createElementNS(this.map.svgNS, 'path');
@@ -213,7 +176,6 @@ class Draw {
 		}
 
 		feature.elmts = elmts;
-		feature.bounds = [minX, minY, maxX, maxY];
 	}
 
 
@@ -225,7 +187,10 @@ class Draw {
 	*/
 
 	point = feature => {
-		const p = this.map.utils.xy([feature.coords[0]/1000000,feature.coords[1]/1000000]);
+
+
+		const p = this.map.utils.xy(feature.coords);
+		// console.log(feature.coords, p);
 		const text = document.createElementNS(this.map.svgNS,'text');
 		text.textContent = feature.data.name;
 

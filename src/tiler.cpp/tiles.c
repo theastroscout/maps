@@ -34,18 +34,22 @@ std::array<int, 10> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15, 16, 17 };
 std::vector<json> layersConfig = json::array();
 
 struct Row {
-	int oid;
+	int id;
 	int geomType;
 	int layerID;
 	std::string data;
 	std::string geom;
 
 	std::string toString() {
-		return std::to_string(oid) + "\t" +
-			   std::to_string(geomType) + "\t" +
-			   std::to_string(layerID) + "\t" +
-			   data + "\t" +
-			   geom;
+		std::string output = std::to_string(id) + "\t" +
+				std::to_string(geomType) + "\t" +
+				std::to_string(layerID) + "\t";
+		if (!data.empty()) {
+			output += data + "\t";
+		}
+		output += geom;
+
+		return output;
 	}
 };
 
@@ -94,6 +98,7 @@ std::string featureData(const json& feature, const json& layerConfig) {
 
 	if (layerConfig.contains("data") && feature.contains("data")) {
 		bool first = true;
+		
 		for (const auto& item : layerConfig["data"]) {
 			if (!first) {
 				data += '\t';
@@ -120,11 +125,17 @@ std::string featureData(const json& feature, const json& layerConfig) {
 
 				} else if (item["type"].is_array()) {
 
+					bool isSet = false;
 					for (int i = 0, l = item["type"].size(); i < l; ++i) {
 						if (item["type"][i]["name"] == v) {
 							data += std::to_string(i);
+							isSet = true;
 							break;
 						}
+					}
+
+					if (!isSet) {
+						data += "0";
 					}
 				}
 			}
@@ -278,6 +289,12 @@ void featureHandler(const json& feature) {
 						// print("Store:", tileShape.typeID, row.geomType);
 						row.geomType = tileShape.typeID;
 						row.geom = tileShape.compressed();
+
+/*
+						print("\n\n",tileShape);
+						print("\n\n",row.geom);
+						print("\n\n",row.toString());
+							*/
 						
 						std::string tilePath = path + "/" + std::to_string(y);
 						write(tilePath, row.toString());
@@ -481,7 +498,7 @@ int main() {
 
 	
 
-	std::string query = "SELECT id, oid, layer_id, group_layer, `group`, layer, data, coords FROM features WHERE id=6402";
+	std::string query = "SELECT id, oid, layer_id, group_layer, `group`, layer, data, coords FROM features WHERE id=11189";
 	json result = db.findOne(query);
 	
 	if (result["_status"] == true) {
@@ -489,8 +506,9 @@ int main() {
 	}
 	
 	return 0;
-
 	*/
+
+	
 	
 	
 
