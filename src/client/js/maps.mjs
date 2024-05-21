@@ -218,7 +218,7 @@ class SurfyMaps {
 
 	launch = () => {
 
-		this.root.addEventListener('click', this.getCoords);
+		// this.root.addEventListener('click', this.getCoords);
 		this.root.addEventListener('mousedown', this.handler);
 		this.root.addEventListener('touchstart', this.handler);
 		this.root.addEventListener('wheel', this.handler);
@@ -653,6 +653,8 @@ class SurfyMaps {
 				// console.log("Current value: " + JSON.stringify(currentValue), Math.round(x.x + (target.x - x.x) * easedProgress));
 				if (currentTime < endTime) {
 					requestAnimationFrame(go);
+				} else {
+					this.events('moveend');
 				}
 			}
 
