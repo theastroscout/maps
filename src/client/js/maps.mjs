@@ -42,7 +42,17 @@ class SurfyMaps {
 		};
 
 		// Marge Options
+		
+
 		this.options = {...options, ...customOptions};
+
+		if (customOptions.center) {
+			this.options.center = [...customOptions.center];
+		}
+
+		if (customOptions.zoom) {
+			this.options.zoom = parseFloat(customOptions.zoom, 10);
+		}
 
 		/*
 
@@ -105,13 +115,31 @@ class SurfyMaps {
 		*/
 
 		this.view = {
-			//width: this.root.clientWidth,
-			// height: this.root.clientHeight,
+			width: this.root.clientWidth,
+			height: this.root.clientHeight,
 			tileSize: 2048,
 			zoom: 14, // To compensate tile size
 		};
 
 		this.view.origin = this.utils.xy(this.options.center, false);
+		const [posX, posY] = this.utils.xy(this.options.center);
+		this.view.x = posX;
+		this.view.y = posY;
+
+		if(this.options.offset){
+			const zero = this.utils.coords([0,0], true, true, this.options.zoom);
+			const offset = this.utils.coords(this.options.offset, true, true, this.options.zoom);
+
+			this.options.center[0] += zero[0] - offset[0];
+			this.options.center[1] += zero[1] - offset[1];
+
+			this.options.center = [ Math.round(this.options.center[0] * 1e6) / 1e6, Math.round(this.options.center[1] * 1e6) / 1e6 ];
+
+			this.view.origin = this.utils.xy(this.options.center, false);
+			const [posX, posY] = this.utils.xy(this.options.center);
+			this.view.x = posX;
+			this.view.y = posY;
+		}
 
 		// Run
 
@@ -231,8 +259,9 @@ class SurfyMaps {
 
 		this.events('init');
 
-		this.setZoomID();
-		this.resize();
+		// this.setZoomID();
+		// this.resize();
+		this.update();
 
 		/*
 

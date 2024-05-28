@@ -321,7 +321,7 @@ class Tiles {
 			const coordsSrc = chunks.pop();
 			const coords = this.coords(fID, geomType, coordsSrc);
 			
-			const layerConfig = this.map.style.config[layerID];
+			const layerConfig = this.map.style.config.layers[layerID];
 
 			const group = layerConfig.group;
 			const layer = layerConfig.layer;

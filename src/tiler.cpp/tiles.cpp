@@ -31,7 +31,8 @@ std::regex bracket_pattern("\\s*\\(.*?\\)\\s*");
 // Global Config
 json config;
 std::array<int, 10> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15, 16, 17 };
-// std::array<int, 8> zoomLevels = { 2, 4, 6, 8, 10, 12, 14, 15};
+// std::array<int, 7> zoomLevels = { 2, 4, 6, 8, 10, 12, 14};
+// std::array<int, 1> zoomLevels = { 17 };
 std::vector<json> layersConfig = json::array();
 
 struct Row {
@@ -473,8 +474,15 @@ int main() {
 	configPath += "/config.json";
 	print("Config Path: " + configPath);
 
+	json bboxData = db.findOne("SELECT data FROM config WHERE name='bbox'");
+	json bbox = bboxData["data"];
+	print("BBox: ", bbox);
+
 	// json tilesConfig = json::array({ { "name", "undefined" } });
-	json tilesConfig = json::array();
+	json tilesConfig = {
+		{ "bounds",  bbox},
+		{ "layers", json::array()}
+	};
 
 	int layerID = 0;
 	for (auto& [groupName, groupData] : config["groups"].items()) {
@@ -510,7 +518,7 @@ int main() {
 				tileConfig["data"] = layerData["data"];
 			}
 
-			tilesConfig.push_back(tileConfig);
+			tilesConfig["layers"].push_back(tileConfig);
 
 			layerID++;
 		}
@@ -521,9 +529,7 @@ int main() {
 	// Save Tiles Confgi to file
 	surfy::utils::json::save(configPath, tilesConfig);
 
-	json bboxData = db.findOne("SELECT data FROM config WHERE name='bbox'");
-	json bbox = bboxData["data"];
-	print("BBox: ", bbox);
+	
 
 	
 	/*

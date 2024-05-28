@@ -9,6 +9,7 @@ class Draw {
 	constructor(map){
 		this.map = map;
 		this.total = 0;
+		this.nodes = 0;
 	}
 
 	/*
@@ -49,7 +50,7 @@ class Draw {
 	render = (url, items) => {
 		const amount = Object.keys(items).length;
 		this.total += amount;
-		// console.log(`@Render Objects current: ${amount}, ${this.total} in total.`);
+		
 
 		for(let fID in items){
 			let feature = items[fID];
@@ -73,6 +74,8 @@ class Draw {
 		if(!this.map.states.loaded){
 			this.map.firstLoad(url);
 		}
+
+		// console.log(`@Render Objects current: ${amount}, ${this.total} in total. Nodes: ${this.nodes}`);
 	}
 
 	/*
@@ -91,6 +94,7 @@ class Draw {
 			for (const ring of poly) {
 				points.push('M');
 				for(let i = 0, l=ring.length; i < l; ++i) {
+					this.nodes++;
 					const p = this.map.utils.xy(ring[i]);
 
 					if(i == 1){
@@ -125,6 +129,7 @@ class Draw {
 		let points = ['M'];
 
 		for(let i = 0, l=feature.coords.length; i < l; ++i) {
+			this.nodes++;
 			const p = this.map.utils.xy(feature.coords[i]);
 			
 			if(i === 1){
@@ -187,7 +192,7 @@ class Draw {
 	*/
 
 	point = feature => {
-
+		this.nodes++;
 
 		const p = this.map.utils.xy(feature.coords);
 		// console.log(feature.coords, p);
@@ -211,6 +216,12 @@ class Draw {
 		} else {
 			text.setAttribute('x', p[0]);
 			text.setAttribute('y', p[1]);
+
+			if (feature.layer === 'cities' && feature.data.capital) {
+				text.classList.add('capital');
+			} else if (feature.layer === 'districts' && feature.data.place) {
+				text.classList.add(feature.data.place);
+			}
 			
 			feature.container.appendChild(text);
 			feature.elmts = text;

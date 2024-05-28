@@ -40,7 +40,6 @@ $water: #e9ebed;
 
 				> g.landuse {
 					fill: #f1f1f1;
-					// fill: red;
 				}
 			}
 
@@ -302,7 +301,6 @@ $water: #e9ebed;
 				*/
 
 				> g.stations {
-					pointer-events: auto;
 					--font-rule: 15 32, 18 10;
 					--font-dim: px;
 					--font: 32px;
@@ -362,7 +360,7 @@ $water: #e9ebed;
 					--font: 8em;
 					font-size: var(--font);
 
-					--opacity-rule: 14 0, 14.5 .8, 15 .5, 17 0;
+					--opacity-rule: 14 0, 14.5 .9, 15 .65, 17 0;
 					--opacity: 1;
 					opacity: var(--opacity);
 					
@@ -378,6 +376,15 @@ $water: #e9ebed;
 					paint-order: stroke;
 
 					text-rendering: optimizeSpeed;
+
+					> g {
+						> text.suburb {
+							font-size: 75%;
+						}
+						> text.quarter {
+							font-size: 50%;
+						}
+					}
 				}
 
 				/*
@@ -391,7 +398,7 @@ $water: #e9ebed;
 					--opacity: 1;
 					opacity: var(--opacity);
 
-					font-size: 14em;
+					font-size: 10em;
 					fill: #9f9f9f;
 					text-anchor: middle;
 					text-align: center;
@@ -404,6 +411,12 @@ $water: #e9ebed;
 					paint-order: stroke;
 
 					text-rendering: optimizeSpeed;
+
+					> g {
+						text.capital {
+							font-size: 150%;
+						}
+					}
 				}
 
 				/*

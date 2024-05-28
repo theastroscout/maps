@@ -21,16 +21,20 @@
 				"data": [],
 				"compress": {
 					"10": {
-						"simplify": 0.00005,
-						"drop": 0.000001
+						"simplify": 0.00009,
+						"drop": 0.1
 					},
 					"12": {
-						"simplify": 0.000005,
-						"drop": 0.00000001
+						"simplify": 0.00009,
+						"drop": 0.09
 					},
 					"14": {
-						"simplify": 0.000005,
-						"drop": 0.00000001
+						"simplify": 0.00005,
+						"drop": 0.08
+					},
+					"15": {
+						"simplify": 0.00001,
+						"drop": 0.01
 					}
 				}
 			}
@@ -49,31 +53,31 @@
 				"compress": {
 					"8": {
 						"simplify": 0.0005,
-						"drop": 0.00001
+						"drop": 0.1
 					},
 					"10": {
 						"simplify": 0.0005,
-						"drop": 0.00001
+						"drop": 0.09
 					},
 					"12": {
 						"simplify": 0.000008,
-						"drop": 0.000001
+						"drop": 0.08
 					},
 					"14": {
 						"simplify": 0.000008,
-						"drop": 0.000001
+						"drop": 0.05
 					},
 					"15": {
 						"simplify": 0.000008,
-						"drop": 0.000001
+						"drop": 0.0001
 					},
 					"16": {
 						"simplify": 0.000005,
-						"drop": 0.0000001
+						"drop": 0.00001
 					},
 					"17": {
 						"simplify": 0.0000001,
-						"drop": 0.000000001
+						"drop": 0.0000001
 					}
 				}
 			},
@@ -89,15 +93,15 @@
 				"compress": {
 					"12": {
 						"simplify": 0.000005,
-						"drop": 0.00000001
+						"drop": 0.05
 					},
 					"14": {
 						"simplify": 0.000005,
-						"drop": 0.00000001
+						"drop": 0.05
 					},
 					"15": {
 						"simplify": 0.000005,
-						"drop": 0.00000001
+						"drop": 0.0001
 					},
 					"16": {
 						"simplify": 0.000005,
@@ -296,18 +300,18 @@
 				"compress": {
 					"14": {
 						"simplify": 0.00001,
-						"drop": 0.0000001
+						"drop": 0.0001
 					},
 					"15": {
 						"simplify": 0.00001,
-						"drop": 0.00001
+						"drop": 0.0001
 					},
 					"16": {
-						"simplify": 0.00001,
-						"drop": 0.00001
+						"simplify": 0.0000001,
+						"drop": 0.000001
 					},
 					"17": {
-						"simplify": 0.00001,
+						"simplify": 0.000001,
 						"drop": 0.0000001
 					}
 				}
@@ -331,8 +335,8 @@
 						"drop": 0.0001
 					},
 					"17": {
-						"simplify": 0.00001,
-						"drop": 0.000001
+						"simplify": 0.000001,
+						"drop": 0.0000001
 					}
 				}
 			},
@@ -383,7 +387,7 @@
 				"compress": {
 					"14": {
 						"simplify": 0.00001,
-						"drop": 0.06
+						"drop": 0.07
 					},
 					"15": {
 						"simplify": 0.00001,
@@ -451,6 +455,10 @@
 				"data": [
 					{
 						"key": "name",
+						"type": "*"
+					},
+					{
+						"key": "place",
 						"type": "*"
 					}
 				]
@@ -535,11 +543,11 @@
 					"containers": [ "roads:motorways" ]
 				},
 				{
-					"values": [ "trunk", "primary", "secondary" ],
+					"values": [ "trunk", "primary", "secondary", "tertiary"],
 					"containers": [ "roads:highways" ]
 				},
 				{
-					"values": [ "unclassified", "residential", "tertiary" ],
+					"values": [ "unclassified", "residential" ],
 					"containers": [ "roads:streets" ]
 				},
 				{
