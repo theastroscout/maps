@@ -346,8 +346,6 @@ class SurfyMaps {
 
 				window.addEventListener('touchmove', this.handler);
 				window.addEventListener('touchend', this.handler);
-
-				console.log('Too fast?');
 				
 				e.preventDefault();
 
