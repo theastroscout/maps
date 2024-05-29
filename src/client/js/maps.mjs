@@ -154,10 +154,6 @@ class SurfyMaps {
 
 	resize = () => {
 
-		if(this.root.dataset.freeze){
-			return true;
-		}
-
 		if(this.view.width === this.root.clientWidth && this.view.height === this.root.clientHeight){
 			return true;
 		}		
@@ -250,9 +246,12 @@ class SurfyMaps {
 		this.root.addEventListener('mousedown', this.handler);
 		this.root.addEventListener('touchstart', this.handler);
 		this.root.addEventListener('wheel', this.handler);
+		/*
 		this.overlay.el.addEventListener('wheel', this.handler); // Fix scroll overlap
 		this.overlay.el.addEventListener('mousedown', this.handler); // Fix scroll overlap
 		this.overlay.el.addEventListener('touchstart', this.handler); // Fix scroll overlap
+		*/
+
 		window.addEventListener('resize', this.resize, { passive: true });
 
 		this.ready = true;
@@ -316,6 +315,10 @@ class SurfyMaps {
 
 				*/
 
+				if(this.root.dataset.freeze){
+					return true;
+				}
+
 				if(handler.points){
 					// Catch second touch
 					return true;
@@ -343,6 +346,8 @@ class SurfyMaps {
 
 				window.addEventListener('touchmove', this.handler);
 				window.addEventListener('touchend', this.handler);
+
+				console.log('Too fast?');
 				
 				e.preventDefault();
 
@@ -429,7 +434,6 @@ class SurfyMaps {
 				*/
 
 				if(!e.touches || e.touches.length === 0){
-
 					window.removeEventListener('mousemove', this.handler);
 					window.removeEventListener('mouseup', this.handler);
 
