@@ -28,13 +28,21 @@ class Draw {
 
 	*/
 
-	circle = (coords, container, color='red', radius) => {
+	circle = (coords, container, fill, stroke, radius) => {
 		const [x, y] = this.map.utils.xy(coords);
 		const circle = document.createElementNS(this.map.svgNS, 'circle');
 		circle.setAttribute('cx', x);
 		circle.setAttribute('cy', y);
 		circle.setAttribute('r', radius || 3);
-		circle.setAttribute('fill', color);
+		if (fill) {
+			circle.setAttribute('fill', fill);
+		} else {
+			circle.setAttribute('fill', 'none');
+		}
+		
+		if (stroke) {
+			circle.setAttribute('stroke', stroke);
+		}
 		(container || this.map.container).appendChild(circle);
 		container.appendChild(circle);
 
