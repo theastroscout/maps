@@ -58,6 +58,37 @@ class Marker {
 
 	/*
 
+	Click
+
+	*/
+
+	click = callback => {
+		this.el.addEventListener('click', callback);
+		this.el.addEventListener('touchstart', this.tap);
+		this.el.addEventListener('touchend', this.tap);
+	}
+
+	clickOff = () => {
+		this.el.removeEventListener('click', callback);
+		this.el.removeEventListener('touchstart', this.tap);
+		this.el.removeEventListener('touchend', this.tap);
+	}
+
+	tap(e) {
+		switch(e.type){
+			case 'touchstart':
+				this.startTime = new Date();
+				break;
+			case 'touchend':
+				if(new Date() - this.startTime < 250){
+					this.click();
+				}
+				break;
+		}
+	}
+
+	/*
+
 	Remove
 
 	*/

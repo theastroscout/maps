@@ -82,6 +82,17 @@ marker.content = 'HTML or text'; // Set
 console.log(marker.content); // Get
 marker.class = 'default one_more_class'; // Set
 
+/*
+
+Click
+Since we need to block scrolling and gestures when panning and zooming the map (e.preventDefault on touchstart),
+it's better to use the built-in Click event.
+
+*/
+
+marker.click(callback); // Add Click Event Listener to marker
+marker.clickOff(callback); // Remove Click Event Listener to marker
+
 // Remove Marker
 marker.remove();
 
