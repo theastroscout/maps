@@ -121,6 +121,7 @@ class SurfyMaps {
 			zoom: 14, // To compensate tile size
 		};
 
+		this.view.scale =  Math.pow(2, this.view.zoom  + (this.view.zoom - this.options.zoom)) / this.view.tileSize;
 		this.view.origin = this.utils.xy(this.options.center, false);
 		const [posX, posY] = this.utils.xy(this.options.center);
 		this.view.x = posX;
@@ -140,6 +141,14 @@ class SurfyMaps {
 			this.view.x = posX;
 			this.view.y = posY;
 		}
+
+		/*
+
+		Map BBox
+
+		*/
+
+		this.options.bbox = this.utils.canvasBBox();
 
 		// Run
 

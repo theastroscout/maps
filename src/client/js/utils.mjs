@@ -117,6 +117,7 @@ class Utils {
 	tiles = zoom => {
 
 		const bbox = this.canvasBBox();
+		this.map.options.bbox = bbox;
 
 		const [x1, y1] = this.radians([bbox[0], bbox[1]]);
 		const [x2, y2] = this.radians([bbox[2], bbox[3]]);
