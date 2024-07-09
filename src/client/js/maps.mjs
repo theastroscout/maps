@@ -163,8 +163,12 @@ class SurfyMaps {
 
 	resize = () => {
 
+		if (window.getComputedStyle(this.root).display === 'none') {
+			return;
+		}
+
 		if(this.view.width === this.root.clientWidth && this.view.height === this.root.clientHeight){
-			return true;
+			return;
 		}		
 
 		this.view.width = this.root.clientWidth;
